@@ -176,6 +176,7 @@ services:
 With this dockerized infrastructure, make sure you have installed:
 - Docker
 - Docker compose
+- NPM
 
 Go to the root directory and execute: `docker-compose up`
 If the `docker ps` is executed, the three containers are running as this log shows:
