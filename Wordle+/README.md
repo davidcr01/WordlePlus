@@ -120,6 +120,7 @@ RUN rm -rf /usr/share/nginx/html/*
 COPY --from=build /app/ionic-app/dist/out /usr/share/nginx/html/
 COPY ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
 ```
+- Create a `.dockerignore` file and add `ionic-app/node_modules` to avoid Docker to copy the NPM modules to the container.
 - Create a new folder called `nginx`, go into this folder an create the `nginx.conf` file with the following content:
 
 ```
