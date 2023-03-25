@@ -8,7 +8,7 @@ In the root directory, reproduce the following steps:
 - Create the requirements file `requirements.txt` with the following content:
 ``` 
 Django==4.1.6
-djangorestframework==3.9.0
+djangorestframework==3.14.0
 psycopg2
 ```
 - Create the Dockerfile with the following content:
@@ -99,6 +99,40 @@ services:
       - db
 ```
 
+To improve the sync-up between the database and the REST Api, create a healthcheck in the `db` service and make the `dj` service depends on it:
+
+```
+services:
+  db:
+    image: postgres
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+  dj:
+    container_name: dj
+    build: django
+    command: python manage.py runserver 0.0.0.0:80
+    volumes:
+      - ./django:/code
+    ports:
+      - "80:80"
+    environment:
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    depends_on:
+      db:
+        condition: service_healthy
+```
+
 ## Dockerizing the frontend
 
 - In the root directory, create a new folder, `ionic` for example.
@@ -147,6 +181,11 @@ services:
     image: postgres
     volumes:
       - ./data/db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     environment:
       - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
@@ -164,7 +203,8 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     depends_on:
-      - db
+      db:
+        condition: service_healthy
   ng:
     container_name: ng
     build: ionic
