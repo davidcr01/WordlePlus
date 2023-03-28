@@ -1,2 +1,3 @@
 Wordle+/data
-/__pycache__
+Wordle+/django/djangoproject/__pycache__
+Wordle+/django/djapi/__pycache__
