@@ -1,8 +1,8 @@
 from django.contrib.auth.models import Group
-from .models import CustomUser
+from .models import CustomUser, Player
 from rest_framework import viewsets
 from rest_framework import permissions
-from djapi.serializers import CustomUserSerializer, GroupSerializer
+from djapi.serializers import *
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
@@ -11,6 +11,14 @@ class CustomUserViewSet(viewsets.ModelViewSet):
     """
     queryset = CustomUser.objects.all().order_by('-date_joined')
     serializer_class = CustomUserSerializer
+    #permission_classes = [permissions.IsAuthenticated]
+
+class PlayerViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows players to be viewed or edited.
+    """
+    queryset = Player.objects.all().order_by('wins')
+    serializer_class = PlayerSerializer
     #permission_classes = [permissions.IsAuthenticated]
 
 

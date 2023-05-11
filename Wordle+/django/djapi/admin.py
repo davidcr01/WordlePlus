@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import CustomUser
+from .models import CustomUser, Player
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
@@ -22,11 +22,11 @@ class CustomUserAdmin(UserAdmin):
 
     readonly_fields = ('last_login', 'date_joined', 'username', 'is_superuser')
 
-# class PlayerAdmin(admin.ModelAdmin):
-#     list_display = ('user', 'wins', 'wins_pvp', 'wins_tournament', 'xp',)
-#     list_filter = ('user',)
-#     search_fields = ('user__username', 'user__email',)
+class PlayerAdmin(admin.ModelAdmin):
+    list_display = ('user', 'wins', 'wins_pvp', 'wins_tournament', 'xp',)
+    list_filter = ('user',)
+    search_fields = ('user__username', 'user__email',)
 
 
 admin.site.register(CustomUser, CustomUserAdmin)
-# admin.site.register(Player, PlayerAdmin)
+admin.site.register(Player, PlayerAdmin)
