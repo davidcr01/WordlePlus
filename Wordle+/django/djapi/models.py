@@ -4,12 +4,15 @@ from datetime import date
 
 # Create your models here.
 
-# Create the Task class to describe the model.
+# Model of the User. It adds the avatar to the Django default user model
+# and specifies that the last_login and date_joined will be automatically stored.
 class CustomUser(AbstractUser):
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     last_login = models.DateTimeField(auto_now=True)
     date_joined = models.DateTimeField(auto_now_add=True)
 
+# Model of the player. Every Player is related to its CustomUser information, and
+# adds to it some new information.
 class Player(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='player')
     wins = models.PositiveIntegerField(default=0)
