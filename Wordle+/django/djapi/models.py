@@ -1,28 +1,21 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 from datetime import date
 
 # Create your models here.
 
-# Create the Task class to describe the model.
-class Task(models.Model):
-    """Stores a task."""
-    title = models.CharField(max_length=50)
-    content = models.CharField(max_length=50)
+# Model of the User. It adds the avatar to the Django default user model
+# and specifies that the last_login and date_joined will be automatically stored.
+class CustomUser(AbstractUser):
+    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
+    last_login = models.DateTimeField(auto_now=True)
+    date_joined = models.DateTimeField(auto_now_add=True)
 
-    # Date the task was created.
-    created_on = models.DateField(default=date.today)
-
-    # Due date.
-    due_date = models.DateField(default=date.today)
-
-    # Meta data about the database table.
-    class Meta:
-        # Set the table name.
-        db_table = 'task'
-
-        # Set default ordering
-        ordering = ['id']
-
-    # Define what to output when the model is printed as a string.
-    def __str__(self):
-        return self.title
+# Model of the player. Every Player is related to its CustomUser information, and
+# adds to it some new information.
+class Player(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='player')
+    wins = models.PositiveIntegerField(default=0)
+    wins_pvp = models.PositiveIntegerField(default=0)
+    wins_tournament = models.PositiveIntegerField(default=0)
+    xp = models.PositiveIntegerField(default=0)
