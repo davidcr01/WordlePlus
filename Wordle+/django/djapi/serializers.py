@@ -7,6 +7,7 @@ from django.contrib.auth.hashers import make_password
 # Serializer related to the CustomUser model. It considers all the fields
 class CustomUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
+    is_superuser = serializers.ReadOnlyField()
 
     def create(self, validated_data):
         password = validated_data.pop('password')
