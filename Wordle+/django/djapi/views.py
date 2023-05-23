@@ -3,6 +3,7 @@ from .models import CustomUser, Player
 from rest_framework import viewsets
 from rest_framework import permissions
 from djapi.serializers import *
+from djapi.permissions import *
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
@@ -11,7 +12,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
     """
     queryset = CustomUser.objects.all().order_by('-date_joined')
     serializer_class = CustomUserSerializer
-    #permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsCreationOrIsAuthenticated]
 
 class PlayerViewSet(viewsets.ModelViewSet):
     """
@@ -19,7 +20,7 @@ class PlayerViewSet(viewsets.ModelViewSet):
     """
     queryset = Player.objects.all().order_by('wins')
     serializer_class = PlayerSerializer
-    #permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class GroupViewSet(viewsets.ModelViewSet):
