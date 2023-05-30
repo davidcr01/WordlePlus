@@ -13,6 +13,11 @@ class CustomUserSerializer(serializers.ModelSerializer):
         password = validated_data.pop('password')
         validated_data['password'] = make_password(password)  # Encrypt the password
         return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        # Delete the password field to avoid updating it
+        validated_data.pop('password', None)
+        return super().update(instance, validated_data)
     
     class Meta:
         model = CustomUser
@@ -27,6 +32,7 @@ class PlayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Player
         fields = ('user', 'wins', 'wins_pvp', 'wins_tournament', 'xp')
+
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:

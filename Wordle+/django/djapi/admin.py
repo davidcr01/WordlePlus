@@ -7,7 +7,7 @@ class CustomUserAdmin(UserAdmin):
     model = CustomUser
 
     #  Specifies the fields to be displayed in the list view of user records in the admin site.
-    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'is_active',)
+    list_display = ('id', 'username', 'email', 'first_name', 'last_name', 'is_staff', 'is_superuser',)
     
     # Specifies the fields to be used for filtering the user records.
     list_filter = ('username', 'email', 'is_staff', 'is_active',)
@@ -36,7 +36,7 @@ class CustomUserAdmin(UserAdmin):
         return self.readonly_fields  # Creation of a new user
 
 class PlayerAdmin(admin.ModelAdmin):
-    list_display = ('user', 'wins', 'wins_pvp', 'wins_tournament', 'xp',)
+    list_display = ('id', 'user', 'wins', 'wins_pvp', 'wins_tournament', 'xp',)
     list_filter = ('user',)
     search_fields = ('user__username', 'user__email',)
 
