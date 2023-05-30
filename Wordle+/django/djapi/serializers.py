@@ -23,17 +23,31 @@ class CustomUserSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = '__all__'
 
+class UserInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ('id', 'username', 'last_login', 'date_joined')
+
+
 # Serializer related to the Player model. It considers all the fields, but naming
 # them specifically (other way)
 class PlayerSerializer(serializers.ModelSerializer):
     # As a player is related to an user, it needs its seralizer
-    user = CustomUserSerializer()
+    user = serializers.SerializerMethodField()
 
     class Meta:
         model = Player
         fields = ('user', 'wins', 'wins_pvp', 'wins_tournament', 'xp')
-
-
+    
+    def get_user(self, obj):
+        if self.context['request'].method == 'GET' and 'pk' not in self.context['view'].kwargs:
+            # If we are getting all the players, it returns only the ID and username
+             return {'id': obj.user.id, 'username': obj.user.username}
+        else:
+            # If we are getting only a player, it returns the UserInfoSerializer data
+            user_serializer = UserInfoSerializer(obj.user)
+            return user_serializer.data
+    
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Group
