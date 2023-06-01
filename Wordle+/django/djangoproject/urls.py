@@ -17,11 +17,12 @@ from django.urls import include, path
 from django.contrib import admin
 from rest_framework import routers
 from djapi import views
+from rest_framework.authtoken.views import ObtainAuthToken
 
 router = routers.DefaultRouter()
-router.register(r'users', views.CustomUserViewSet)
-router.register(r'players', views.PlayerViewSet)
-router.register(r'groups', views.GroupViewSet)
+router.register(r'api/users', views.CustomUserViewSet)
+router.register(r'api/players', views.PlayerViewSet)
+router.register(r'api/groups', views.GroupViewSet)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
@@ -29,4 +30,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('admin/', admin.site.urls),
+    path('api-token-auth/', ObtainAuthToken.as_view())
 ]
