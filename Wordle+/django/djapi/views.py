@@ -40,6 +40,14 @@ class PlayerViewSet(viewsets.ModelViewSet):
     """
     queryset = Player.objects.all().order_by('wins')
     serializer_class = PlayerSerializer
+    
+    def get_serializer_class(self):
+        if self.action == 'create':
+            # Use PlayerSerializer for creating a player
+            return PlayerSerializer
+        else:
+            # Use PlayerInfoSerializer for other actions
+            return PlayerInfoSerializer
 
     def get_permissions(self):
         """

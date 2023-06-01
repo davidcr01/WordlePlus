@@ -23,22 +23,39 @@ class CustomUserSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = '__all__'
 
+class PlayerSerializer(serializers.ModelSerializer):
+    user = CustomUserSerializer()
+
+    class Meta:
+        model = Player
+        fields = ('user', 'wins', 'wins_pvp', 'wins_tournament', 'xp')
+
+    def create(self, validated_data):
+        user_data = validated_data.pop('user', None)
+        user = None
+
+        if user_data:
+            # Create the user only if user_data is provided
+            user = CustomUser.objects.create_user(**user_data)
+
+        player = Player.objects.create(user=user, **validated_data)
+        return player
+
 class UserInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ('id', 'username', 'last_login', 'date_joined')
 
-
 # Serializer related to the Player model. It considers all the fields, but naming
 # them specifically (other way)
-class PlayerSerializer(serializers.ModelSerializer):
+class PlayerInfoSerializer(serializers.ModelSerializer):
     # As a player is related to an user, it needs its seralizer
     user = serializers.SerializerMethodField()
 
     class Meta:
         model = Player
-        fields = ('user', 'wins', 'wins_pvp', 'wins_tournament', 'xp')
-    
+        fields = ('id', 'user', 'wins', 'wins_pvp', 'wins_tournament', 'xp')
+        
     def get_user(self, obj):
         if self.context['request'].method == 'GET' and 'pk' not in self.context['view'].kwargs:
             # If we are getting all the players, it returns only the ID and username

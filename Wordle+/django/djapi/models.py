@@ -19,3 +19,6 @@ class Player(models.Model):
     wins_pvp = models.PositiveIntegerField(default=0)
     wins_tournament = models.PositiveIntegerField(default=0)
     xp = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return self.user.username
