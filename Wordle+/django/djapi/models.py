@@ -24,6 +24,8 @@ class Player(models.Model):
         return self.user.username
 
 
+# Model to store the staff codes given by the superuser. A code
+# will be required if the user wants to be registered as an Event Manager
 class StaffCode(models.Model):
     code = models.CharField(max_length=20)
 
