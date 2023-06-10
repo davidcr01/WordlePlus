@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import Permission, Group
+from django.contrib.contenttypes.models import ContentType
 
 from .models import CustomUser, Player, StaffCode
 
@@ -22,7 +24,7 @@ class CustomUserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'email', 'password1', 'password2'),
+            'fields': ('username', 'email', 'password1', 'password2', 'is_staff'),
         }),
     )
 
@@ -58,6 +60,6 @@ class StaffCodeAdmin(admin.ModelAdmin):
         # Only the superuser can create
         return request.user.is_superuser
 
-admin.site.register(StaffCode, StaffCodeAdmin)
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Player, PlayerAdmin)
+admin.site.register(StaffCode, StaffCodeAdmin)
