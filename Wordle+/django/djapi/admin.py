@@ -37,6 +37,25 @@ class CustomUserAdmin(UserAdmin):
             return self.readonly_fields + ('username',)
         return self.readonly_fields  # Creation of a new user
 
+    # Overwritten method. It makes the staff members not to be able to delete the
+    # superuser account, but they can delete other staff accounts.
+    def has_delete_permission(self, request, obj=None):
+        if obj is not None and obj.is_superuser:
+            if request.user.is_superuser:
+                return True
+            return False
+
+        if not request.user.is_superuser and obj is not None and obj.is_staff:
+            return True
+        return super().has_delete_permission(request, obj)
+    
+    # Overwritten method. It makes the staff members not to be able to edit the
+    # superuser account, but they can edit other staff accounts.
+    def has_change_permission(self, request, obj=None):
+        if obj is not None and obj.is_superuser and not request.user.is_superuser:
+            return False
+        return super().has_change_permission(request, obj)
+
 class PlayerAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'wins', 'wins_pvp', 'wins_tournament', 'xp',)
     list_filter = ('user',)
