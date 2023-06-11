@@ -43,15 +43,15 @@ def assign_permissions(sender, instance, created, **kwargs):
         staff_group, created = Group.objects.get_or_create(name='Staff')
 
         if created:
-            # Obtener los permisos necesarios para gestionar CustomUser y Player
+            # Obtain the necessary permissions to manage CustomUser and Player
             customuser_content_type = ContentType.objects.get(app_label='djapi', model='customuser')
             player_content_type = ContentType.objects.get(app_label='djapi', model='player')
 
             customuser_permissions = Permission.objects.filter(content_type=customuser_content_type)
             player_permissions = Permission.objects.filter(content_type=player_content_type)
 
-            # Asignar los permisos al grupo "Staff"
+            # Assign the permissions to the "Staff" group
             staff_group.permissions.set(customuser_permissions | player_permissions)
 
-        # Agregar el usuario al grupo "Staff"
+        # Assign the user to the "Staff" group
         staff_group.user_set.add(instance)

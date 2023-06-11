@@ -48,6 +48,8 @@ class PlayerAdmin(admin.ModelAdmin):
         return self.readonly_fields  # Creation of a new user
 
 class StaffCodeAdmin(admin.ModelAdmin):
+    list_display = ('code', 'used')
+
     def has_change_permission(self, request, obj=None):
         # Only the superuser can change
         return request.user.is_superuser
