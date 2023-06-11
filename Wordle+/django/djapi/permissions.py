@@ -32,7 +32,7 @@ class IsOwnerOrAdminPermission(permissions.BasePermission):
         if hasattr(obj, 'user') and obj.user == request.user:
             return True
         
-        if request.user.is_staff:
+        if request.user.is_staff and not obj.is_superuser:
             return True
         
         return False
