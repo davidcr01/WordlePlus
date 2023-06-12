@@ -7,3 +7,11 @@ ion-content {
     display: block;
     margin: 0 auto;
   }
+
+  div.error-message {
+    color: red;
+  }
+
+  div.success-message {
+    color: green;
+  }
