@@ -1,6 +1,5 @@
 {
   "name": "ionic-app",
   "integrations": {},
-  "type": "angular",
-  "root": "src"
+  "type": "angular"
 }
