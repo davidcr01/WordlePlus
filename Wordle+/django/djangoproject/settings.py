@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'djapi',
+    'corsheaders',
 ]
 
 REST_FRAMEWORK = {
@@ -62,6 +63,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 
 ]
 
@@ -142,3 +145,10 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'djapi.CustomUser'
+
+## Conection with the FrontEnd
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:8100', # Ionic in local (dev)
+    'http://localhost:8080', # Ionic in Docker
+]
