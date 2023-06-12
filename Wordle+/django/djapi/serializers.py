@@ -27,10 +27,14 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
         is_staff = False
         if staff_code:
-            staff_code_obj = StaffCode.objects.get(code=staff_code, used=False)
-            staff_code_obj.used = True
-            staff_code_obj.save()
-            is_staff = True
+            try:
+                staff_code_obj = StaffCode.objects.get(code=staff_code, used=False)
+                staff_code_obj.used = True
+                staff_code_obj.save()
+                is_staff = True
+            except StaffCode.DoesNotExist:
+                raise serializers.ValidationError('Invalid staff code')
+
 
         user = CustomUser.objects.create(is_staff=is_staff, **validated_data)
         
