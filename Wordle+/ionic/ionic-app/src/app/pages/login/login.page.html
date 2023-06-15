@@ -1,0 +1,46 @@
+<ion-content>
+  <div class="flex-center">
+    <ion-card style="border-radius: 10px;">
+      <ion-card-header>
+        <img src="assets/logo_no_background.png" alt="App Logo" class="logo">
+      </ion-card-header>
+      
+      <form [formGroup]="loginForm" (ngSubmit)="login()">
+      <ion-card-content>
+      <ion-item>
+        <ion-label position="floating">Username</ion-label>
+        <ion-input type="text" formControlName="username" required></ion-input>
+      </ion-item>
+      <div *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched"  >
+        Username is required.
+      </div>
+
+      <ion-item>
+        <ion-label position="floating">Password</ion-label>
+        <ion-input type="password" formControlName="password" required></ion-input>
+      </ion-item>
+      <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"  >
+        Password is required.
+      </div>
+      <div class="button-container">
+        <ion-button class="purple-button" expand="block" type="submit" [disabled]="isLoading">
+          <ng-container *ngIf="!isLoading; else loadingIcon">
+            Log in
+          </ng-container>
+          <ng-template #loadingIcon>
+            <ion-spinner name="dots"></ion-spinner>
+          </ng-template>
+        </ion-button>
+        <div class="register-link">
+          <p>No account yet?</p>
+          <ion-button class="turquoise-button" routerLink="/register" expand="block">Register</ion-button>
+        </div>
+      </div>
+      <div *ngIf="errorMessage" class="error-message" >{{ errorMessage }} <ion-icon name="close-outline"></ion-icon></div>
+    </ion-card-content>
+
+    </form>
+    </ion-card>
+    
+  </div>
+</ion-content>

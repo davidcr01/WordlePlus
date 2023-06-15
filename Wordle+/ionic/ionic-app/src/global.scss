@@ -37,8 +37,26 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-  }
+}
 
 .purple-button {
     --background: var(--ion-color-purple-dark)
+}
+
+.turquoise-button {
+    --background: var(--ion-color-turquoise-dark)
+}
+
+.logo {
+    max-width: 200px; 
+    display: block;
+    margin: 0 auto;
+}
+
+div.error-message {
+    color: lightcoral;
+}
+
+div.success-message {
+    color: lightgreen;
 }
