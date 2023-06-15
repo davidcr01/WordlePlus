@@ -1,0 +1,17 @@
+ion-content {
+    --background: var(--ion-color-purple);
+}
+
+.logo {
+    max-width: 200px; 
+    display: block;
+    margin: 0 auto;
+  }
+
+  div.error-message {
+    color: lightcoral;
+  }
+
+  div.success-message {
+    color: lightgreen;
+  }

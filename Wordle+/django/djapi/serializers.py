@@ -1,5 +1,5 @@
 from django.contrib.auth.models import Group
-from .models import CustomUser, Player
+from .models import CustomUser, Player, StaffCode
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 
@@ -8,15 +8,43 @@ from django.contrib.auth.hashers import make_password
 class CustomUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     is_superuser = serializers.ReadOnlyField()
+    staff_code = serializers.CharField(write_only=True, required=False)
+
+    def validate_staff_code(self, value):
+        if value and not StaffCode.objects.filter(code=value, used=False).exists():
+            raise serializers.ValidationError('Invalid staff code.')
+        return value
 
     def create(self, validated_data):
         password = validated_data.pop('password')
+        staff_code = validated_data.pop('staff_code', None)
+
         validated_data['password'] = make_password(password)  # Encrypt the password
-        return super().create(validated_data)
+
+        # These fields are ignored of the body
+        validated_data.pop('is_staff', None)
+        validated_data.pop('is_superuser', None)
+
+        is_staff = False
+        if staff_code:
+            try:
+                staff_code_obj = StaffCode.objects.get(code=staff_code, used=False)
+                staff_code_obj.used = True
+                staff_code_obj.save()
+                is_staff = True
+            except StaffCode.DoesNotExist:
+                raise serializers.ValidationError('Invalid staff code')
+
+
+        user = CustomUser.objects.create(is_staff=is_staff, **validated_data)
+        
+        return user
 
     def update(self, instance, validated_data):
-        # Delete the password field to avoid updating it
+        # Delete the password, is_staff and is_superuser field to avoid updating it
         validated_data.pop('password', None)
+        validated_data.pop('is_staff', None)
+        validated_data.pop('is_superuser', None)
         return super().update(instance, validated_data)
     
     class Meta:
