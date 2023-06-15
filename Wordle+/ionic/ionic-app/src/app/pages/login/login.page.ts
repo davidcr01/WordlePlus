@@ -32,13 +32,13 @@ export class LoginPage implements OnInit {
       password: this.loginForm.get('password').value,
     }
 
-    this.http.post<any>('http://localhost/api-auth/', credentials).subscribe(
+    this.http.post<any>('http://localhost/api-token-auth/', credentials).subscribe(
       (response) => {
-        console.log(response)
+        console.log("Logged in correcty!")
         // Store the token in the local storage
         localStorage.setItem('access_token', response.access_token);
 
-        this.router.navigateByUrl('');
+        // this.router.navigateByUrl('');
       },
       (error) => {
         console.error('Log in error', error);
@@ -47,4 +47,7 @@ export class LoginPage implements OnInit {
     );
   }
 
+  goToAdminPage() {
+    window.location.href = 'http://localhost/admin/';
+  }
 }
