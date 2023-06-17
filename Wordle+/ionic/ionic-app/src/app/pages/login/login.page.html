@@ -8,7 +8,7 @@
       <form [formGroup]="loginForm" (ngSubmit)="login()">
       <ion-card-content>
       <ion-item>
-        <ion-label position="floating">Username</ion-label>
+        <ion-label aria-label="username" position="floating">Username</ion-label>
         <ion-input type="text" formControlName="username" required></ion-input>
       </ion-item>
       <div *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched"  >
@@ -16,7 +16,7 @@
       </div>
 
       <ion-item>
-        <ion-label position="floating">Password</ion-label>
+        <ion-label aria-label="password" position="floating">Password</ion-label>
         <ion-input type="password" formControlName="password" required></ion-input>
       </ion-item>
       <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"  >

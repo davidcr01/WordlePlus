@@ -34,9 +34,10 @@ export class LoginPage implements OnInit {
 
     this.http.post<any>('http://localhost/api-token-auth/', credentials).subscribe(
       (response) => {
-        console.log("Logged in correcty!")
+        console.log("Logged in correcty!");
+        console.log(response);
         // Store the token in the local storage
-        localStorage.setItem('access_token', response.access_token);
+        localStorage.setItem('access_token', response.token);
 
         // this.router.navigateByUrl('');
       },
