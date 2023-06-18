@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { StorageService } from '../../services/storage.service';
 
 @Component({
   selector: 'app-home',
@@ -8,13 +9,15 @@ import { Router } from '@angular/router';
 })
 export class HomePage {
 
-  constructor(private router: Router) { }
+  constructor(private router: Router, private storageService: StorageService) { }
 
   ionViewDidEnter() {
 
-    setTimeout(() => {
-      const accessToken = localStorage.getItem('access_token');
-      if (!accessToken) {
+    setTimeout(async () => {
+      const token = await this.storageService.getAccessToken();
+      console.log(token);
+      
+      if (!token) {
         // Redirigir al usuario a la página de inicio de sesión
         this.router.navigateByUrl('/login');
       } else {

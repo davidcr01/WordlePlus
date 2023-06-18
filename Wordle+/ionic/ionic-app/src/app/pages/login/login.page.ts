@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { StorageService } from '../../services/storage.service';
+import { EncryptionService } from '../../services/encryption.service';
+
 
 @Component({
   selector: 'app-login',
@@ -16,7 +19,13 @@ export class LoginPage implements OnInit {
   errorMessage: string = '';
   isLoading: boolean = false;
 
-  constructor(public formBuilder: FormBuilder, private http: HttpClient, private router: Router) {}
+  constructor(
+    public formBuilder: FormBuilder, 
+    private http: HttpClient, 
+    private router: Router,
+    private storageService: StorageService,
+    private encryptionService: EncryptionService
+    ) {}
 
   ngOnInit() {
     // Define the fields of the form
@@ -32,14 +41,14 @@ export class LoginPage implements OnInit {
       password: this.loginForm.get('password').value,
     }
 
-    this.http.post<any>('http://localhost/api-token-auth/', credentials).subscribe(
-      (response) => {
-        console.log("Logged in correcty!");
-        console.log(response);
+    this.http.post<any>('http://localhost:8080/api-token-auth/', credentials).subscribe(
+      async (response) => {
         // Store the token in the local storage
-        localStorage.setItem('access_token', response.token);
+        this.errorMessage = ''
+        const encryptedToken = this.encryptionService.encryptData(response.token);
+        await this.storageService.setAccessToken(encryptedToken);
 
-        // this.router.navigateByUrl('');
+        this.router.navigateByUrl('');
       },
       (error) => {
         console.error('Log in error', error);
