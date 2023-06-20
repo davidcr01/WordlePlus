@@ -58,6 +58,6 @@ export class LoginPage implements OnInit {
   }
 
   goToAdminPage() {
-    window.location.href = 'http://localhost/admin/';
+    window.location.href = 'http://localhost:8080/admin/';
   }
 }
