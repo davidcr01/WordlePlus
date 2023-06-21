@@ -55,11 +55,12 @@ REST_FRAMEWORK = {
 }
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'djapi.token_expire.TokenExpirationMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -145,6 +146,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'djapi.CustomUser'
+TOKEN_EXPIRED_AFTER_SECONDS = 3600
 
 ## Conection with the FrontEnd
 
