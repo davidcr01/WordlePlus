@@ -1,2 +1,5 @@
 Wordle+/data
-/__pycache__
+Wordle+/django/djangoproject/__pycache__
+Wordle+/django/djapi/__pycache__
+Wordle+/django/djapi/migrations/
+Wordle+/ionic/ionic-app/src/env.json

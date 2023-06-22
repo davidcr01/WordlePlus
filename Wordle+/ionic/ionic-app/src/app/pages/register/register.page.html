@@ -1,0 +1,76 @@
+<ion-content>
+  <div class="flex-center">
+    <ion-card style="border-radius: 10px;">
+      <ion-card-header>
+        <img src="assets/logo_no_background.png" alt="App Logo" class="logo">
+      </ion-card-header>
+      
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <ion-card-content>
+      <ion-item>
+        <ion-label position="floating">Username</ion-label>
+        <ion-input type="text" formControlName="username" required></ion-input>
+      </ion-item>
+      <div *ngIf="registerForm.get('username')?.invalid && registerForm.get('username')?.touched"  >
+        Username is required. Min 4 characters.
+      </div>
+
+      <ion-item>
+        <ion-label position="floating">Email</ion-label>
+        <ion-input type="email" formControlName="email" required></ion-input>
+      </ion-item>
+      <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"  >
+        Email is required.
+      </div>
+
+      <ion-item>
+        <ion-label position="floating">First name</ion-label>
+        <ion-input type="text" formControlName="first_name" maxlength="20" required></ion-input>
+      </ion-item>
+      <div *ngIf="registerForm.get('first_name')?.invalid && registerForm.get('first_name')?.touched">
+        First Name is required. Max 20 characters.
+      </div>
+
+      <ion-item>
+        <ion-label position="floating">Last name</ion-label>
+        <ion-input type="text" formControlName="last_name" maxlength="20" required></ion-input>
+      </ion-item>
+      <div *ngIf="registerForm.get('first_name')?.invalid && registerForm.get('first_name')?.touched">
+        Last Name is required. Max 20 characters.
+      </div>
+
+      <ion-item>
+        <ion-label position="floating">Password</ion-label>
+        <ion-input type="password" formControlName="password" required></ion-input>
+      </ion-item>
+      <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+        Password is required. Min 6 characters.
+      </div>
+
+      <ion-item>
+        <ion-label position="floating">Staff code (optional)</ion-label>
+        <ion-input type="text" formControlName="staff_code" placeholder="Required for admins"></ion-input>
+      </ion-item>
+      <div *ngIf="registerForm.get('staff_code')?.invalid && registerForm.get('staff_code')?.touched">
+        Only numbers.
+      </div>
+
+      <div class="button-container">
+        <ion-button class="purple-button" expand="block" type="submit" [disabled]="isLoading">
+          <ng-container *ngIf="!isLoading; else loadingIcon">
+            Register
+          </ng-container>
+          <ng-template #loadingIcon>
+            <ion-spinner name="dots"></ion-spinner>
+          </ng-template>
+        </ion-button>
+      </div>
+      <div *ngIf="successMessage" class="success-message">{{ successMessage }} <ion-icon name="checkmark-outline"></ion-icon> </div> 
+      <div *ngIf="errorMessage" class="error-message" >{{ errorMessage }} <ion-icon name="close-outline"></ion-icon></div>
+    </ion-card-content>
+
+    </form>
+    </ion-card>
+    
+  </div>
+</ion-content>
