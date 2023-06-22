@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { ApiService } from 'src/app/services/api.service';
 
 @Component({
   selector: 'app-register',
@@ -14,7 +15,7 @@ export class RegisterPage implements OnInit{
   isLoading: boolean = false;
   isStaff: boolean = false;
 
-  constructor(public formBuilder: FormBuilder, private http: HttpClient) {}
+  constructor(public formBuilder: FormBuilder, private apiService: ApiService) {}
 
   ngOnInit() {
     // Define the fields of the form
@@ -47,43 +48,58 @@ export class RegisterPage implements OnInit{
     const staffCode = this.registerForm.get('staff_code').value;
 
     // Case of registering a player. The 'staff_code' field is not added
-    if (staffCode === '') {
-      this.createUser('http://localhost/api/players/', { user: userData });
-    } 
-    else { // Case of registering an admin. 'staff_code' field is added
+    if (staffCode === '' || staffCode === null) {
+      console.log('creating player');
+      this.apiService.createPlayer(userData).subscribe(
+        (response) => {
+          console.log('Player created successfully', response);
+          this.successMessage = 'Player created successfully';
+          this.errorMessage = '';
+          this.isLoading = false;
+          this.registerForm.reset();
+        },
+        (error) => {
+          console.log(error);
+          const errorContent = error.error;
+          this.successMessage = '';
+
+          if (errorContent.user && errorContent.user.username) { // Case of creating a player
+            this.errorMessage = errorContent.user.username[0];
+          } else {
+            this.errorMessage = 'Error creating user';
+          }
+
+          this.isLoading = false;
+        }
+      );
+      // Case of registering an admin. The 'staff_code' field is added
+    } else {
+      console.log('creating admin');
       userData['staff_code'] = staffCode;
-      this.createUser('http://localhost/api/users/', userData);
-    }
-  }
-
-  createUser(url: string, body: any) {
-    this.isLoading = true;
-
-    this.http.post(url, body)
-      .subscribe(
+      this.apiService.createUser(userData).subscribe(
         (response) => {
           console.log('User created successfully', response);
           this.successMessage = 'User created successfully';
           this.errorMessage = '';
-          this.registerForm.reset();
           this.isLoading = false;
+          this.registerForm.reset();
         },
         (error) => {
           const errorContent = error.error;
           this.successMessage = '';
 
-          // Thrown errors could be of the staff code or the username
           if (errorContent.staff_code) {
             this.errorMessage = errorContent.staff_code;
           } else if (errorContent.username) { // Case of creating an admin
             this.errorMessage = errorContent.username;
-          } else if (errorContent.user && errorContent.user.username) { // Case of creating a player
-            this.errorMessage = errorContent.user.username[0];
-          } else {
+          }
+          else {
             this.errorMessage = 'Error creating user';
           }
+
           this.isLoading = false;
         }
       );
-  }
+    }
+  } 
 }

@@ -7,6 +7,15 @@ from rest_framework import status
 from djapi.serializers import *
 from djapi.permissions import *
 from rest_framework.permissions import IsAdminUser
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
+from rest_framework.response import Response
+from rest_framework import status
+from datetime import timedelta, datetime
+from django.utils import timezone
+from django.conf import settings
+
 
 class CustomUserViewSet(viewsets.ModelViewSet):
     """
@@ -85,3 +94,23 @@ class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+class CustomObtainAuthToken(ObtainAuthToken):
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+
+        if not created and token.created < timezone.now() - timedelta(seconds=settings.TOKEN_EXPIRED_AFTER_SECONDS):
+            # Token expired, generate a new one
+            token.delete()
+            token = Token.objects.create(user=user)
+
+        # Serialize the token along with any other data you want to include in the response
+        response_data = {
+            'token': token.key
+        }
+
+        return Response(response_data, status=status.HTTP_200_OK)

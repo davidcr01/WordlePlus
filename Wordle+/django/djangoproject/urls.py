@@ -17,6 +17,7 @@ from django.urls import include, path
 from django.contrib import admin
 from rest_framework import routers
 from djapi import views
+from djapi.views import CustomObtainAuthToken
 from rest_framework.authtoken.views import ObtainAuthToken
 
 router = routers.DefaultRouter()
@@ -30,5 +31,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('admin/', admin.site.urls),
-    path('api-token-auth/', ObtainAuthToken.as_view())
+    path('api-token-auth/', CustomObtainAuthToken.as_view())
 ]
