@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { StorageService } from '../../services/storage.service';
 import { EncryptionService } from '../../services/encryption.service';
-
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-login',
@@ -21,10 +21,10 @@ export class LoginPage implements OnInit {
 
   constructor(
     public formBuilder: FormBuilder, 
-    private http: HttpClient, 
     private router: Router,
     private storageService: StorageService,
-    private encryptionService: EncryptionService
+    private encryptionService: EncryptionService,
+    private apiService: ApiService
     ) {}
 
   ngOnInit() {
@@ -41,7 +41,7 @@ export class LoginPage implements OnInit {
       password: this.loginForm.get('password').value,
     }
 
-    this.http.post<any>('http://localhost:8080/api-token-auth/', credentials).subscribe(
+    this.apiService.login(credentials).subscribe(
       async (response) => {
         // Store the token in the local storage
         this.errorMessage = ''
