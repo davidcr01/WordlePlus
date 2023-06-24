@@ -19,9 +19,9 @@ export class WordleDashboardComponent {
   public thirdRow: string[] = ['z', 'x', 'c', 'v', 'b', 'n', 'm'];
 
 
-  private readonly NUMBER_OF_GUESSES = 6;
-  private readonly WORDS_LENGTH = 5;
-  private readonly WORDS = ['apple', 'apply'];
+  private readonly MAX_GUESSES = 6;
+  private readonly WORDS_LENGTH = 6;
+  private readonly WORDS = ['applei', 'applee', 'applie'];
   private rightGuessString: string;
   private guessesRemaining: number;
   private currentGuess: string[];
@@ -33,13 +33,13 @@ export class WordleDashboardComponent {
   }
 
   private initGame(): void {
-    this.guessesRemaining = this.NUMBER_OF_GUESSES;
+    this.guessesRemaining = this.MAX_GUESSES;
     this.currentGuess = [];
     this.nextLetter = 0;
     this.rightGuessString = this.WORDS[Math.floor(Math.random() * this.WORDS.length)];
     console.log(this.rightGuessString);
 
-    this.letterRows = Array.from({ length: this.NUMBER_OF_GUESSES }, () => Array.from({ length: this.WORDS_LENGTH }, () => ({
+    this.letterRows = Array.from({ length: this.MAX_GUESSES }, () => Array.from({ length: this.WORDS_LENGTH }, () => ({
       content: '',
       filled: false
     })));
@@ -57,10 +57,12 @@ export class WordleDashboardComponent {
     });
   }
 
+  // Deletes the written letters
   private deleteLetter(): void {
-    const currentRow = 6 - this.guessesRemaining;
-    const boxIndex = this.nextLetter - 1;
+    const currentRow = this.MAX_GUESSES - this.guessesRemaining;
+    const boxIndex = Math.max(0, this.nextLetter - 1);
 
+    // Access to legal position of the matrix
     if (currentRow >= 0 && currentRow < this.letterRows.length && boxIndex >= 0 && boxIndex < this.letterRows[currentRow].length) {
       const box = this.letterRows[currentRow][boxIndex];
       box.content = '';
@@ -68,11 +70,11 @@ export class WordleDashboardComponent {
     }
 
     this.currentGuess.pop();
-    this.nextLetter--;
+    this.nextLetter = Math.max(0, this.nextLetter - 1);
   }
 
   private checkGuess(): void {
-    const currentRow = 6 - this.guessesRemaining;
+    const currentRow = this.MAX_GUESSES - this.guessesRemaining;
     let guessString = '';
 
     for (const val of this.currentGuess) {
@@ -80,7 +82,7 @@ export class WordleDashboardComponent {
     }
     console.log(guessString);
 
-    if (guessString.length !== 5) {
+    if (guessString.length !== this.WORDS_LENGTH) {
       this.showToast('Not enough letters!');
       return;
     }
@@ -91,10 +93,10 @@ export class WordleDashboardComponent {
     }
 
     const rightGuess = Array.from(this.rightGuessString);
-    const letterColor = ['gray', 'gray', 'gray', 'gray', 'gray'];
+    const letterColor = Array.from({ length: this.WORDS_LENGTH }, () => 'gray');
 
     // Check green
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < this.WORDS_LENGTH; i++) {
       if (rightGuess[i] === this.currentGuess[i]) {
         letterColor[i] = 'green';
         rightGuess[i] = '#';
@@ -103,9 +105,9 @@ export class WordleDashboardComponent {
 
     // Check yellow
     // Checking guess letters that are not green
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < this.WORDS_LENGTH; i++) {
       if (letterColor[i] !== 'green' && rightGuess.includes(this.currentGuess[i])) {
-        letterColor[i] = 'yellow';
+        letterColor[i] = 'orange';
         const index = rightGuess.indexOf(this.currentGuess[i]);
         rightGuess[index] = '#';
       }
@@ -114,7 +116,7 @@ export class WordleDashboardComponent {
     // Update UI
     const row = document.querySelector('.game-board').children[currentRow] as HTMLElement;
 
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < this.WORDS_LENGTH; i++) {
       const box = row.children[i] as HTMLElement;
       const delay = 250 * i;
 
@@ -128,11 +130,15 @@ export class WordleDashboardComponent {
     this.guessesRemaining--;
 
     if (letterColor.every((color) => color === 'green')) {
-      this.showToast('You won!');
-      this.initGame();
+      setTimeout(() => {
+        this.showToast('You won!');
+        this.initGame();
+      }, 250*this.WORDS_LENGTH); 
     } else if (this.guessesRemaining === 0) {
-      this.showToast('You lost!');
-      this.initGame();
+      setTimeout(() => {
+        this.showToast('You lost!');
+        this.initGame();
+      }, 250*this.WORDS_LENGTH); 
     }
 
     this.currentGuess = [];
@@ -151,7 +157,7 @@ export class WordleDashboardComponent {
   }
 
   public handleKeyboardButtonClick(letter: string): void {
-    if (letter === 'delete') {
+    if (letter === 'delete' || letter === 'backspace') {
       this.deleteLetter();
     } else if (letter === 'enter') {
       this.checkGuess();
@@ -183,7 +189,6 @@ export class WordleDashboardComponent {
 
     if (/^[A-Z]$/.test(pressedKey) || pressedKey === 'DELETE' ||  pressedKey === 'BACKSPACE' || pressedKey === 'ENTER') {
       event.preventDefault();
-      
 
       // Calls the existing function of the virtual keyboard
       this.handleKeyboardButtonClick(pressedKey.toLowerCase());
