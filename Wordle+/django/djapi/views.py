@@ -1,5 +1,5 @@
 from django.contrib.auth.models import Group
-from .models import CustomUser, Player
+from .models import CustomUser, Player, ClassicWordle
 from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework.response import Response
@@ -15,6 +15,7 @@ from rest_framework import status
 from datetime import timedelta, datetime
 from django.utils import timezone
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
@@ -96,6 +97,9 @@ class GroupViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 class CustomObtainAuthToken(ObtainAuthToken):
+    """
+    API endpoint that creates token with expiration date.
+    """
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -114,3 +118,31 @@ class CustomObtainAuthToken(ObtainAuthToken):
         }
 
         return Response(response_data, status=status.HTTP_200_OK)
+    
+
+   
+class ClassicWordleViewSet(viewsets.GenericViewSet):
+    """
+    API endpoint that allows list, retrieve, and create operations for classic wordle games of players.
+    """
+    permission_classes = [IsOwnerOrAdminPermission]
+    queryset = ClassicWordle.objects.all()
+    serializer_class = ClassicWordleSerializer
+
+    def list(self, request):
+        player_id = request.query_params.get('player_id')
+        if not player_id:
+            return Response({'error': 'player_id parameter is required'}, status=400)
+
+        player = get_object_or_404(Player, id=player_id)
+        queryset = ClassicWordle.objects.filter(player=player).order_by('-date_played')
+        serializer = ClassicWordleSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def create(self, request):
+        serializer = ClassicWordleSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(player=request.user.player)
+        return Response(serializer.data)
+
+

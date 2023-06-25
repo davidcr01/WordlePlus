@@ -25,6 +25,8 @@ Permission that allows access if the user is the owner of the account or is an a
 """
 class IsOwnerOrAdminPermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
+        print(obj)
+        print(request)
         # Case of comparing an user
         if obj == request.user:
             return True
@@ -33,6 +35,9 @@ class IsOwnerOrAdminPermission(permissions.BasePermission):
             return True
         
         if request.user.is_staff and not obj.is_superuser:
+            return True
+        
+        if hasattr(obj, 'player') and obj.player.user == request.user:
             return True
         
         return False

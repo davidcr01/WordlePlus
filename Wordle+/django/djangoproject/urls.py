@@ -24,6 +24,7 @@ router = routers.DefaultRouter()
 router.register(r'api/users', views.CustomUserViewSet)
 router.register(r'api/players', views.PlayerViewSet)
 router.register(r'api/groups', views.GroupViewSet)
+router.register(r'api/classicwordles', views.ClassicWordleViewSet, basename='classicwordle')
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
@@ -31,5 +32,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('admin/', admin.site.urls),
-    path('api-token-auth/', CustomObtainAuthToken.as_view())
+    path('api-token-auth/', CustomObtainAuthToken.as_view()),
 ]

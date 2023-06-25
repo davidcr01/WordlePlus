@@ -166,12 +166,12 @@ export class WordleDashboardComponent implements OnInit {
       setTimeout(() => {
         this.showToast('You won!');
         this.initGame();
-      }, 250*this.WORDS_LENGTH); 
+      }, 250*this.WORDS_LENGTH+1000); 
     } else if (this.guessesRemaining === 0) {
       setTimeout(() => {
         this.showToast('You lost!');
         this.initGame();
-      }, 250*this.WORDS_LENGTH); 
+      }, 250*this.WORDS_LENGTH+1000); 
     }
 
     this.currentGuess = [];
@@ -200,7 +200,7 @@ export class WordleDashboardComponent implements OnInit {
         this.showToast('Max letters reached!');
         return;
       }
-      const currentRow = 6 - this.guessesRemaining;
+      const currentRow = this.MAX_GUESSES - this.guessesRemaining;
       const boxIndex = this.nextLetter;
 
       // Access to legal position of the matrix

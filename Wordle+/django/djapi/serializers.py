@@ -1,5 +1,5 @@
 from django.contrib.auth.models import Group
-from .models import CustomUser, Player, StaffCode
+from .models import CustomUser, Player, StaffCode, ClassicWordle
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 
@@ -56,7 +56,7 @@ class PlayerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Player
-        fields = ('user', 'wins', 'wins_pvp', 'wins_tournament', 'xp')
+        fields = ('user', 'id', 'wins', 'wins_pvp', 'wins_tournament', 'xp')
 
     def create(self, validated_data):
         user_data = validated_data.pop('user', None)
@@ -92,7 +92,12 @@ class PlayerInfoSerializer(serializers.ModelSerializer):
             # If we are getting only a player, it returns the UserInfoSerializer data
             user_serializer = UserInfoSerializer(obj.user)
             return user_serializer.data
-    
+
+class ClassicWordleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ClassicWordle
+        fields = ['id', 'player', 'word', 'time_consumed', 'attempts', 'xp_gained', 'date_played', 'win']
+
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Group
