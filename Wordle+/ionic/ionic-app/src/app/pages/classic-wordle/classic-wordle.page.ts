@@ -7,6 +7,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ClassicWordlePage implements OnInit {
 
+  public wordLength: number = 5;
   constructor() { }
 
   ngOnInit() {
