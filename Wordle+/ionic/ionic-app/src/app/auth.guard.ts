@@ -1,27 +1,22 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { CanActivate, Router } from '@angular/router';
 import { StorageService } from './services/storage.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthGuard implements CanActivate {
-  constructor(private storageService: StorageService, private router: Router) {}
 
-  canActivate(
-    next: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
+  constructor(private router: Router, private storageService: StorageService) {}
 
-    return new Promise<boolean>(async (resolve) => {
-      // Checks if the access token exits in the Ionic Storage
-      const accessToken = await this.storageService.getAccessToken();
-      if (accessToken) {
-        resolve(true); // User is logged in
-      } else {
-        this.router.navigate(['/login']); 
-        resolve(false); 
-      }
-    });
+  async canActivate(): Promise<boolean> {
+    const accessToken = await this.storageService.getAccessToken();
+
+    if (accessToken) {
+      return true;
+    } else {
+      this.router.navigate(['/login']);
+      return false;
+    }
   }
 }
