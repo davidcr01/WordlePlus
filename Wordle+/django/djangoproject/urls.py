@@ -17,14 +17,14 @@ from django.urls import include, path
 from django.contrib import admin
 from rest_framework import routers
 from djapi import views
-from djapi.views import CustomObtainAuthToken
+from djapi.views import CustomObtainAuthToken, CheckTokenExpirationView
 from rest_framework.authtoken.views import ObtainAuthToken
 
 router = routers.DefaultRouter()
 router.register(r'api/users', views.CustomUserViewSet)
 router.register(r'api/players', views.PlayerViewSet)
 router.register(r'api/groups', views.GroupViewSet)
-router.register(r'api/classicwordles', views.ClassicWordleViewSet, basename='classicwordle')
+router.register(r'api/classicwordles', views.ClassicWordleViewSet)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
@@ -33,4 +33,6 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('admin/', admin.site.urls),
     path('api-token-auth/', CustomObtainAuthToken.as_view()),
+    path('check-token-expiration/', CheckTokenExpirationView.as_view(), name='check-token-expiration'),
+    
 ]

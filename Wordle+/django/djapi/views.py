@@ -1,18 +1,14 @@
 from django.contrib.auth.models import Group
 from .models import CustomUser, Player, ClassicWordle
-from rest_framework import viewsets
-from rest_framework import permissions
+from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
-from rest_framework import status
 from djapi.serializers import *
 from djapi.permissions import *
 from rest_framework.permissions import IsAdminUser
 from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
-from rest_framework.response import Response
-from rest_framework import status
-from datetime import timedelta, datetime
+from rest_framework.views import APIView
+from datetime import timedelta
 from django.utils import timezone
 from django.conf import settings
 from django.shortcuts import get_object_or_404
@@ -114,12 +110,23 @@ class CustomObtainAuthToken(ObtainAuthToken):
 
         # Serialize the token along with any other data you want to include in the response
         response_data = {
-            'token': token.key
+            'token': token.key,
+            'user_id': user.id,
+            'player_id': user.player.id if hasattr(user, 'player') else None  # Include the player ID if it exists
         }
 
         return Response(response_data, status=status.HTTP_200_OK)
     
+class CheckTokenExpirationView(APIView):
+    def get(self, request):
+        token = request.user.auth_token
 
+        if token.created < timezone.now() - timedelta(seconds=settings.TOKEN_EXPIRED_AFTER_SECONDS):
+            # El token ha expirado
+            token.delete()
+            return Response({'message': 'Token has expired.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        return Response({'message': 'Token is valid.'}, status=status.HTTP_200_OK)
    
 class ClassicWordleViewSet(viewsets.GenericViewSet):
     """

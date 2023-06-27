@@ -96,7 +96,20 @@ class PlayerInfoSerializer(serializers.ModelSerializer):
 class ClassicWordleSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClassicWordle
-        fields = ['id', 'player', 'word', 'time_consumed', 'attempts', 'xp_gained', 'date_played', 'win']
+        fields = ['player', 'word', 'time_consumed', 'attempts', 'xp_gained', 'date_played', 'win']
+    
+    def create(self, validated_data):
+        player = validated_data['player']
+        is_winner = validated_data['win']
+        xp = validated_data['xp_gained']
+
+        # Increment the number of victories and add the xp_gained
+        if is_winner:
+            player.wins += 1
+        player.xp += xp
+        player.save()
+
+        return ClassicWordle.objects.create(**validated_data)
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:

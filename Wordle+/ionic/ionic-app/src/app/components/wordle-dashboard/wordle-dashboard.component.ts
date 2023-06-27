@@ -1,6 +1,10 @@
 import { Component, HostListener, Input, OnInit } from '@angular/core';
 import { ToastController } from '@ionic/angular';
 import { HttpClient } from '@angular/common/http';
+import { StorageService } from 'src/app/services/storage.service';
+import { ApiService } from 'src/app/services/api.service';
+import { ToastService } from 'src/app/services/toast.service';
+
 
 interface LetterBox {
   content: string;
@@ -27,8 +31,14 @@ export class WordleDashboardComponent implements OnInit {
   private currentGuess: string[];
   private nextLetter: number;
   private successColor: string;
+  private startTime: number;
 
-  constructor(private toastController: ToastController, private http: HttpClient) { }
+  constructor(
+    private toastController: ToastController, 
+    private http: HttpClient, 
+    private storageService: StorageService,
+    private apiService: ApiService,
+    private toastService: ToastService) { }
 
   ngOnInit(): void {
     this.generateWord();
@@ -40,6 +50,7 @@ export class WordleDashboardComponent implements OnInit {
     this.guessesRemaining = this.MAX_GUESSES;
     this.currentGuess = [];
     this.nextLetter = 0;
+    this.startTime = Date.now();
 
     this.letterRows = Array.from({ length: this.MAX_GUESSES }, () => Array.from({ length: this.WORDS_LENGTH }, () => ({
       content: '',
@@ -115,13 +126,13 @@ export class WordleDashboardComponent implements OnInit {
     }
 
     if (guessString.length !== this.WORDS_LENGTH) {
-      this.showToast('Not enough letters!');
+      this.toastService.showToast('Not enough letters!');
       return;
     }
 
     // Check if the word exists in the dictionary
     if (!this.wordsOfDesiredLength.includes(guessString)) {
-      this.showToast('Word not in list!');
+      this.toastService.showToast('Word not in list!');
       return;
     }
 
@@ -163,32 +174,80 @@ export class WordleDashboardComponent implements OnInit {
     this.guessesRemaining--;
 
     if (this.rightGuessString === guessString) {
-      setTimeout(() => {
-        this.showToast('You won!');
-        this.initGame();
-      }, 250*this.WORDS_LENGTH+1000); 
+      this.handleEndgame(true);
     } else if (this.guessesRemaining === 0) {
-      setTimeout(() => {
-        this.showToast('You lost!');
-        this.initGame();
-      }, 250*this.WORDS_LENGTH+1000); 
+      this.handleEndgame(false);
     }
 
     this.currentGuess = [];
   }
 
-  // Shows informative messages
-  private showToast(message: string): void {
-    this.toastController
-      .create({
-        message: message,
-        duration: 2000,
-        position: 'top',
-      })
-      .then((toast) => {
-        toast.present();
+  private async handleEndgame(won: boolean) {
+    const playerId = await this.storageService.getPlayerID();
+    const timeConsumed = this.calculateTimeConsumed();
+    const attempsConsumed = this.MAX_GUESSES - this.guessesRemaining;
+    const xP = this.calculateExperience(timeConsumed, attempsConsumed, this.WORDS_LENGTH, won);
+
+
+    if (playerId !== null) {
+      const body = {
+        word: this.rightGuessString,
+        attempts: attempsConsumed,
+        player: playerId,
+        time_consumed: timeConsumed,
+        win: won,
+        xp_gained: xP,
+      };
+      
+      (await
+        // API call
+        this.apiService.addClassicGame(body)).subscribe(
+        (response) => {
+          console.log('Game added successfully', response);
+        },
+        (error) => {
+          console.log('Game could not be added', error);
       });
+
+      if (won) {
+        setTimeout(() => {
+          this.toastService.showToast('You won!', 2000, 'top');
+          this.initGame();
+        }, 250 * this.WORDS_LENGTH + 3000);
+      } else {
+        setTimeout(() => {
+          this.toastService.showToast('You lost!', 2000, 'top');
+          this.initGame();
+        }, 250 * this.WORDS_LENGTH + 3000);
+      }
+    }
   }
+
+  private calculateTimeConsumed(): number {
+    const endTime = Date.now();
+    const timeInSeconds = Math.floor((endTime - this.startTime) / 1000);
+    return timeInSeconds;
+  }
+  
+  private calculateExperience(timeDiffInSeconds: number, numGuesses: number, wordLength: number, hasWon: boolean): number {
+    const baseExperience = 100; 
+    const timeMultiplier = 10; 
+    const guessesMultiplier = 5;
+    const lengthMultiplier = 10; 
+    const lossExperienceMultiplier = 0.5;
+  
+    const timeExperience = baseExperience - timeDiffInSeconds * timeMultiplier;
+    const guessesExperience = baseExperience - numGuesses * guessesMultiplier;
+    const lengthExperience = baseExperience + wordLength * lengthMultiplier;
+  
+    let totalExperience = timeExperience + guessesExperience + lengthExperience;
+  
+    if (!hasWon) {
+      totalExperience *= lossExperienceMultiplier;
+    }
+  
+    return totalExperience > 0 ? totalExperience : 0;
+  }  
 
   public handleKeyboardButtonClick(letter: string): void {
     if (letter === 'delete' || letter === 'backspace') {
@@ -197,7 +256,7 @@ export class WordleDashboardComponent implements OnInit {
       this.checkGuess();
     } else { // Controlling max number of letters in input
       if (this.currentGuess.length >= this.WORDS_LENGTH) {
-        this.showToast('Max letters reached!');
+        this.toastService.showToast('Max letters reached!', 2000, 'top');
         return;
       }
       const currentRow = this.MAX_GUESSES - this.guessesRemaining;

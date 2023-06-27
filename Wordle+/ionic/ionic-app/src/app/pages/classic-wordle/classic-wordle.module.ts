@@ -7,7 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { WordleDashboardComponent } from 'src/app/components/wordle-dashboard/wordle-dashboard.component';
 
 import { ClassicWordlePageRoutingModule } from './classic-wordle-routing.module';
-
+import { ApiService } from 'src/app/services/api.service';
 import { ClassicWordlePage } from './classic-wordle.page';
 
 @NgModule({
@@ -18,6 +18,8 @@ import { ClassicWordlePage } from './classic-wordle.page';
     HttpClientModule,
     ClassicWordlePageRoutingModule
   ],
-  declarations: [ClassicWordlePage, WordleDashboardComponent]
+  declarations: [ClassicWordlePage, WordleDashboardComponent],
+  providers: [ApiService]
+
 })
 export class ClassicWordlePageModule {}

@@ -13,7 +13,7 @@ export class LogoutButtonComponent {
   constructor(private storageService: StorageService, private router: Router) {}
 
   logout() {
-    this.storageService.removeAccessToken();
+    this.storageService.destroyAll();
     this.router.navigateByUrl('/login');
   }
 }
