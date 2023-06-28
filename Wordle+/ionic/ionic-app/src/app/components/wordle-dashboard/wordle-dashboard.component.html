@@ -1,0 +1,39 @@
+<ion-content>
+  <div class="container" tabindex="0" (keyup)="handleKeyboardKeyUp($event)">
+  <ion-grid>
+    <ion-row class="flex-center">
+      <ion-col size="9" class="game-board">
+        <ion-row *ngFor="let row of letterRows">
+          <ion-col *ngFor="let box of row" class="letter-box" [class.filled-box]="box.filled">
+            {{ box.content }}
+          </ion-col>
+        </ion-row>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <div id="keyboard">
+    <ion-row>
+      <div class="keyboard-button-row">
+        <button class="keyboard-button" *ngFor="let letter of firstRow" (click)="handleKeyboardButtonClick(letter)">{{ letter }}</button>
+      </div>
+    </ion-row>
+    <ion-row>
+      <div class="keyboard-button-row">
+        <button class="keyboard-button" *ngFor="let letter of secondRow" (click)="handleKeyboardButtonClick(letter)">{{ letter }}</button>
+      </div>
+    </ion-row>
+    <ion-row>
+      <div class="keyboard-button-row">
+        <button class="keyboard-button" *ngFor="let letter of thirdRow" (click)="handleKeyboardButtonClick(letter)">{{ letter }}</button>
+      </div>
+    </ion-row>
+    <ion-row>
+      <div class="keyboard-button-row">
+        <button class="keyboard-button" (click)="handleKeyboardButtonClick('delete')">Del</button>
+        <button class="keyboard-button" (click)="handleKeyboardButtonClick('enter')">Enter</button>
+      </div>
+    </ion-row>
+  </div>
+  </div>
+</ion-content>

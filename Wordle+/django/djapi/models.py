@@ -4,6 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from datetime import date
+from django.utils import timezone
 
 # Create your models here.
 
@@ -35,7 +36,17 @@ class StaffCode(models.Model):
 
     def __str__(self):
         return self.code
-    
+
+# Model to store the single games of the players. It represents the classic wordle
+# games.
+class ClassicWordle(models.Model):
+    player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='classic_wordle_games')
+    word = models.CharField(max_length=255)
+    time_consumed = models.PositiveIntegerField()
+    attempts = models.PositiveIntegerField()
+    xp_gained = models.PositiveIntegerField()
+    date_played = models.DateTimeField(default=timezone.now)
+    win = models.BooleanField(default=False)
 
 @receiver(post_save, sender=CustomUser)
 def assign_permissions(sender, instance, created, **kwargs):
