@@ -1,0 +1,267 @@
+ion-content {
+--background: var(--ion-color-purple);
+}
+
+#container{
+display: -webkit-flex;
+display: flex;
+flex-direction: column;
+height: 100%;
+}
+
+.header-container {
+margin-top: 2vh;
+flex: 0.3;
+-webkit-flex: 0.3;
+display: flex;
+align-items: flex-start;
+}
+
+.avatar-container {
+display: flex;
+justify-content: center;
+align-items: center;
+margin-right: 2vw;
+}
+
+.scroll {
+height: 100%;
+}
+
+.avatar-container img {
+margin: 1vw;
+width: 9vh;
+height: 9vh;
+border-radius: 50%;
+}
+
+.user-info {
+padding: 1vw;
+display: flex;
+flex-direction: column;
+flex-grow: 1;
+justify-content: space-between;
+}
+
+.username-container {
+margin-top: 1vw;
+display: flex;
+flex-direction: column;
+}
+
+.username {
+font-size: 4vh;
+font-weight: bold;
+}
+
+.victories-container {
+margin-top: 1.5vw;
+display: grid;
+grid-template-columns: repeat(3, auto);
+gap: 5vw;
+}
+
+.victory {
+display: flex;
+align-items: center;
+}
+
+.victory img {
+height: calc(4vh + 1vw);
+margin-right: 2vw;
+}
+
+.victory span {
+font-size: calc(2.5vh + 1vw);
+}
+
+.first-card {
+flex: 5;
+display: flex;
+}
+
+.special-button-container {
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+}
+
+.special-button {
+--background: var(--ion-color-purple);
+height: 40%;
+--padding-start: 2vw;
+--padding-end: 2vw;
+margin-right: 10px;
+--border-radius: 10%
+}
+
+.icon{
+font-size: 200%;
+}
+
+.translucent-bg {
+opacity: 0.15;
+}
+
+.image-overlay {
+position: relative;
+}
+
+.rank-image {
+position: absolute;
+top: 40%;
+left: 50%;
+transform: translate(-50%, -50%);
+z-index: 2;
+}
+
+.rank-name {
+text-align: center;
+margin-top: auto;
+margin-bottom: auto;
+}
+
+.rank-text {
+padding-top: 1vw;
+padding-bottom: 1vw;
+font-weight: bolder;
+}
+
+.button-container {
+flex: 0.5;
+display: flex;
+justify-content: center;
+align-items: center;
+flex-direction: row;
+margin-bottom: 20px;
+margin: 10px;
+}
+
+.button-container ion-button {
+margin: 5px;
+flex: 1;
+font-weight: bolder;
+height: 11vh;
+}
+
+#classic-game {
+--background: var(--ion-color-purple);
+--border-width: 2px;
+--border-style: solid;
+--border-color: black;
+--color: black;
+--font-size: 15px;
+}
+
+#pvp-game {
+--background: var(--ion-color-turquoise);
+--border-width: 2px;
+--border-style: solid;
+--border-color: black;
+--color: black;
+}
+
+.image-overlay {
+position: relative;
+}
+    
+.translucent-bg {
+opacity: 0.15;
+object-fit: fill;
+height: 50vh;
+
+}
+
+.rank-name {
+color: #fff;
+margin-top: 30vh;
+text-align: center;
+}
+
+.title-container {
+position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+width: 100%;
+}
+
+
+.rank-text {
+padding: 0px;
+font-weight: bolder;
+}
+
+#background-image {
+    background-image: url('../../assets/background_wordle.png');
+}
+
+@media screen and (min-width: 1200px) {
+    #background-image {
+        background-image: none;
+    }
+}
+
+
+/* Mobile devices CSS rules */
+@media (max-width: 767px) {
+    ion-content {
+    --background: var(--ion-color-purple);
+    }
+
+    .avatar-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 10px;
+    }
+
+    .user-info {
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: space-between;
+    }
+
+    .username-container {
+    margin-top: 10%;
+    display: flex;
+    flex-direction: column;
+    }
+
+    .victories-container {
+    margin-top: 15px;
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    gap: 10px;
+    margin-bottom: 10%;
+    }
+
+    .victory {
+    display: flex;
+    align-items: center;
+    }
+
+    .special-button-container {
+    flex: 1;
+    -webkit-flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 1vw;
+    }
+
+    .special-button {
+    --padding-start: 2vw;
+    --padding-end: 2vw;
+    height: 30%;
+    --background: var(--ion-color-purple);
+    }
+
+    .icon{
+    font-size: 150%;
+    }
+    }

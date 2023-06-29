@@ -18,7 +18,8 @@ from django.contrib import admin
 from rest_framework import routers
 from djapi import views
 from djapi.views import CustomObtainAuthToken, CheckTokenExpirationView
-from rest_framework.authtoken.views import ObtainAuthToken
+from django.conf import settings
+from django.conf.urls.static import static
 
 router = routers.DefaultRouter()
 router.register(r'api/users', views.CustomUserViewSet)
@@ -34,5 +35,4 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-token-auth/', CustomObtainAuthToken.as_view()),
     path('check-token-expiration/', CheckTokenExpirationView.as_view(), name='check-token-expiration'),
-    
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

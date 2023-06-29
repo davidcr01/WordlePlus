@@ -23,9 +23,9 @@ export class AuthGuard implements CanActivate {
       return (await this.apiService.checkTokenExpiration()).pipe(
         catchError((error: HttpErrorResponse) => {
           console.log('in error block');
-          if (error.status === 401 && error.error && error.error.detail === 'Invalid token.') {
+          if (error.status === 401 && error.error) {
             this.storageService.destroyAll();
-            this.router.navigate(['/login']);
+            this.router.navigate(['/login'], { queryParams: { expired: 'true' } });
           } else {
             console.error('Error al comprobar el token de acceso:', error);
           }
@@ -33,7 +33,7 @@ export class AuthGuard implements CanActivate {
         })
       ).toPromise();
     } else {
-      this.router.navigate(['/login']);
+      this.router.navigate(['/login'], { queryParams: { expired: 'true' } });
       return false;
     }
   }
