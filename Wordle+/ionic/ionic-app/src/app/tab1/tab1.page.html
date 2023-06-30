@@ -7,27 +7,27 @@
       </div>
       <div class="user-info">
         <div class="username-container">
-          <div class="username">davidcr01</div>
+          <div class="username">{{ username }}</div>
         </div>
         <div class="victories-container">
           <div class="victory">
             <img src="../../assets/icon/wins-classic.png" alt="Victories Classic">
-            <span>10</span>
+            <span>{{ victoriesClassic }}</span>
           </div>
           <div class="victory">
             <img src="../../assets/icon/wins-pvp.png" alt="Victories PvP">
-            <span>5</span>
+            <span>{{ victoriesPvp }}</span>
           </div>
           <div class="victory">
             <img src="../../assets/icon/wins-tournaments.png" alt="Victories Torneos">
-            <span>3</span>
+            <span>{{ victoriesTournaments }}</span>
           </div>
         </div>
       </div>
 
       <div class="special-button-container">
         <ion-button class="special-button">
-          <ion-icon name="ribbon-outline" class="icon"></ion-icon>
+          <ion-icon name="ribbon" class="icon"></ion-icon>
         </ion-button>
         <ion-button class="special-button">
           <ion-icon name="mail" class="icon"></ion-icon>
@@ -39,11 +39,11 @@
   <ion-card class="second-card">
     <ion-card-content class="rank-text">
       <div class="image-overlay">
-        <ion-img src="" class="translucent-bg" id="background-image"></ion-img>
-        <ion-img src="../../assets/ranks/bronze.png" alt="Rank Image" class="rank-image"></ion-img>
+        <ion-img [src]="backgroundImage" class="translucent-bg" id="background-image"></ion-img>
+        <ion-img [src]="rankImage" alt="Rank Image" class="rank-image"></ion-img>
       </div>
       <div class="title-container">
-        <ion-card-title class="rank-name">Nombre del rango</ion-card-title>
+        <ion-card-title class="rank-name">{{ rank }}</ion-card-title>
       </div>
     </ion-card-content>
   </ion-card>

@@ -112,7 +112,12 @@ class CustomObtainAuthToken(ObtainAuthToken):
         response_data = {
             'token': token.key,
             'user_id': user.id,
-            'player_id': user.player.id if hasattr(user, 'player') else None  # Include the player ID if it exists
+            'username': user.username,
+            'player_id': user.player.id if hasattr(user, 'player') else None,  # Include the player ID if it exists
+            'wins': user.player.wins if hasattr(user, 'player') else None,  # Include wins if player exists
+            'wins_pvp': user.player.wins_pvp if hasattr(user, 'player') else None,  # Include wins_pvp if player exists
+            'wins_tournament': user.player.wins_tournament if hasattr(user, 'player') else None,  # Include wins_tournament if player exists
+            'xp': user.player.xp if hasattr(user, 'player') else None  # Include xp if player exists
         }
 
         return Response(response_data, status=status.HTTP_200_OK)

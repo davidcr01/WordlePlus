@@ -12,7 +12,7 @@
         <ion-input type="text" formControlName="username" required></ion-input>
       </ion-item>
       <div *ngIf="registerForm.get('username')?.invalid && registerForm.get('username')?.touched"  >
-        Username is required. Min 4 characters.
+        Username is required. Between 4 & 10 characters.
       </div>
 
       <ion-item>

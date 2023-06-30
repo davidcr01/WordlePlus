@@ -208,10 +208,12 @@ export class WordleDashboardComponent implements OnInit {
         (error) => {
           console.log('Game could not be added', error);
       });
+      this.storageService.incrementXP(xP);
 
       if (won) {
         setTimeout(() => {
           this.toastService.showToast('You won!', 2000, 'top');
+          this.storageService.incrementWins();
           this.initGame();
         }, 250 * this.WORDS_LENGTH + 3000);
       } else {
