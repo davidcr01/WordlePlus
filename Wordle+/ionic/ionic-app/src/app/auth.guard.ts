@@ -22,7 +22,6 @@ export class AuthGuard implements CanActivate {
     if (accessToken) {
       return (await this.apiService.checkTokenExpiration()).pipe(
         catchError((error: HttpErrorResponse) => {
-          console.log('in error block');
           if (error.status === 401 && error.error) {
             this.storageService.destroyAll();
             this.router.navigate(['/login'], { queryParams: { expired: 'true' } });
@@ -33,6 +32,7 @@ export class AuthGuard implements CanActivate {
         })
       ).toPromise();
     } else {
+      this.storageService.destroyAll();
       this.router.navigate(['/login'], { queryParams: { expired: 'true' } });
       return false;
     }

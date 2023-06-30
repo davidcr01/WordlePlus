@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { StorageService } from './storage.service';
+import { map } from 'rxjs/operators';
 import { EncryptionService } from './encryption.service';
 
 @Injectable({
@@ -47,5 +48,35 @@ import { EncryptionService } from './encryption.service';
         const headers = new HttpHeaders({'Authorization': `Token ${decryptedToken}`});
 
         return this.http.post(url, gameData, { headers });
+    }
+
+    async getAvatarImage(): Promise<Observable<any>> {
+        const userId = await this.storageService.getUserID();
+        const url = `${this.baseURL}/api/avatar/${userId}/`;
+        const accessToken = await this.storageService.getAccessToken();
+        if (!accessToken) {
+          return throwError('Access token not found');
+        }
+        const decryptedToken = this.encryptionService.decryptData(accessToken);
+        const headers = new HttpHeaders({ 'Authorization': `Token ${decryptedToken}` });
+    
+        return this.http.get<any>(url, { headers }).pipe(
+            map(response => response.avatar)
+          );
+      }
+
+    async saveAvatarImage(imageData: string): Promise<Observable<any>> {
+        const url = `${this.baseURL}/api/avatar/`;
+        const accessToken = await this.storageService.getAccessToken();
+        if (!accessToken) {
+            return throwError('Access token not found');
+        }
+        const decryptedToken = this.encryptionService.decryptData(accessToken);
+        const headers = new HttpHeaders({
+            Authorization: `Token ${decryptedToken}`,
+            'Content-Type': 'application/json'
+        });
+        const body = { image_data: imageData };
+        return this.http.post(url, body, { headers });
     }
   }

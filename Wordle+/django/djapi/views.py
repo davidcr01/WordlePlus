@@ -1,3 +1,4 @@
+import base64
 from django.contrib.auth.models import Group
 from .models import CustomUser, Player, ClassicWordle
 from rest_framework import viewsets, permissions, status
@@ -12,6 +13,7 @@ from datetime import timedelta
 from django.utils import timezone
 from django.conf import settings
 from django.shortcuts import get_object_or_404
+from django.http import FileResponse
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
@@ -158,3 +160,37 @@ class ClassicWordleViewSet(viewsets.GenericViewSet):
         return Response(serializer.data)
 
 
+class AvatarView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, user_id):
+        try:
+            user = get_object_or_404(CustomUser, id=user_id)
+            if request.user == user:
+                if user.avatar:
+                    with open(user.avatar.path, 'rb') as f:
+                        image_data = f.read()
+                        base64_image = base64.b64encode(image_data).decode('utf-8')
+                        return Response({'avatar': base64_image}, status=200)
+                else:
+                    return Response({'detail': 'Avatar not available.'}, status=404)
+            else:
+                return Response({'detail': 'You do not have permission to get the avatar.'}, status=403)
+        except CustomUser.DoesNotExist:
+            return Response({'detail': 'The specified user does not exist.'}, status=404)
+        
+    def post(self, request, user_id):
+        try:
+            user = get_object_or_404(CustomUser, id=user_id)
+            if request.user == user: 
+                avatar = request.FILES.get('avatar')
+                if avatar:
+                    user.avatar = avatar
+                    user.save()
+                    return Response({'detail': 'Avatar uploaded correctly.'}, status=200)
+                else:
+                    return Response({'detail': 'No avatar image attached.'}, status=400)
+            else:
+                return Response({'detail': 'You do not have permission to upload an avatar.'}, status=403)
+        except CustomUser.DoesNotExist:
+            return Response({'detail': 'The specified user does not exist.'}, status=404)

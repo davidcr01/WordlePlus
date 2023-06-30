@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { StorageService } from '../services/storage.service';
+import { ApiService } from '../services/api.service';
 
 @Component({
   selector: 'app-tab1',
@@ -15,10 +16,12 @@ export class Tab1Page implements OnInit{
   rank: string;
   rankImage: string;
   backgroundImage: string;
+  avatarImage: string;
 
   constructor(
     private router: Router, 
-    private storageService: StorageService
+    private storageService: StorageService,
+    private apiService: ApiService
   ) {}
 
   ngOnInit() {
@@ -36,6 +39,32 @@ export class Tab1Page implements OnInit{
     this.victoriesTournaments = await this.storageService.getWinsTournament();
     this.rank = await this.storageService.getRank();
     this.rankImage = this.getRankImage(this.rank);
+    const storedAvatarUrl = await this.storageService.getAvatarUrl();
+
+    if (storedAvatarUrl) {
+      console.log('i already have avatar stored');
+      this.avatarImage = storedAvatarUrl;
+    } else {
+      console.log('loading avatar img');
+      this.loadAvatarImage();
+    }
+  }
+
+  async loadAvatarImage() {
+    (await this.apiService.getAvatarImage()).subscribe(
+      image => {
+        if (image) {
+          this.avatarImage = 'data:image/png;base64,' + image;
+          this.storageService.setAvatarUrl(this.avatarImage);
+        } else {
+          this.avatarImage = '../../assets/avatar.png'; // Default avatar image
+        }
+      },
+      error => {
+        console.error('Error loading avatar image:', error);
+        this.avatarImage = '../../assets/avatar.png';
+      }
+    );
   }
 
   getRankImage(rank: string): string {
@@ -50,7 +79,7 @@ export class Tab1Page implements OnInit{
     } else if (rank === 'PLATINUM') {
       return '../../assets/ranks/platinum.png';
     } else {
-      return '';
+      return '../../assets/ranks/admin.png';
     }
   }
 }

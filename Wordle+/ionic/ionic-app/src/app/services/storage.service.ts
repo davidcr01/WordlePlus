@@ -141,5 +141,20 @@ export class StorageService {
 
   async getRank(): Promise<string | null> {
     return await this._storage?.get('rank') || null;
-  }  
+  }
+
+  // Avatar
+
+  async setAvatarUrl(imageData: string) {
+    await this._storage?.set('avatarUrl', imageData);
+  }
+
+  async getAvatarUrl(): Promise<string | null> {
+    return await this._storage?.get('avatarUrl') || null;
+  }
+
+  async removeAvatarUrl() {
+    await this._storage?.remove('avatarUrl');
+  }
+
 }
