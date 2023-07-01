@@ -1,5 +1,5 @@
 from django.contrib.auth.models import Group
-from .models import CustomUser, Player, StaffCode, ClassicWordle
+from .models import CustomUser, Player, StaffCode, ClassicWordle, Notifications
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 
@@ -110,6 +110,11 @@ class ClassicWordleSerializer(serializers.ModelSerializer):
         player.save()
 
         return ClassicWordle.objects.create(**validated_data)
+
+class NotificationsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notifications
+        fields = ['player', 'text', 'link']
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
