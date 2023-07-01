@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { StorageService } from '../services/storage.service';
 import { ApiService } from '../services/api.service';
+import { PopoverController } from '@ionic/angular';
+import { WordsPopoverComponent } from '../components/words-popover/words-popover.component';
+
 
 @Component({
   selector: 'app-tab1',
@@ -22,7 +25,8 @@ export class Tab1Page implements OnInit{
   constructor(
     private router: Router, 
     private storageService: StorageService,
-    private apiService: ApiService
+    private apiService: ApiService,
+    public popoverController: PopoverController
   ) {}
 
   ngOnInit() {
@@ -40,15 +44,26 @@ export class Tab1Page implements OnInit{
     this.victoriesTournaments = await this.storageService.getWinsTournament();
     this.xP = await this.storageService.getXP();
     this.rank = await this.storageService.getRank();
-    this.rankImage = this.getRankImage(this.rank);
+    this.rankImage = await this.getRankImage(this.rank);
     const storedAvatarUrl = await this.storageService.getAvatarUrl();
 
     if (storedAvatarUrl) {
       this.avatarImage = storedAvatarUrl;
     } else {
-      this.loadAvatarImage();
+      await this.loadAvatarImage();
     }
   }
+
+  async togglePopover(event: any) {
+    const popover = await this.popoverController.create({
+      component: WordsPopoverComponent,
+      event: event,
+      dismissOnSelect: true
+    });
+    
+    await popover.present();
+  }
+
 
   async loadAvatarImage() {
     (await this.apiService.getAvatarImage()).subscribe(

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-classic-wordle',
@@ -7,10 +8,13 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ClassicWordlePage implements OnInit {
 
-  public wordLength: number = 5;
-  constructor() { }
+  public wordLength: number;
+  constructor(private route: ActivatedRoute) { }
 
   ngOnInit() {
+    this.route.paramMap.subscribe(params => {
+      this.wordLength = parseInt(params.get('length'), 10);
+    });
   }
 
 }
