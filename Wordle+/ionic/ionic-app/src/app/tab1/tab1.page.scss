@@ -57,7 +57,7 @@ font-weight: bold;
 .victories-container {
 margin-top: 1.5vw;
 display: grid;
-grid-template-columns: repeat(3, auto);
+grid-template-columns: repeat(4, auto);
 gap: 5vw;
 }
 
@@ -67,12 +67,12 @@ align-items: center;
 }
 
 .victory img {
-height: calc(4vh + 1vw);
-margin-right: 2vw;
+height: calc(3vh + 1vw);
+margin-right: 0.5vw;
 }
 
 .victory span {
-font-size: calc(2.5vh + 1vw);
+font-size: calc(1.5vh + 2vw);
 }
 
 .first-card {
@@ -221,9 +221,7 @@ height: 11vh;
 
     .victories-container {
     margin-top: 15px;
-    display: grid;
-    grid-template-columns: repeat(3, auto);
-    gap: 10px;
+    display: flex;
     margin-bottom: 10%;
     }
 
@@ -240,11 +238,12 @@ height: 11vh;
     align-items: center;
     justify-content: center;
     margin: 1vw;
+    margin-left: 6.5vw;
     }
 
     .special-button {
-    --padding-start: 2vw;
-    --padding-end: 2vw;
+    --padding-start: 1vw;
+    --padding-end: 1vw;
     height: 30%;
     --background: var(--ion-color-turquoise);
     }

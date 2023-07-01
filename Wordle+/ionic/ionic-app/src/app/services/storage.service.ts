@@ -134,7 +134,7 @@ export class StorageService {
   async incrementXP(value: number) {
     const currentXP = await this.getXP();
     const newXP = currentXP ? currentXP + value : value;
-    await this._storage?.set('xp', newXP);
+    await this.setXP(newXP);
   }
 
   // Rank

@@ -15,6 +15,7 @@ export class Tab1Page implements OnInit{
   victoriesTournaments: number;
   rank: string;
   rankImage: string;
+  xP: number;
   backgroundImage: string;
   avatarImage: string;
 
@@ -37,15 +38,14 @@ export class Tab1Page implements OnInit{
     this.victoriesClassic = await this.storageService.getWins();
     this.victoriesPvp = await this.storageService.getWinsPVP();
     this.victoriesTournaments = await this.storageService.getWinsTournament();
+    this.xP = await this.storageService.getXP();
     this.rank = await this.storageService.getRank();
     this.rankImage = this.getRankImage(this.rank);
     const storedAvatarUrl = await this.storageService.getAvatarUrl();
 
     if (storedAvatarUrl) {
-      console.log('i already have avatar stored');
       this.avatarImage = storedAvatarUrl;
     } else {
-      console.log('loading avatar img');
       this.loadAvatarImage();
     }
   }
