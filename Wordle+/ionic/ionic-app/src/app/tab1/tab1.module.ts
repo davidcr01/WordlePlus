@@ -7,6 +7,7 @@ import { ExploreContainerComponentModule } from '../explore-container/explore-co
 import { LogoutButtonComponent } from '../components/logout-button/logout-button.component';
 
 import { Tab1PageRoutingModule } from './tab1-routing.module';
+import { WordsPopoverComponent } from '../components/words-popover/words-popover.component';
 
 @NgModule({
   imports: [
@@ -16,6 +17,6 @@ import { Tab1PageRoutingModule } from './tab1-routing.module';
     ExploreContainerComponentModule,
     Tab1PageRoutingModule
   ],
-  declarations: [Tab1Page, LogoutButtonComponent]
+  declarations: [Tab1Page, LogoutButtonComponent, WordsPopoverComponent]
 })
 export class Tab1PageModule {}

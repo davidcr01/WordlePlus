@@ -27,7 +27,7 @@ const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
-    path: 'classic-wordle',
+    path: 'classic-wordle/:length',
     loadChildren: () => import('./pages/classic-wordle/classic-wordle.module').then( m => m.ClassicWordlePageModule),
     canActivate: [AuthGuard]
   },
