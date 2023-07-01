@@ -13,7 +13,6 @@ from datetime import timedelta
 from django.utils import timezone
 from django.conf import settings
 from django.shortcuts import get_object_or_404
-from rest_framework.decorators import action
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
@@ -153,10 +152,16 @@ class ClassicWordleViewSet(viewsets.GenericViewSet):
         return Response(serializer.data)
 
     def create(self, request):
-        serializer = ClassicWordleSerializer(data=request.data)
+        player = getattr(request.user, 'player', None)
+
+        if not player:
+            return Response({'error': 'Player not found'}, status=404)
+
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save(player=request.user.player)
-        return Response(serializer.data)
+        serializer.save(player=player)
+        return Response(serializer.data, status=201)
+
 
 
 class AvatarView(APIView):
@@ -211,10 +216,13 @@ class NotificationsViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data)
 
-
-
     def create(self, request):
+        player = getattr(request.user, 'player', None)
+
+        if not player:
+            return Response({'error': 'Player not found'}, status=404)
+
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        serializer.save(player=player)
         return Response(serializer.data, status=201)

@@ -96,7 +96,7 @@ class PlayerInfoSerializer(serializers.ModelSerializer):
 class ClassicWordleSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClassicWordle
-        fields = ['player', 'word', 'time_consumed', 'attempts', 'xp_gained', 'date_played', 'win']
+        fields = ['word', 'time_consumed', 'attempts', 'xp_gained', 'date_played', 'win']
     
     def create(self, validated_data):
         player = validated_data['player']
@@ -114,7 +114,7 @@ class ClassicWordleSerializer(serializers.ModelSerializer):
 class NotificationsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notifications
-        fields = ['player', 'text', 'link']
+        fields = ['text', 'link']
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:

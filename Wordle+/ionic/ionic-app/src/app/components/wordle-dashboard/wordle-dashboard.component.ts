@@ -193,7 +193,6 @@ export class WordleDashboardComponent implements OnInit {
       const body = {
         word: this.rightGuessString,
         attempts: attempsConsumed,
-        player: playerId,
         time_consumed: timeConsumed,
         win: won,
         xp_gained: xP,
