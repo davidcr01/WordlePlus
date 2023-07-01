@@ -148,6 +148,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'djapi.CustomUser'
 TOKEN_EXPIRED_AFTER_SECONDS = 3600
 
+MEDIA_URL = '/avatars/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'avatars')
+
 ## Conection with the FrontEnd
 
 CORS_ALLOWED_ORIGINS = [

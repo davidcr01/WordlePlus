@@ -61,9 +61,15 @@ export class LoginPage implements OnInit {
 
         await this.storageService.setAccessToken(encryptedToken);
         await this.storageService.setUserID(response.user_id);
+        await this.storageService.setUsername(response.username);
 
         if (response.player_id !== null) {
           await this.storageService.setPlayerID(response.player_id);
+          await this.storageService.setWins(response.wins);
+          await this.storageService.setWinsPVP(response.wins_pvp);
+          await this.storageService.setWinsTournament(response.wins_tournament);
+          await this.storageService.setXP(response.xp);
+          // Rank is calculated in the frontend
         }
 
         this.router.navigateByUrl('');

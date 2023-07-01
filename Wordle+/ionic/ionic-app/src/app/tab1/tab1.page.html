@@ -1,19 +1,62 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Tab test
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content>
+  <div id="container">
+  <div class="header-container">
+    <ion-card class="first-card">
+      <div class="avatar-container">
+        <img [src]="avatarImage" alt="Avatar">
+      </div>
+      <div class="user-info">
+        <div class="username-container">
+          <div class="username">{{ username }}</div>
+        </div>
+        <div class="victories-container">
+          <div class="victory">
+            <img src="../../assets/icon/wins-classic.png" alt="Victories Classic">
+            <span>{{ victoriesClassic }}</span>
+          </div>
+          <div class="victory">
+            <img src="../../assets/icon/wins-pvp.png" alt="Victories PvP">
+            <span>{{ victoriesPvp }}</span>
+          </div>
+          <div class="victory">
+            <img src="../../assets/icon/wins-tournaments.png" alt="Victories Tournaments">
+            <span>{{ victoriesTournaments }}</span>
+          </div>
+          <div class="victory">
+            <img src="../../assets/icon/experience.png" alt="Experience">
+            <span>{{ xP }}</span>
+          </div>
+        </div>
+      </div>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 1</ion-title>
-    </ion-toolbar>
+      <div class="special-button-container">
+        <ion-button class="special-button">
+          <ion-icon name="ribbon" class="icon"></ion-icon>
+        </ion-button>
+        <ion-button class="special-button">
+          <ion-icon name="mail" class="icon"></ion-icon>
+        </ion-button>
+      </div>
+    </ion-card>  
+  </div>
 
-    
-  </ion-header>
+  <ion-card class="second-card">
+    <ion-card-content class="rank-text">
+      <div class="image-overlay">
+        <ion-img [src]="backgroundImage" class="translucent-bg" id="background-image"></ion-img>
+        <ion-img [src]="rankImage" alt="Rank Image" class="rank-image"></ion-img>
+      </div>
+      <div class="title-container">
+        <ion-card-title class="rank-name">{{ rank }}</ion-card-title>
+      </div>
+    </ion-card-content>
+  </ion-card>
+  
+  
 
-  <app-logout-button></app-logout-button>
+  <div class="button-container">
+    <ion-button expand="block" size="large" id="classic-game">CLASSIC</ion-button>
+    <ion-button expand="block" size="large" id="pvp-game">1VS1</ion-button>
+  </div>
+</div>
 </ion-content>
