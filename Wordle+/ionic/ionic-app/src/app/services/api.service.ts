@@ -95,13 +95,17 @@ import { EncryptionService } from './encryption.service';
     }
 
     async addNotification(notification: { text: string, link: string }): Promise<Observable<any>> {
+        console.log('in api adding not');
         let url = `${this.baseURL}/api/notifications/`;
         const accessToken = this.storageService.getAccessToken();
         if (!accessToken) {
             return throwError('Access token not found');
         }
         const decryptedToken = this.encryptionService.decryptData(await accessToken);
-        const headers = new HttpHeaders({'Authorization': `Token ${decryptedToken}`});
+        const headers = new HttpHeaders({
+            Authorization: `Token ${decryptedToken}`,
+            'Content-Type': 'application/json'
+        });
 
         return this.http.post(url, notification, { headers });
     }

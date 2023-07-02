@@ -40,10 +40,19 @@ export class NotificationService {
       });
   }
 
-  async addNotification(notification: { text: string; link: string }): Promise<void> {
-    await this.apiService.addNotification(notification);
+  async addNotification(notification: { text: string; link?: string }): Promise<void> {
+    const newNotification = { text: notification.text, link: notification.link || '' };
+    (await this.apiService.addNotification(newNotification)).subscribe(
+      (response) => {
+        console.log('Notification added successfully', response);
+      },
+      (error) => {
+        console.log('Notification could not be added', error);
+    }
+    );
+
     const storedNotifications = await this.storageService.getNotifications() || [];
-    const updatedNotifications = [...storedNotifications, notification];
+    const updatedNotifications = [...storedNotifications, newNotification];
     await this.storageService.setNotifications(updatedNotifications);
   }
 

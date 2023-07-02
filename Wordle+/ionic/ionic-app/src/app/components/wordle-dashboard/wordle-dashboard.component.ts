@@ -5,6 +5,7 @@ import { StorageService } from 'src/app/services/storage.service';
 import { ApiService } from 'src/app/services/api.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { Router } from '@angular/router';
+import { NotificationService } from 'src/app/services/notification.service';
 
 
 interface LetterBox {
@@ -39,7 +40,8 @@ export class WordleDashboardComponent implements OnInit {
     private storageService: StorageService,
     private apiService: ApiService,
     private toastService: ToastService,
-    private router: Router) { }
+    private router: Router,
+    private notificationService: NotificationService) { }
 
   ngOnInit(): void {
     this.generateWord();
@@ -209,6 +211,7 @@ export class WordleDashboardComponent implements OnInit {
           console.log('Game could not be added', error);
       });
       this.storageService.incrementXP(xP);
+      this.notificationService.addNotification({'text': 'Well done!'});
 
       if (won) {
         setTimeout(() => {
