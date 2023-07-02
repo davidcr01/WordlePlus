@@ -138,13 +138,11 @@ export class StorageService {
   }
 
   // Rank
-
   async getRank(): Promise<string | null> {
     return await this._storage?.get('rank') || null;
   }
 
   // Avatar
-
   async setAvatarUrl(imageData: string) {
     await this._storage?.set('avatarUrl', imageData);
   }
@@ -155,6 +153,26 @@ export class StorageService {
 
   async removeAvatarUrl() {
     await this._storage?.remove('avatarUrl');
+    
   }
 
+  // Notifications
+  async setNotifications(notifications: any[]): Promise<void> {
+    await this._storage?.set('notifications', JSON.stringify(notifications));
+  }
+
+  async clearNotifications() {
+    await this._storage?.remove('notifications');
+  }
+
+  getNotifications(): Promise<any[]> {
+    return new Promise(async (resolve) => {
+      const storedNotifications = this._storage?.get('notifications');
+      if (storedNotifications) {
+        resolve(JSON.parse(await storedNotifications));
+      } else {
+        resolve([]);
+      }
+    });
+  }
 }

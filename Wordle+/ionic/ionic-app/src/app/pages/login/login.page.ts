@@ -7,6 +7,7 @@ import { EncryptionService } from '../../services/encryption.service';
 import { ApiService } from '../../services/api.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { ActivatedRoute } from '@angular/router';
+import { NotificationService } from 'src/app/services/notification.service';
 
 @Component({
   selector: 'app-login',
@@ -28,7 +29,8 @@ export class LoginPage implements OnInit {
     private encryptionService: EncryptionService,
     private apiService: ApiService,
     private route: ActivatedRoute,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private notificationStorage: NotificationService
     ) {}
 
   ngOnInit() {
@@ -71,6 +73,7 @@ export class LoginPage implements OnInit {
           await this.storageService.setXP(response.xp);
           // Rank is calculated in the frontend
         }
+        this.notificationStorage.addNotification({'text': 'Welcome again!', 'link': ''});
 
         this.router.navigateByUrl('');
       },

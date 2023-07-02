@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { ApiService } from 'src/app/services/api.service';
+import { StorageService } from 'src/app/services/storage.service';
 
 @Component({
   selector: 'app-register',
@@ -15,7 +15,10 @@ export class RegisterPage implements OnInit{
   isLoading: boolean = false;
   isStaff: boolean = false;
 
-  constructor(public formBuilder: FormBuilder, private apiService: ApiService) {}
+  constructor(public formBuilder: FormBuilder, 
+    private apiService: ApiService, 
+    private storageService: StorageService,
+    ) {}
 
   ngOnInit() {
     // Define the fields of the form

@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { StorageService } from 'src/app/services/storage.service';
 import { ApiService } from 'src/app/services/api.service';
 import { ToastService } from 'src/app/services/toast.service';
+import { Router } from '@angular/router';
 
 
 interface LetterBox {
@@ -34,11 +35,11 @@ export class WordleDashboardComponent implements OnInit {
   private startTime: number;
 
   constructor(
-    private toastController: ToastController, 
     private http: HttpClient, 
     private storageService: StorageService,
     private apiService: ApiService,
-    private toastService: ToastService) { }
+    private toastService: ToastService,
+    private router: Router) { }
 
   ngOnInit(): void {
     this.generateWord();
@@ -211,16 +212,18 @@ export class WordleDashboardComponent implements OnInit {
 
       if (won) {
         setTimeout(() => {
-          this.toastService.showToast('You won!', 2000, 'top');
+          this.toastService.showToast(`You won! You gained ${xP}`, 3000, 'top');
           this.storageService.incrementWins();
-          this.initGame();
+
         }, 250 * this.WORDS_LENGTH + 3000);
       } else {
         setTimeout(() => {
-          this.toastService.showToast('You lost!', 2000, 'top');
-          this.initGame();
+          this.toastService.showToast(`You lost! You gained ${xP}`, 3000, 'top');
         }, 250 * this.WORDS_LENGTH + 3000);
       }
+      setTimeout(() => {
+        this.router.navigate(['/tabs/main'], { queryParams: { refresh: 'true' } });
+      }, 3000)
     }
   }
 

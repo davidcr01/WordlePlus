@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, HostListener } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { StorageService } from '../services/storage.service';
 import { ApiService } from '../services/api.service';
 import { PopoverController } from '@ionic/angular';
 import { WordsPopoverComponent } from '../components/words-popover/words-popover.component';
+import { NotificationsPopoverComponent } from '../components/notifications-popover/notifications-popover.component';
+import { NotificationService } from '../services/notification.service';
 
 
 @Component({
@@ -23,45 +25,67 @@ export class Tab1Page implements OnInit{
   avatarImage: string;
 
   constructor(
-    private router: Router, 
+    private route: ActivatedRoute, 
     private storageService: StorageService,
     private apiService: ApiService,
-    public popoverController: PopoverController
+    public popoverController: PopoverController,
+    private notificationService: NotificationService
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     if (window.innerWidth <= 767) {
       this.backgroundImage = '../../assets/background_wordle_vertical.png';
     } else {
       this.backgroundImage = '../../assets/background_wordle_horizontal.png';
     }
+
+    const storedAvatarUrl = await this.storageService.getAvatarUrl();
+    if (storedAvatarUrl) {
+      this.avatarImage = storedAvatarUrl;
+    } else {
+      await this.loadAvatarImage();
+    }
+
+    this.route.queryParams.subscribe(async params => {
+      const refresh = params['refresh'];
+      if (refresh === 'true') {
+        await this.ionViewWillEnter();
+      }
+    });
   }
 
   async ionViewWillEnter() {
-    this.username = await this.storageService.getUsername();
+    this.username = await this.storageService.getUsername();    
     this.victoriesClassic = await this.storageService.getWins();
     this.victoriesPvp = await this.storageService.getWinsPVP();
     this.victoriesTournaments = await this.storageService.getWinsTournament();
     this.xP = await this.storageService.getXP();
     this.rank = await this.storageService.getRank();
     this.rankImage = await this.getRankImage(this.rank);
-    const storedAvatarUrl = await this.storageService.getAvatarUrl();
 
-    if (storedAvatarUrl) {
-      this.avatarImage = storedAvatarUrl;
-    } else {
-      await this.loadAvatarImage();
-    }
+    console.log('ion');
+    this.notificationService.refreshNotifications();
   }
 
-  async togglePopover(event: any) {
+  async handleSelectionPopover(event: any) {
     const popover = await this.popoverController.create({
       component: WordsPopoverComponent,
+      event: event,
+      dismissOnSelect: true,
+    });
+    
+    await popover.present();
+  }
+
+  async handleNotificationsPopover(event: any) {
+    const popover = await this.popoverController.create({
+      component: NotificationsPopoverComponent,
       event: event,
       dismissOnSelect: true
     });
     
     await popover.present();
+    
   }
 
 
