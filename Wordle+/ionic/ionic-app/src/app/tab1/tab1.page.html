@@ -33,7 +33,7 @@
         <ion-button class="special-button">
           <ion-icon name="ribbon" class="icon"></ion-icon>
         </ion-button>
-        <ion-button class="special-button">
+        <ion-button class="special-button" (click)="handleNotificationsPopover($event)">
           <ion-icon name="mail" class="icon"></ion-icon>
         </ion-button>
       </div>
@@ -55,7 +55,7 @@
   
 
   <div class="button-container">
-    <ion-button expand="block" size="large" id="classic-game" (click)="togglePopover($event)">CLASSIC</ion-button>
+    <ion-button expand="block" size="large" id="classic-game" (click)="handleSelectionPopover($event)">CLASSIC</ion-button>
     <ion-button expand="block" size="large" id="pvp-game">1VS1</ion-button>
   </div>
 

@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
 
-from .models import CustomUser, Player, StaffCode, ClassicWordle
+from .models import CustomUser, Player, StaffCode, ClassicWordle, Notifications
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
@@ -84,6 +84,10 @@ class StaffCodeAdmin(admin.ModelAdmin):
 class ClassicWordleAdmin(admin.ModelAdmin):
     list_display = ['id', 'player', 'word', 'date_played']
 
+class NotificationsAdmin(admin.ModelAdmin):
+    list_display = ('id', 'player', 'text', 'link', 'timestamp')
+
+admin.site.register(Notifications, NotificationsAdmin)
 admin.site.register(ClassicWordle, ClassicWordleAdmin)
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Player, PlayerAdmin)

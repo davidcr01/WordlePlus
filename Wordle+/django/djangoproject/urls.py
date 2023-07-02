@@ -26,6 +26,7 @@ router.register(r'api/users', views.CustomUserViewSet)
 router.register(r'api/players', views.PlayerViewSet)
 router.register(r'api/groups', views.GroupViewSet)
 router.register(r'api/classicwordles', views.ClassicWordleViewSet)
+router.register(r'api/notifications', views.NotificationsViewSet)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.

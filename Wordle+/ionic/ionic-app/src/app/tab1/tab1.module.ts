@@ -8,6 +8,7 @@ import { LogoutButtonComponent } from '../components/logout-button/logout-button
 
 import { Tab1PageRoutingModule } from './tab1-routing.module';
 import { WordsPopoverComponent } from '../components/words-popover/words-popover.component';
+import { NotificationsPopoverComponent } from '../components/notifications-popover/notifications-popover.component';
 
 @NgModule({
   imports: [
@@ -17,6 +18,6 @@ import { WordsPopoverComponent } from '../components/words-popover/words-popover
     ExploreContainerComponentModule,
     Tab1PageRoutingModule
   ],
-  declarations: [Tab1Page, LogoutButtonComponent, WordsPopoverComponent]
+  declarations: [Tab1Page, LogoutButtonComponent, WordsPopoverComponent, NotificationsPopoverComponent]
 })
 export class Tab1PageModule {}

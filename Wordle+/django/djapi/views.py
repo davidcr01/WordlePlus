@@ -4,7 +4,7 @@ from .models import CustomUser, Player, ClassicWordle
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from djapi.serializers import *
-from djapi.permissions import *
+from djapi.permissions import IsOwnerOrAdminPermission, IsOwnerPermission
 from rest_framework.permissions import IsAdminUser
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
@@ -13,7 +13,6 @@ from datetime import timedelta
 from django.utils import timezone
 from django.conf import settings
 from django.shortcuts import get_object_or_404
-from django.http import FileResponse
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
@@ -144,20 +143,25 @@ class ClassicWordleViewSet(viewsets.GenericViewSet):
     serializer_class = ClassicWordleSerializer
 
     def list(self, request):
-        player_id = request.query_params.get('player_id')
-        if not player_id:
-            return Response({'error': 'player_id parameter is required'}, status=400)
-
-        player = get_object_or_404(Player, id=player_id)
+        player = getattr(request.user, 'player', None)
+        if not player:
+            return Response({'error': 'Player not found'}, status=404)
+       
         queryset = ClassicWordle.objects.filter(player=player).order_by('-date_played')
         serializer = ClassicWordleSerializer(queryset, many=True)
         return Response(serializer.data)
 
     def create(self, request):
-        serializer = ClassicWordleSerializer(data=request.data)
+        player = getattr(request.user, 'player', None)
+
+        if not player:
+            return Response({'error': 'Player not found'}, status=404)
+
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save(player=request.user.player)
-        return Response(serializer.data)
+        serializer.save(player=player)
+        return Response(serializer.data, status=201)
+
 
 
 class AvatarView(APIView):
@@ -194,3 +198,31 @@ class AvatarView(APIView):
                 return Response({'detail': 'You do not have permission to upload an avatar.'}, status=403)
         except CustomUser.DoesNotExist:
             return Response({'detail': 'The specified user does not exist.'}, status=404)
+        
+class NotificationsViewSet(viewsets.ModelViewSet):
+    queryset = Notifications.objects.all()
+    serializer_class = NotificationsSerializer
+    permission_classes = [permissions.IsAuthenticated, IsOwnerPermission]
+    
+    def list(self, request):
+        limit = int(request.query_params.get('limit', 10))
+        player = getattr(request.user, 'player', None)
+
+        if not player:
+            return Response({'error': 'Player not found'}, status=404)
+
+        notifications = self.queryset.filter(player=player).order_by('-timestamp')[:limit]
+        serializer = self.serializer_class(notifications, many=True)
+
+        return Response(serializer.data)
+
+    def create(self, request):
+        player = getattr(request.user, 'player', None)
+
+        if not player:
+            return Response({'error': 'Player not found'}, status=404)
+
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(player=player)
+        return Response(serializer.data, status=201)

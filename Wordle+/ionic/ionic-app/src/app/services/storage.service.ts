@@ -112,15 +112,15 @@ export class StorageService {
 
     let rank = '';
 
-    if (xP >= 0 && xP < 2000) {
+    if (xP >= 0 && xP < 3000) {
       rank = 'IRON';
-    } else if (xP >= 2000 && xP < 5000) {
+    } else if (xP >= 3000 && xP < 7000) {
       rank = 'BRONZE';
-    } else if (xP >= 5000 && xP < 9000) {
+    } else if (xP >= 7000 && xP < 14000) {
       rank = 'SILVER';
-    } else if (xP >= 9000 && xP < 14000) {
+    } else if (xP >= 14000 && xP < 20000) {
       rank = 'GOLD';
-    } else if (xP >= 10400) {
+    } else if (xP >= 20000) {
       rank = 'PLATINUM';
     }
     await this._storage?.set('rank', rank);
@@ -138,13 +138,11 @@ export class StorageService {
   }
 
   // Rank
-
   async getRank(): Promise<string | null> {
     return await this._storage?.get('rank') || null;
   }
 
   // Avatar
-
   async setAvatarUrl(imageData: string) {
     await this._storage?.set('avatarUrl', imageData);
   }
@@ -155,6 +153,26 @@ export class StorageService {
 
   async removeAvatarUrl() {
     await this._storage?.remove('avatarUrl');
+    
   }
 
+  // Notifications
+  async setNotifications(notifications: any[]): Promise<void> {
+    await this._storage?.set('notifications', JSON.stringify(notifications));
+  }
+
+  async clearNotifications() {
+    await this._storage?.remove('notifications');
+  }
+
+  getNotifications(): Promise<any[]> {
+    return new Promise(async (resolve) => {
+      const storedNotifications = this._storage?.get('notifications');
+      if (storedNotifications) {
+        resolve(JSON.parse(await storedNotifications));
+      } else {
+        resolve([]);
+      }
+    });
+  }
 }

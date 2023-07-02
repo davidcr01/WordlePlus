@@ -48,6 +48,13 @@ class ClassicWordle(models.Model):
     date_played = models.DateTimeField(default=timezone.now)
     win = models.BooleanField(default=False)
 
+class Notifications(models.Model):
+    player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='notifications')
+    text = models.CharField(max_length=200)
+    link = models.URLField(blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+# Method to add the 'Staff' group automatically when creating an administrator
 @receiver(post_save, sender=CustomUser)
 def assign_permissions(sender, instance, created, **kwargs):
     if created and instance.is_staff:
