@@ -52,7 +52,6 @@ export class RegisterPage implements OnInit{
 
     // Case of registering a player. The 'staff_code' field is not added
     if (staffCode === '' || staffCode === null) {
-      console.log('creating player');
       this.apiService.createPlayer(userData).subscribe(
         (response) => {
           console.log('Player created successfully', response);
@@ -77,7 +76,6 @@ export class RegisterPage implements OnInit{
       );
       // Case of registering an admin. The 'staff_code' field is added
     } else {
-      console.log('creating admin');
       userData['staff_code'] = staffCode;
       this.apiService.createUser(userData).subscribe(
         (response) => {

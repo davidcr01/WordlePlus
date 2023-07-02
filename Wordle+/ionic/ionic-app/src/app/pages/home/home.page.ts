@@ -15,7 +15,6 @@ export class HomePage {
 
     setTimeout(async () => {
       const token = await this.storageService.getAccessToken();
-      console.log(token);
       
       if (!token) {
         // Redirigir al usuario a la página de inicio de sesión

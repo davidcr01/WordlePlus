@@ -32,6 +32,7 @@ export class Tab1Page implements OnInit{
     private notificationService: NotificationService
   ) {}
 
+  // Change background img depending on the width
   async ngOnInit() {
     if (window.innerWidth <= 767) {
       this.backgroundImage = '../../assets/background_wordle_vertical.png';
@@ -39,6 +40,7 @@ export class Tab1Page implements OnInit{
       this.backgroundImage = '../../assets/background_wordle_horizontal.png';
     }
 
+    // Only fetchs the avatar if necessary
     const storedAvatarUrl = await this.storageService.getAvatarUrl();
     if (storedAvatarUrl) {
       this.avatarImage = storedAvatarUrl;
@@ -46,6 +48,8 @@ export class Tab1Page implements OnInit{
       await this.loadAvatarImage();
     }
 
+    // Optional param to update the player info: useful when
+    // finishing a game
     this.route.queryParams.subscribe(async params => {
       const refresh = params['refresh'];
       if (refresh === 'true') {
@@ -63,10 +67,10 @@ export class Tab1Page implements OnInit{
     this.rank = await this.storageService.getRank();
     this.rankImage = await this.getRankImage(this.rank);
 
-    console.log('ion');
     this.notificationService.refreshNotifications();
   }
 
+  // Popover of word length selection
   async handleSelectionPopover(event: any) {
     const popover = await this.popoverController.create({
       component: WordsPopoverComponent,
@@ -77,6 +81,7 @@ export class Tab1Page implements OnInit{
     await popover.present();
   }
 
+  // Popover of notifications
   async handleNotificationsPopover(event: any) {
     const popover = await this.popoverController.create({
       component: NotificationsPopoverComponent,
@@ -87,7 +92,6 @@ export class Tab1Page implements OnInit{
     await popover.present();
     
   }
-
 
   async loadAvatarImage() {
     (await this.apiService.getAvatarImage()).subscribe(

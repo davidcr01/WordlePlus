@@ -95,7 +95,6 @@ import { EncryptionService } from './encryption.service';
     }
 
     async addNotification(notification: { text: string, link: string }): Promise<Observable<any>> {
-        console.log('in api adding not');
         let url = `${this.baseURL}/api/notifications/`;
         const accessToken = this.storageService.getAccessToken();
         if (!accessToken) {

@@ -10,6 +10,8 @@ export class NotificationService {
 
   constructor(private apiService: ApiService, private storageService: StorageService) {}
 
+  // Gets the notifications saved. If not, gets the notifications of the Storage.
+  // Ig not, requests them to the API
   getNotifications(): Promise<any[]> {
     return new Promise(async (resolve) => {
       if (this.notifications.length > 0) {
@@ -30,8 +32,8 @@ export class NotificationService {
       }
     });
   }
-  
 
+  // Request to the API to get the notifications
   async refreshNotifications() {
     (await this.apiService.getNotifications()).subscribe((apiNotifications: any[]) => {
         this.notifications = apiNotifications || [];
@@ -40,6 +42,7 @@ export class NotificationService {
       });
   }
 
+  // Add a notification to the Storage, to the API and to the service
   async addNotification(notification: { text: string; link?: string }): Promise<void> {
     const newNotification = { text: notification.text, link: notification.link || '' };
     (await this.apiService.addNotification(newNotification)).subscribe(
