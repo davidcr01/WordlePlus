@@ -56,6 +56,7 @@ export class LoginPage implements OnInit {
 
     this.apiService.login(credentials).subscribe(
       async (response) => {
+
         // Store the token in the local storage
         this.errorMessage = ''
         const encryptedToken = this.encryptionService.encryptData(response.token);
@@ -72,7 +73,10 @@ export class LoginPage implements OnInit {
           await this.storageService.setXP(response.xp);
           // Rank is calculated in the frontend
         }
-        this.router.navigateByUrl('');
+        this.isLoading = false;
+        setTimeout(async () => {
+          this.router.navigate(['/tabs/main'], { queryParams: { avatar: 'true' } });
+        }, 2000);
       },
       (error) => {
         console.error('Log in error', error);

@@ -66,7 +66,8 @@ import { EncryptionService } from './encryption.service';
       }
 
     async saveAvatarImage(imageData: string): Promise<Observable<any>> {
-        const url = `${this.baseURL}/api/avatar/`;
+        const userId = await this.storageService.getUserID();
+        const url = `${this.baseURL}/api/avatar/${userId}/`;
         const accessToken = await this.storageService.getAccessToken();
         if (!accessToken) {
             return throwError('Access token not found');
@@ -76,7 +77,7 @@ import { EncryptionService } from './encryption.service';
             Authorization: `Token ${decryptedToken}`,
             'Content-Type': 'application/json'
         });
-        const body = { image_data: imageData };
+        const body = { avatar: imageData };
         return this.http.post(url, body, { headers });
     }
 

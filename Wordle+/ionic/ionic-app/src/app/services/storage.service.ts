@@ -143,8 +143,8 @@ export class StorageService {
   }
 
   // Avatar
-  async setAvatarUrl(imageData: string) {
-    await this._storage?.set('avatarUrl', imageData);
+  async setAvatarUrl(image: string) {
+    await this._storage?.set('avatarUrl', image);
   }
 
   async getAvatarUrl(): Promise<string | null> {

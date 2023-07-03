@@ -29,7 +29,7 @@ export class Tab1Page implements OnInit{
     private storageService: StorageService,
     private apiService: ApiService,
     public popoverController: PopoverController,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
   ) {}
 
   // Change background img depending on the width
@@ -39,21 +39,18 @@ export class Tab1Page implements OnInit{
     } else {
       this.backgroundImage = '../../assets/background_wordle_horizontal.png';
     }
-
-    // Only fetchs the avatar if necessary
-    const storedAvatarUrl = await this.storageService.getAvatarUrl();
-    if (storedAvatarUrl) {
-      this.avatarImage = storedAvatarUrl;
-    } else {
-      await this.loadAvatarImage();
-    }
+    this.getAvatarImage();
 
     // Optional param to update the player info: useful when
     // finishing a game
     this.route.queryParams.subscribe(async params => {
       const refresh = params['refresh'];
+      const avatar = params['avatar'];
       if (refresh === 'true') {
         await this.ionViewWillEnter();
+      }
+      if (avatar === 'true') {
+        this.getAvatarImage();
       }
     });
   }
@@ -68,6 +65,16 @@ export class Tab1Page implements OnInit{
     this.rankImage = await this.getRankImage(this.rank);
 
     this.notificationService.refreshNotifications();
+  }
+
+  async getAvatarImage() {
+    // Only fetchs the avatar if necessary
+    const storedAvatarUrl = await this.storageService.getAvatarUrl();
+    if (storedAvatarUrl) {
+      this.avatarImage = storedAvatarUrl;
+    } else {
+      await this.loadAvatarImage();
+    }
   }
 
   // Popover of word length selection
@@ -94,10 +101,12 @@ export class Tab1Page implements OnInit{
   }
 
   async loadAvatarImage() {
+    console.log('loading avatar');
     (await this.apiService.getAvatarImage()).subscribe(
       image => {
         if (image) {
-          this.avatarImage = 'data:image/png;base64,' + image;
+          console.log('api');
+          this.avatarImage = image;
           this.storageService.setAvatarUrl(this.avatarImage);
         } else {
           this.avatarImage = '../../assets/avatar.png'; // Default avatar image

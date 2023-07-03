@@ -1,4 +1,5 @@
-import base64
+import base64, os
+import imghdr
 from django.contrib.auth.models import Group
 from .models import CustomUser, Player, ClassicWordle
 from rest_framework import viewsets, permissions, status
@@ -13,6 +14,8 @@ from datetime import timedelta
 from django.utils import timezone
 from django.conf import settings
 from django.shortcuts import get_object_or_404
+from django.core.files.base import ContentFile
+from django.http import JsonResponse
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
@@ -194,33 +197,35 @@ class AvatarView(APIView):
             user = get_object_or_404(CustomUser, id=user_id)
             if request.user == user:
                 if user.avatar:
-                    with open(user.avatar.path, 'rb') as f:
-                        image_data = f.read()
-                        base64_image = base64.b64encode(image_data).decode('utf-8')
-                        return Response({'avatar': base64_image}, status=200)
+                    avatar_data = user.avatar.read()
+                    return JsonResponse({'avatar': avatar_data.decode('utf-8')}, status=200, safe=False)
                 else:
                     return Response({'detail': 'Avatar not available.'}, status=404)
             else:
                 return Response({'detail': 'You do not have permission to get the avatar.'}, status=403)
         except CustomUser.DoesNotExist:
             return Response({'detail': 'The specified user does not exist.'}, status=404)
-        
+
     def post(self, request, user_id):
         try:
             user = get_object_or_404(CustomUser, id=user_id)
-            if request.user == user: 
-                avatar = request.FILES.get('avatar')
-                if avatar:
-                    user.avatar = avatar
-                    user.save()
+            if request.user == user:
+                avatar_data = request.data.get('avatar')
+                if avatar_data:
+                     # Delete the existing avatar if it exists
+                    if user.avatar:
+                        user.avatar.delete()
+                        
+                    # Save the avatar image without encoding or decoding
+                    filename = f'{user_id}_avatar.png'
+                    user.avatar.save(filename, ContentFile(avatar_data.encode('utf-8')))
                     return Response({'detail': 'Avatar uploaded correctly.'}, status=200)
                 else:
                     return Response({'detail': 'No avatar image attached.'}, status=400)
             else:
                 return Response({'detail': 'You do not have permission to upload an avatar.'}, status=403)
         except CustomUser.DoesNotExist:
-            return Response({'detail': 'The specified user does not exist.'}, status=404)
-        
+            return Response({'detail': 'The specified user does not exist.'}, status=404)   
 class NotificationsViewSet(viewsets.ModelViewSet):
     queryset = Notifications.objects.all()
     serializer_class = NotificationsSerializer
