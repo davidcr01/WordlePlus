@@ -1,0 +1,40 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Edit User</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="flex-center">
+  <ion-card>
+    <ion-card-content>
+  <form [formGroup]="userInfoForm" (ngSubmit)="saveUserInfo()">
+    <ion-list>
+    <ion-item>
+      <ion-label class="field" position="floating">Email</ion-label>
+      <ion-input type="email" formControlName="email"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label class="field" position="floating">First Name</ion-label>
+      <ion-input type="text" formControlName="firstName"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label class="field" position="floating">Last Name</ion-label>
+      <ion-input type="text" formControlName="lastName"></ion-input>
+    </ion-item>
+    </ion-list>
+    <div class="error-message" *ngIf="userInfoForm.get('email').invalid && userInfoForm.get('email').dirty">
+      Please enter a valid email address.
+    </div>
+    <div class="error-message" *ngIf="userInfoForm.get('firstName').invalid && userInfoForm.get('firstName').dirty">
+      Please enter a first name.
+    </div>
+    <div class="error-message" *ngIf="userInfoForm.get('lastName').invalid && userInfoForm.get('lastName').dirty">
+      Please enter a last name.
+    </div>
+    <ion-button type="submit" expand="full" [disabled]="userInfoForm.invalid">Save</ion-button>
+  </form>
+</ion-card-content>
+</ion-card>
+</div>
+</ion-content>

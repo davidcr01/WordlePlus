@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { StorageService } from '../../services/storage.service';
 import { EncryptionService } from '../../services/encryption.service';
@@ -73,8 +72,6 @@ export class LoginPage implements OnInit {
           await this.storageService.setXP(response.xp);
           // Rank is calculated in the frontend
         }
-        this.notificationStorage.addNotification({'text': 'Welcome again!', 'link': ''});
-
         this.router.navigateByUrl('');
       },
       (error) => {

@@ -74,6 +74,14 @@ class UserInfoSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ('id', 'username', 'last_login', 'date_joined')
 
+
+# Used to update and get the user information partially
+class UserInfoPartialSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['email', 'first_name', 'last_name']
+
+
 # Serializer related to the Player model. It considers all the fields, but naming
 # them specifically (other way)
 class PlayerInfoSerializer(serializers.ModelSerializer):

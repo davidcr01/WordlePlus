@@ -31,6 +31,12 @@ const routes: Routes = [
     loadChildren: () => import('./pages/classic-wordle/classic-wordle.module').then( m => m.ClassicWordlePageModule),
     canActivate: [AuthGuard]
   },
+  {
+    path: 'edit-user',
+    loadChildren: () => import('./pages/edit-user/edit-user.module').then( m => m.EditUserPageModule),
+    canActivate: [AuthGuard]
+  },
+
 
 
 
