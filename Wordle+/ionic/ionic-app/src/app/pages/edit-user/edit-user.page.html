@@ -5,8 +5,11 @@
 </ion-header>
 
 <ion-content>
-  <div class="flex-center">
+  <div class="edit-container">
   <ion-card>
+    <ion-card-header>
+      <ion-card-title>Change Info</ion-card-title>
+    </ion-card-header>
     <ion-card-content>
       <form [formGroup]="userInfoForm" (ngSubmit)="saveUserInfo()">
         <ion-list>
@@ -34,6 +37,23 @@
         </div>
         <ion-button type="submit" expand="full" [disabled]="userInfoForm.invalid">Save</ion-button>
       </form>
+      </ion-card-content>
+    </ion-card>
+    
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Change Avatar</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-item>
+          <ion-label class="field">Current Avatar</ion-label>
+          <ion-avatar slot="end">
+            <img [src]="avatarPreview" />
+          </ion-avatar>
+        </ion-item>
+  
+        <input type="file" accept=".jpg, .jpeg" #avatarInput (change)="readAndPreviewAvatar(avatarInput.files[0])"/>
+        <ion-button expand="full" (click)="uploadAvatar()">Upload New Avatar</ion-button>
       </ion-card-content>
     </ion-card>
   </div>

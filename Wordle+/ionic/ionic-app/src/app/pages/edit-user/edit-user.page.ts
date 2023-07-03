@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ApiService } from 'src/app/services/api.service';
@@ -14,18 +14,23 @@ import { ToastService } from 'src/app/services/toast.service';
 export class EditUserPage implements OnInit {
   userInfo: any = {};
   userInfoForm: FormGroup;
+  avatarPreview: string | null = null;
+  @ViewChild('avatarInput', { static: false }) avatarInput!: ElementRef;
 
-  constructor(private apiService: ApiService,
-    private storageService: StorageService, 
+  constructor(
+    private apiService: ApiService,
+    private storageService: StorageService,
     private router: Router,
     private toastService: ToastService,
-    private formBuilder: FormBuilder) {
-      this.userInfoForm = this.formBuilder.group({
-        email: ['', [Validators.required, Validators.email]],
-        firstName: ['', [Validators.required, Validators.maxLength(20)]],
-        lastName: ['', [Validators.required, Validators.maxLength(20)]],
-      });
-    }
+    private formBuilder: FormBuilder
+  ) {
+    this.userInfoForm = this.formBuilder.group({
+      email: ['', [Validators.required, Validators.email]],
+      firstName: ['', [Validators.required, Validators.maxLength(20)]],
+      lastName: ['', [Validators.required, Validators.maxLength(20)]],
+      avatar: [null]
+    });
+  }
 
   ngOnInit() {
     this.getUserInfo();
@@ -40,6 +45,10 @@ export class EditUserPage implements OnInit {
         lastName: this.userInfo.last_name,
       });
     });
+    const avatarUrl = await this.storageService.getAvatarUrl();
+    if (avatarUrl) {
+      this.avatarPreview = avatarUrl;
+    }
   }
 
   async saveUserInfo() {
@@ -48,23 +57,55 @@ export class EditUserPage implements OnInit {
       const firstName = this.userInfoForm.get('firstName').value;
       const lastName = this.userInfoForm.get('lastName').value;
       const body = {
-        'email': email,
-        'first_name': firstName,
-        'last_name': lastName
+        email: email,
+        first_name: firstName,
+        last_name: lastName
       };
-
       (await this.apiService.updateUserInfo(body)).subscribe(
         () => {
-          this.toastService.showToast('Information updated succesfully!', 2000, 'top');
+          this.toastService.showToast('Information updated successfully!', 2000, 'top');
           this.router.navigate(['/tabs/settings']);
         },
         (error) => {
-            this.toastService.showToast('An error was generated', 2000, 'top');
+          this.toastService.showToast('An error occurred', 2000, 'top');
           console.error('Error saving the information:', error);
         }
       );
     } else {
-      console.error('Formulario inválido');
+      console.error('Invalid form');
     }
+  }
+
+  async uploadAvatar() {
+    const file = this.avatarInput.nativeElement.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const avatarData = reader.result as string;
+        console.log(avatarData);
+        this.saveAvatar(avatarData);
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  async saveAvatar(avatarData: string) {
+    try {
+      await (await this.apiService.saveAvatarImage(avatarData)).toPromise();
+      this.storageService.setAvatarUrl(avatarData);
+      this.toastService.showToast('Avatar updated successfully!', 2000, 'top');
+      this.getUserInfo(); // Refresh user info to update avatar preview
+      this.router.navigate(['/tabs/main'], { queryParams: { avatar: 'true' } });
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+    }
+  }
+
+  readAndPreviewAvatar(file: File) {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      this.avatarPreview = reader.result as string;
+    };
+    reader.readAsDataURL(file);
   }
 }

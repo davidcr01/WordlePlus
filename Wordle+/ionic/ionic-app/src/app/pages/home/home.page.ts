@@ -22,7 +22,7 @@ export class HomePage {
       } else {
         this.router.navigateByUrl('/tabs');
       }
-    }, 2000);
+    }, 4000);
 
 
   }
