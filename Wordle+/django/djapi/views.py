@@ -187,8 +187,6 @@ class ClassicWordleViewSet(viewsets.GenericViewSet):
         serializer.save(player=player)
         return Response(serializer.data, status=201)
 
-
-
 class AvatarView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -215,7 +213,7 @@ class AvatarView(APIView):
                      # Delete the existing avatar if it exists
                     if user.avatar:
                         user.avatar.delete()
-                        
+
                     # Save the avatar image without encoding or decoding
                     filename = f'{user_id}_avatar.png'
                     user.avatar.save(filename, ContentFile(avatar_data.encode('utf-8')))
@@ -226,6 +224,7 @@ class AvatarView(APIView):
                 return Response({'detail': 'You do not have permission to upload an avatar.'}, status=403)
         except CustomUser.DoesNotExist:
             return Response({'detail': 'The specified user does not exist.'}, status=404)   
+
 class NotificationsViewSet(viewsets.ModelViewSet):
     queryset = Notifications.objects.all()
     serializer_class = NotificationsSerializer

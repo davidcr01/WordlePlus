@@ -46,7 +46,6 @@ export class EditUserPage implements OnInit {
       });
     });
     const avatarUrl = await this.storageService.getAvatarUrl();
-    console.log(avatarUrl);
     if (avatarUrl) {
       this.avatarPreview = avatarUrl;
     }
@@ -80,7 +79,6 @@ export class EditUserPage implements OnInit {
   async uploadAvatar() {
     const file = this.avatarInput.nativeElement.files[0];
     if (file) {
-      console.log(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         const avatarData = reader.result as string;

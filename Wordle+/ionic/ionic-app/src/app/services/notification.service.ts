@@ -18,7 +18,6 @@ export class NotificationService {
         resolve(this.notifications);
       } else {
         const storedNotifications = await this.storageService.getNotifications();
-        console.log(storedNotifications);
         if (storedNotifications) {
           this.notifications = storedNotifications;
           resolve(this.notifications);

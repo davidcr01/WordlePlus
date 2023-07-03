@@ -97,15 +97,12 @@ export class Tab1Page implements OnInit{
     });
     
     await popover.present();
-    
   }
 
   async loadAvatarImage() {
-    console.log('loading avatar');
     (await this.apiService.getAvatarImage()).subscribe(
       image => {
         if (image) {
-          console.log('api');
           this.avatarImage = image;
           this.storageService.setAvatarUrl(this.avatarImage);
         } else {
