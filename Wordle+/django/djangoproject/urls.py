@@ -17,7 +17,7 @@ from django.urls import include, path
 from django.contrib import admin
 from rest_framework import routers
 from djapi import views
-from djapi.views import CustomObtainAuthToken, CheckTokenExpirationView, AvatarView
+from djapi.views import CustomObtainAuthToken, CheckTokenExpirationView, AvatarView, UserInfoAPIView
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -37,4 +37,5 @@ urlpatterns = [
     path('api-token-auth/', CustomObtainAuthToken.as_view()),
     path('check-token-expiration/', CheckTokenExpirationView.as_view(), name='check-token-expiration'),
     path('api/avatar/<int:user_id>/', AvatarView.as_view(), name='avatar'),
+    path('api/users-info/', UserInfoAPIView.as_view(), name='user-detail'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -39,8 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    'djapi',
     'corsheaders',
+    'djapi'
 ]
 
 REST_FRAMEWORK = {
@@ -157,3 +157,4 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:8100', # Ionic in local (dev)
     'http://localhost:8080', # Ionic in Docker
 ]
+CORS_ALLOW_REDIRECTS = False

@@ -2,18 +2,9 @@ ion-content{
     --background: var(--ion-color-purple);
 }
 
-.option {
+.field {
     font-size: calc(2vh + 0.5vw);
     padding-top: 1vh;
     padding-bottom: 1vh;
     border: none;
-}
-
-.logout {
-    --background: rgb(154, 0, 0);
-}
-
-.icon {
-    font-size: calc(3vh + 1vw);
-    color: var(--ion-color-turquoise);
 }
