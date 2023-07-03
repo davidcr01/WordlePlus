@@ -1,0 +1,8 @@
+<ion-content>
+  <h1>Notifications</h1>
+  <ion-list>
+    <ion-item *ngFor="let notification of notifications">
+      <a [href]="notification.link">{{ notification.text }}</a>
+    </ion-item>
+  </ion-list>
+</ion-content>

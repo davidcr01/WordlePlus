@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { StorageService } from '../../services/storage.service';
 import { EncryptionService } from '../../services/encryption.service';
 import { ApiService } from '../../services/api.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { ActivatedRoute } from '@angular/router';
+import { NotificationService } from 'src/app/services/notification.service';
 
 @Component({
   selector: 'app-login',
@@ -28,7 +28,8 @@ export class LoginPage implements OnInit {
     private encryptionService: EncryptionService,
     private apiService: ApiService,
     private route: ActivatedRoute,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private notificationStorage: NotificationService
     ) {}
 
   ngOnInit() {
@@ -61,11 +62,16 @@ export class LoginPage implements OnInit {
 
         await this.storageService.setAccessToken(encryptedToken);
         await this.storageService.setUserID(response.user_id);
+        await this.storageService.setUsername(response.username);
 
         if (response.player_id !== null) {
           await this.storageService.setPlayerID(response.player_id);
+          await this.storageService.setWins(response.wins);
+          await this.storageService.setWinsPVP(response.wins_pvp);
+          await this.storageService.setWinsTournament(response.wins_tournament);
+          await this.storageService.setXP(response.xp);
+          // Rank is calculated in the frontend
         }
-
         this.router.navigateByUrl('');
       },
       (error) => {

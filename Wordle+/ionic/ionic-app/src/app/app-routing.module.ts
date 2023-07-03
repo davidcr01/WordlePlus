@@ -23,13 +23,20 @@ const routes: Routes = [
   },
   {
     path: 'home',
-    loadChildren: () => import('./pages/home/home.module').then( m => m.HomePageModule)
+    loadChildren: () => import('./pages/home/home.module').then( m => m.HomePageModule),
+    canActivate: [AuthGuard]
   },
   {
-    path: 'classic-wordle',
+    path: 'classic-wordle/:length',
     loadChildren: () => import('./pages/classic-wordle/classic-wordle.module').then( m => m.ClassicWordlePageModule),
     canActivate: [AuthGuard]
   },
+  {
+    path: 'edit-user',
+    loadChildren: () => import('./pages/edit-user/edit-user.module').then( m => m.EditUserPageModule),
+    canActivate: [AuthGuard]
+  },
+
 
 
 

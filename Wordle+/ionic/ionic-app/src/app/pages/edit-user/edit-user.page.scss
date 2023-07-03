@@ -1,0 +1,10 @@
+ion-content{
+    --background: var(--ion-color-purple);
+}
+
+.field {
+    font-size: calc(2vh + 0.5vw);
+    padding-top: 1vh;
+    padding-bottom: 1vh;
+    border: none;
+}

@@ -1,5 +1,5 @@
 from django.contrib.auth.models import Group
-from .models import CustomUser, Player, StaffCode, ClassicWordle
+from .models import CustomUser, Player, StaffCode, ClassicWordle, Notifications
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 
@@ -74,6 +74,14 @@ class UserInfoSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ('id', 'username', 'last_login', 'date_joined')
 
+
+# Used to update and get the user information partially
+class UserInfoPartialSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['email', 'first_name', 'last_name']
+
+
 # Serializer related to the Player model. It considers all the fields, but naming
 # them specifically (other way)
 class PlayerInfoSerializer(serializers.ModelSerializer):
@@ -96,7 +104,7 @@ class PlayerInfoSerializer(serializers.ModelSerializer):
 class ClassicWordleSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClassicWordle
-        fields = ['player', 'word', 'time_consumed', 'attempts', 'xp_gained', 'date_played', 'win']
+        fields = ['word', 'time_consumed', 'attempts', 'xp_gained', 'date_played', 'win']
     
     def create(self, validated_data):
         player = validated_data['player']
@@ -110,6 +118,11 @@ class ClassicWordleSerializer(serializers.ModelSerializer):
         player.save()
 
         return ClassicWordle.objects.create(**validated_data)
+
+class NotificationsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notifications
+        fields = ['text', 'link']
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:

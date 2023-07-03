@@ -15,11 +15,11 @@ Permission that allows access if the user is the owner of the object or is an ad
 """
 class IsOwnerPermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-
-        # Allows if the owner of the object is the user
-        if hasattr(obj, 'user'):
-            return obj.user == request.user
-
+        return obj.player.user == request.user
+    
+    def has_permission(self, request, view):
+        print(request)
+        return request.user and request.user.is_authenticated
 """
 Permission that allows access if the user is the owner of the account or is an admin.
 """
