@@ -108,4 +108,33 @@ import { EncryptionService } from './encryption.service';
 
         return this.http.post(url, notification, { headers });
     }
+
+    async getUserInfo(): Promise<Observable<any>> {
+        let url = `${this.baseURL}/api/users-info/`;
+        const accessToken = this.storageService.getAccessToken();
+        if (!accessToken) {
+            return throwError('Access token not found');
+        }
+        const decryptedToken = this.encryptionService.decryptData(await accessToken);
+        const headers = new HttpHeaders({
+            Authorization: `Token ${decryptedToken}`,
+            'Content-Type': 'application/json'
+        });
+    
+        return this.http.get(url, { headers });
+      }
+    
+      async updateUserInfo(userInfo: any): Promise<Observable<any>> {
+        const url = `${this.baseURL}/api/users-info/`;
+        const accessToken = this.storageService.getAccessToken();
+        if (!accessToken) {
+            return throwError('Access token not found');
+        }
+        const decryptedToken = this.encryptionService.decryptData(await accessToken);
+        const headers = new HttpHeaders({
+            Authorization: `Token ${decryptedToken}`,
+            'Content-Type': 'application/json'
+        });
+        return this.http.patch(url, userInfo, { headers });
+      }
   }

@@ -31,7 +31,7 @@ class CustomUserViewSet(viewsets.ModelViewSet):
             return []
         elif self.action in ['list',]:
             # List available only for the Event Managers.
-            return [IsAdminUser()]
+            return [IsOwnerOrAdminPermission()]
         elif self.action in ['update', 'partial_update', 'destroy']:
             # Edition and destruction available only for the Event Managers. Needed for the Event Managers
             # to edit the personal info of the players.
@@ -39,7 +39,29 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         else:
             # Authentication is needed for the rest of the operations.
             return [permissions.IsAuthenticated()]
+    
+    def get_queryset(self):
+        queryset = CustomUser.objects.all()
+        if self.action == 'retrieve':
+            # Return only the authenticated user's data if the action is 'retrieve'
+            queryset = queryset.filter(id=self.request.user.id)
+        return queryset
 
+class UserInfoAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        serializer = UserInfoPartialSerializer(user)
+        return Response(serializer.data)
+
+    def patch(self, request):
+        user = request.user
+        serializer = UserInfoPartialSerializer(user, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
 
 class PlayerViewSet(viewsets.ModelViewSet):
     """
