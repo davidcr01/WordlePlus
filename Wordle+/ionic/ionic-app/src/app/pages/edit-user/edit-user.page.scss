@@ -8,3 +8,18 @@ ion-content{
     padding-bottom: 1vh;
     border: none;
 }
+
+.edit-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+ion-card{
+    margin: 5vh;
+}
+
+ion-button{
+    --background: var(--ion-color-turquoise-dark);
+}
