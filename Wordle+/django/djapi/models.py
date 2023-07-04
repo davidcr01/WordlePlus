@@ -48,20 +48,11 @@ class ClassicWordle(models.Model):
     date_played = models.DateTimeField(default=timezone.now)
     win = models.BooleanField(default=False)
 
-# Model to store the notifications of the players.
-class Notification(models.Model):
+class Notifications(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='notifications')
     text = models.CharField(max_length=200)
     link = models.URLField(blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
-
-# Model to store the tournaments information.
-class Tournament(models.Model):
-    name = models.CharField(max_length=20)
-    description = models.TextField(blank=True)
-    max_players = models.PositiveIntegerField()
-    word_length = models.PositiveIntegerField()
-    is_closed = models.BooleanField(default=False)
 
 # Method to add the 'Staff' group automatically when creating an administrator
 @receiver(post_save, sender=CustomUser)
