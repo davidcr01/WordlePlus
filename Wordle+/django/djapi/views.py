@@ -1,8 +1,6 @@
-import base64, os
-import imghdr
 from django.contrib.auth.models import Group
 from .models import CustomUser, Player, ClassicWordle
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, status, filters
 from rest_framework.response import Response
 from djapi.serializers import *
 from djapi.permissions import IsOwnerOrAdminPermission, IsOwnerPermission
@@ -153,7 +151,7 @@ class CheckTokenExpirationView(APIView):
         token = request.user.auth_token
 
         if token.created < timezone.now() - timedelta(seconds=settings.TOKEN_EXPIRED_AFTER_SECONDS):
-            # El token ha expirado
+            # The token has expired
             token.delete()
             return Response({'message': 'Token has expired.'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -188,6 +186,9 @@ class ClassicWordleViewSet(viewsets.GenericViewSet):
         return Response(serializer.data, status=201)
 
 class AvatarView(APIView):
+    """
+    API endpoint that allows getting and saving the players' avatars.
+    """
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, user_id):
@@ -226,8 +227,11 @@ class AvatarView(APIView):
             return Response({'detail': 'The specified user does not exist.'}, status=404)   
 
 class NotificationsViewSet(viewsets.ModelViewSet):
-    queryset = Notifications.objects.all()
-    serializer_class = NotificationsSerializer
+    """
+    API endpoint that allows list and create notifications of the players.
+    """
+    queryset = Notification.objects.all()
+    serializer_class = NotificationSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwnerPermission]
     
     def list(self, request):
@@ -252,3 +256,20 @@ class NotificationsViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save(player=player)
         return Response(serializer.data, status=201)
+
+class TournamentViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Tournament.objects.order_by('max_players')
+    serializer_class = TournamentSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        # Obtain the word_lenght parameter
+        word_length = self.request.query_params.get('word_length')
+
+        if word_length:
+            # Filter tournaments by length
+            queryset = queryset.filter(word_length=word_length)
+
+        return queryset
+    
