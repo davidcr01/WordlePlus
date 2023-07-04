@@ -1,0 +1,55 @@
+ion-content {
+--background: var(--ion-color-purple);
+}
+
+ion-card-title{
+font-size: calc(2vh + 2vw);
+font-weight: bolder;
+font-style: oblique;
+background-clip: text;
+-webkit-background-clip: text;
+text-shadow: 2px 2px 0px  #957dad,
+4px 4px 0px #ee4b2b,
+}
+
+.tournament-header {
+display: flex;
+align-content: space-between;
+justify-content: space-between;
+align-items: center;
+align-content: center;
+flex-direction: row;
+}
+
+.value{
+text-align: right;
+}
+
+.label{
+flex: 15;
+}
+
+.tournament-name {
+flex-grow: 1;
+margin-right: 10px;
+}
+
+.trophy-icons {
+display: flex;
+}
+
+ion-icon {
+margin-left: 5px;
+font-size: 4vh;
+}
+
+.join-button{
+font-size: 3vh;
+font-weight: bolder;
+--background: var(--ion-color-turquoise);
+}
+
+ion-item{
+font-size: 3vh;
+}
+
