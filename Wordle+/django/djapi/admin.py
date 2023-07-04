@@ -1,10 +1,9 @@
-from django.forms import Select
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from django.db import models
-from django import forms
+from django.contrib.auth.models import Permission, Group
+from django.contrib.contenttypes.models import ContentType
 
-from .models import CustomUser, Player, StaffCode, ClassicWordle, Notification, Tournament
+from .models import CustomUser, Player, StaffCode, ClassicWordle, Notifications
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
@@ -85,36 +84,10 @@ class StaffCodeAdmin(admin.ModelAdmin):
 class ClassicWordleAdmin(admin.ModelAdmin):
     list_display = ['id', 'player', 'word', 'date_played']
 
-class NotificationAdmin(admin.ModelAdmin):
+class NotificationsAdmin(admin.ModelAdmin):
     list_display = ('id', 'player', 'text', 'link', 'timestamp')
 
-class TournamentsForm(forms.ModelForm):
-    word_length = forms.ChoiceField(choices=[
-        (4, '4'),
-        (5, '5'),
-        (6, '6'),
-        (7, '7'),
-        (8, '8'),
-    ])
-
-    max_players = forms.ChoiceField(choices=[
-        (2, '2'),
-        (4, '4'),
-        (8, '8'),
-        (16, '16'),
-    ])
-
-    class Meta:
-        model = Tournament
-        fields = '__all__'
-
-class TournamentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description', 'max_players', 'word_length', 'is_closed')
-    form = TournamentsForm
-
-
-admin.site.register(Tournament, TournamentAdmin)
-admin.site.register(Notification, NotificationAdmin)
+admin.site.register(Notifications, NotificationsAdmin)
 admin.site.register(ClassicWordle, ClassicWordleAdmin)
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Player, PlayerAdmin)
