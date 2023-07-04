@@ -17,7 +17,7 @@ from django.urls import include, path
 from django.contrib import admin
 from rest_framework import routers
 from djapi import views
-from djapi.views import CustomObtainAuthToken, CheckTokenExpirationView, AvatarView, UserInfoAPIView, TournamentViewSet
+from djapi.views import CustomObtainAuthToken, CheckTokenExpirationView, AvatarView, UserInfoAPIView, TournamentViewSet, ParticipationViewSet
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -40,4 +40,6 @@ urlpatterns = [
     path('api/avatar/<int:user_id>/', AvatarView.as_view(), name='avatar'),
     path('api/users-info/', UserInfoAPIView.as_view(), name='user-detail'),
     path('api/tournaments/', TournamentViewSet.as_view({'get': 'list'}), name='tournaments-list'),
+    path('api/participations/', ParticipationViewSet.as_view({'get': 'list', 'post': 'create'}), name='participations'),
+    
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
