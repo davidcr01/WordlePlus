@@ -14,6 +14,7 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.core.files.base import ContentFile
 from django.http import JsonResponse
+from django.db.models import Q
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
@@ -335,4 +336,15 @@ class ParticipationViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(participation)
         return Response(serializer.data, status=201)
 
-    
+class FriendListViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = FriendListSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
+        player = getattr(request.user, 'player', None)
+        if not player:
+            return Response({'error': 'Player not found'}, status=404)
+
+        queryset = FriendList.objects.filter(Q(sender=player) | Q(receiver=player))
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)

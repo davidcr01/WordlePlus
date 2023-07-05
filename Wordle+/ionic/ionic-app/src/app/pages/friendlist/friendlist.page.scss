@@ -1,0 +1,47 @@
+ion-card {
+    margin: 2vh;
+  }
+  
+  ion-card-content {
+    padding: 2vh;
+  }
+  
+  ion-card-header {
+    font-weight: bolder;
+    font-size: calc(2vh + 2vw);
+    padding-bottom: 0px;
+  }
+
+  ion-segment-button {
+    font-size: calc(2vh + 1vw);
+  }
+
+  
+  ion-list ion-item {
+    font-size: calc(2vh + 1vw);
+  }
+  
+  ion-label {
+    margin-left: 1vw;
+  }
+  
+  ion-button {
+    --padding-start: 0;
+    --padding-end: 0;
+    font-size: calc(1.5vh + 1vw);
+  }
+
+  ion-button ion-icon {
+    color: var(--ion-color-turquoise);
+  }
+  
+  ion-content{
+    --background: var(--ion-color-purple);
+  }
+
+  ion-title{
+    font-size: 3vh;
+    font-weight: bold;
+    text-align: center;
+  }
+  

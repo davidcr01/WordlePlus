@@ -2,8 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_save
+from django.core.exceptions import ValidationError
 from django.dispatch import receiver
-from datetime import date
 from django.utils import timezone
 
 # Create your models here.
@@ -67,6 +67,7 @@ class Tournament(models.Model):
     def __str__(self):
         return self.name
     
+# Model to store the participations of the tournaments.
 class Participation(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
@@ -83,6 +84,25 @@ class Participation(models.Model):
     def __str__(self):
         return f"{self.player.user.username} - {self.tournament.name}"
 
+# Model to store the friend list of the players.
+class FriendList(models.Model):
+    sender = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='friend_requests_sent')
+    receiver = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='friend_requests_received')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['sender', 'receiver'], name='unique_friendship')        ]
+
+    def clean(self):
+        if self.sender == self.receiver:
+            raise ValidationError('You can not be friend of yourself.')
+        if FriendList.objects.filter(sender=self.receiver, receiver=self.sender).exists():
+            raise ValidationError('This friend relation already exists.')
+        
+    def __str__(self):
+        return f"{self.sender.user.username} - {self.receiver.user.username}"
+    
 # Method to add the 'Staff' group automatically when creating an administrator
 @receiver(post_save, sender=CustomUser)
 def assign_permissions(sender, instance, created, **kwargs):
