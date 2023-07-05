@@ -17,7 +17,7 @@ from django.urls import include, path
 from django.contrib import admin
 from rest_framework import routers
 from djapi import views
-from djapi.views import CustomObtainAuthToken, CheckTokenExpirationView, AvatarView, UserInfoAPIView, TournamentViewSet, ParticipationViewSet
+from djapi.views import CustomObtainAuthToken, CheckTokenExpirationView, AvatarView, UserInfoAPIView, TournamentViewSet, ParticipationViewSet, FriendListViewSet
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -27,6 +27,9 @@ router.register(r'api/players', views.PlayerViewSet)
 router.register(r'api/groups', views.GroupViewSet)
 router.register(r'api/classicwordles', views.ClassicWordleViewSet)
 router.register(r'api/notifications', views.NotificationsViewSet)
+router.register('api/friendlist', FriendListViewSet, basename='friendlist')
+
+
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
