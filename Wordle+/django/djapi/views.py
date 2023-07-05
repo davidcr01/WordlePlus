@@ -1,6 +1,6 @@
 from django.contrib.auth.models import Group
-from .models import CustomUser, Player, ClassicWordle
-from rest_framework import viewsets, permissions, status, filters
+from djapi.models import *
+from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from djapi.serializers import *
 from djapi.permissions import IsOwnerOrAdminPermission, IsOwnerPermission
@@ -15,6 +15,8 @@ from django.shortcuts import get_object_or_404
 from django.core.files.base import ContentFile
 from django.http import JsonResponse
 from django.db.models import Q
+from rest_framework.decorators import action
+
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
@@ -348,3 +350,94 @@ class FriendListViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = FriendList.objects.filter(Q(sender=player) | Q(receiver=player))
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+    
+class FriendRequestViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = FriendRequest.objects.all()
+    serializer_class = FriendRequestSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
+        player = getattr(request.user, 'player', None)
+        if not player:
+            return Response({'error': 'Player not found'}, status=404)
+
+        queryset = FriendRequest.objects.filter(receiver=player).order_by('timestamp')
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        sender = getattr(request.user, 'player', None)
+        if not sender:
+            return Response({'error': 'Player not found'}, status=404)
+        receiver_id = request.data.get('receiver_id')
+        if not receiver_id:
+            return Response({'error': 'receiver_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            receiver = Player.objects.get(id=receiver_id)
+        except Player.DoesNotExist:
+            return Response({'error': 'Receiver not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        if sender == receiver:
+            return Response({'error': 'Cannot send friend request to yourself'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check if there is an existing request
+        existing_request = FriendRequest.objects.filter(sender=sender, receiver=receiver)
+        if existing_request.exists():
+            return Response({'error': 'Friend request already sent'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check if there is an existing friendship
+        existing_friendship1 = FriendList.objects.filter(sender=sender, receiver=receiver)
+        existing_friendship2 = FriendList.objects.filter(sender=receiver, receiver=sender)
+        if existing_friendship1.exists() or existing_friendship2.exists():
+            return Response({'error': 'Friendship already exists'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Create the request and notify it
+        friend_request = FriendRequest.objects.create(sender=sender, receiver=receiver)
+        Notification.objects.create(
+            player=receiver,
+            text='You have a new friend request!',
+            link='http://localhost:8100/friendlist'
+        )
+
+        serializer = FriendRequestSerializer(friend_request)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    @action(detail=True, methods=['post'])
+    def accept(self, request, *args, **kwargs):
+        instance = self.get_object()
+        receiver = getattr(request.user, 'player', None)
+        if not receiver:
+            return Response({'error': 'Player not found'}, status=404)
+
+        if instance.receiver != receiver:
+            return Response({'error': 'Permission denied'}, status=403)
+
+        # Create the friendship
+        FriendList.objects.create(sender=instance.sender, receiver=receiver)
+
+        # Create notification for both players
+        Notification.objects.create(
+            player=instance.sender,
+            text=f"You are now friends with {receiver.user.username}.",
+            link='http://localhost:8100/friendlist'
+        )
+        Notification.objects.create(
+            player=receiver,
+            text=f"You are now friends with {instance.sender.user.username}.",
+            link='http://localhost:8100/friendlist'
+        )
+
+        instance.delete()
+        return Response({'message': 'Friend request accepted'}, status=200)
+    
+    @action(detail=True, methods=['post'])
+    def reject(self, request, *args, **kwargs):
+        instance = self.get_object()
+        receiver = request.user.player
+
+        if instance.receiver != receiver:
+            return Response({'error': 'Permission denied'}, status=403)
+
+        instance.delete()
+        return Response({'message': 'Friend request rejected'}, status=200)

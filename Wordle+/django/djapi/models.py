@@ -103,6 +103,24 @@ class FriendList(models.Model):
     def __str__(self):
         return f"{self.sender.user.username} - {self.receiver.user.username}"
     
+class FriendRequest(models.Model):
+    sender = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='requests_sent')
+    receiver = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='requests_received')
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['sender', 'receiver'], name='unique_friendrequest')        ]
+
+    def clean(self):
+        if self.sender == self.receiver:
+            raise ValidationError('You can not be send a request to yourself.')
+        if FriendRequest.objects.filter(sender=self.receiver, receiver=self.sender).exists():
+            raise ValidationError('This friend request already exists.')
+        
+    def __str__(self):
+        return f"{self.sender.user.username} - {self.receiver.user.username}"
+    
 # Method to add the 'Staff' group automatically when creating an administrator
 @receiver(post_save, sender=CustomUser)
 def assign_permissions(sender, instance, created, **kwargs):
