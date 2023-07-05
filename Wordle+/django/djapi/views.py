@@ -279,7 +279,7 @@ class ParticipationViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def list(self, request):
-        tournament_id = int(request.query_params.get('tournament_id'),10)
+        tournament_id = request.query_params.get('tournament_id')
         if not tournament_id:
             return Response({'error': 'tournament_id parameter is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -320,6 +320,10 @@ class ParticipationViewSet(viewsets.ModelViewSet):
 
         participation = Participation.objects.create(tournament=tournament, player=player)
         tournament.num_players += 1
+        # Close the tournament if is full
+        if tournament.num_players >= tournament.max_players:
+            tournament.is_closed = True
+            
         tournament.save()
 
         # Create the related notification to the player
