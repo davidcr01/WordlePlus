@@ -1,0 +1,59 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      Social
+    </ion-title>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-segment mode="ios" value="friends">
+      <ion-segment-button value="friends">
+        <ion-label>Friends</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="requests">
+        <ion-label>Requests</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div *ngIf="friendList && friendList.length > 0">
+  <ion-card *ngFor="let friend of friendList">
+    <ion-card-header>
+      {{ friend.username }}
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item>
+          <ion-icon name="people" slot="start"></ion-icon>
+          <ion-label>Play Wordle</ion-label>
+          <ion-button fill="clear" (click)="playWithFriend(friend.id)">
+            <ion-icon name="play" slot="icon-only"></ion-icon>
+          </ion-button>
+        </ion-item>
+        <ion-item>
+          <ion-icon name="information-circle" slot="start"></ion-icon>
+          <ion-label>View profile</ion-label>
+          <ion-button fill="clear" (click)="viewFriendInfo(friend.id)">
+            <ion-icon name="information-circle-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </ion-item>
+        <ion-item>
+          <ion-icon name="trash" slot="start"></ion-icon>
+          <ion-label>Delete friend</ion-label>
+          <ion-button fill="clear" (click)="removeFriend(friend.id)">
+            <ion-icon name="close" slot="icon-only"></ion-icon>
+          </ion-button>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+</div>
+  
+  <!-- Mostrar mensaje si no hay amigos -->
+  <ion-card *ngIf="friendList && friendList.length === 0">
+    <ion-card-content>
+      You do not have friends.
+    </ion-card-content>
+  </ion-card>
+</ion-content>
