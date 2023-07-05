@@ -135,18 +135,20 @@ class ParticipationSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class FriendListSerializer(serializers.ModelSerializer):
-    sender = serializers.SerializerMethodField()
-    receiver = serializers.SerializerMethodField()
-
-    def get_sender(self, obj):
-        return obj.sender.user.username
-
-    def get_receiver(self, obj):
-        return obj.receiver.user.username
+    friend = serializers.SerializerMethodField()
 
     class Meta:
         model = FriendList
-        fields = ['sender', 'receiver', 'created_at']
+        fields = ['friend']
+
+    def get_friend(self, obj):
+        request = self.context.get('request')
+        player = request.user.player
+        if obj.sender == player:
+            friend = obj.receiver
+        else:
+            friend = obj.sender
+        return {'username': friend.user.username, 'id': friend.user.id}
 
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
