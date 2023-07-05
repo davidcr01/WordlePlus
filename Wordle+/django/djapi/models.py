@@ -59,9 +59,29 @@ class Notification(models.Model):
 class Tournament(models.Model):
     name = models.CharField(max_length=20)
     description = models.TextField(blank=True)
+    num_players = models.PositiveIntegerField(default=0)
     max_players = models.PositiveIntegerField()
     word_length = models.PositiveIntegerField()
     is_closed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+    
+class Participation(models.Model):
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['tournament', 'player'],
+                name='unique_participation'
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.player.user.username} - {self.tournament.name}"
 
 # Method to add the 'Staff' group automatically when creating an administrator
 @receiver(post_save, sender=CustomUser)

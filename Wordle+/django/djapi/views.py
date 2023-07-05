@@ -272,4 +272,67 @@ class TournamentViewSet(viewsets.ReadOnlyModelViewSet):
             queryset = queryset.filter(word_length=word_length)
 
         return queryset
+
+class ParticipationViewSet(viewsets.ModelViewSet):
+    queryset = Participation.objects.all()
+    serializer_class = ParticipationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def list(self, request):
+        tournament_id = request.query_params.get('tournament_id')
+        if not tournament_id:
+            return Response({'error': 'tournament_id parameter is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        queryset = self.get_queryset().filter(tournament_id=tournament_id)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+    
+    def create(self, request, *args, **kwargs):
+        tournament_id = request.data.get('tournament_id')
+        player = request.user.player
+
+        # Request tournament_id field
+        if not tournament_id:
+            return Response({'error': 'tournament_id field is required.'}, status=404)
+        # Check if the user is a player
+        if not player:
+            return Response({'error': 'Player not found'}, status=404)
+
+        # Case of non existing tournament
+        try:
+            tournament = Tournament.objects.get(id=tournament_id)
+        except Tournament.DoesNotExist:
+            return Response({'error': 'Invalid tournament ID'}, status=400)
+        
+        # Case of existing participation
+        if Participation.objects.filter(tournament_id=tournament_id, player=player).exists():
+            return Response({'error': 'You are participating in this tournament.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Case of the tournament is closed
+        if tournament.is_closed:
+            return Response({'error': 'Tournament is closed for participation'}, status=400)
+
+        # Close the tournament if is full
+        if tournament.num_players >= tournament.max_players:
+            tournament.is_closed = True
+            tournament.save()
+            return Response({'error': 'Tournament is already full'}, status=400)
+
+        participation = Participation.objects.create(tournament=tournament, player=player)
+        tournament.num_players += 1
+        # Close the tournament if is full
+        if tournament.num_players >= tournament.max_players:
+            tournament.is_closed = True
+            
+        tournament.save()
+
+        # Create the related notification to the player
+        message = f"You were assigned in {tournament.name}. Good luck!"
+        link = "http://localhost:8100/tabs/tournaments"
+        notification = Notification.objects.create(player=player, text=message, link=link)
+        notification.save()
+
+        serializer = self.get_serializer(participation)
+        return Response(serializer.data, status=201)
+
     
