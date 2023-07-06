@@ -5,7 +5,7 @@
     </ion-title>
   </ion-toolbar>
   <ion-toolbar>
-    <ion-segment mode="ios" value="friends">
+    <ion-segment mode="ios" [(ngModel)]="selectedSegment" (ionChange)="segmentChanged($event)">
       <ion-segment-button value="friends">
         <ion-label>Friends</ion-label>
       </ion-segment-button>
@@ -17,7 +17,7 @@
 </ion-header>
 
 <ion-content>
-  <div *ngIf="friendList && friendList.length > 0">
+  <div *ngIf="selectedSegment === 'friends' && friendList && friendList.length > 0">
   <ion-card *ngFor="let friend of friendList">
     <ion-card-header>
       {{ friend.username }}
@@ -42,7 +42,7 @@
           <ion-icon name="trash" slot="start"></ion-icon>
           <ion-label>Delete friend</ion-label>
           <ion-button fill="clear" (click)="removeFriend(friend.id)">
-            <ion-icon name="close" slot="icon-only"></ion-icon>
+            <ion-icon name="close" color="danger" slot="icon-only"></ion-icon>
           </ion-button>
         </ion-item>
       </ion-list>
@@ -50,10 +50,64 @@
   </ion-card>
 </div>
   
-  <!-- Mostrar mensaje si no hay amigos -->
-  <ion-card *ngIf="friendList && friendList.length === 0">
+  <!-- Show messages if there are no friends -->
+  <ion-card *ngIf="selectedSegment === 'friends' && friendList && friendList.length === 0">
     <ion-card-content>
       No friends yet!
     </ion-card-content>
   </ion-card>
+
+  <div *ngIf="selectedSegment === 'requests'">
+    <ion-searchbar color="dark" placeholder="Search players" (ionChange)="searchPlayers($event)"></ion-searchbar>
+    <div *ngIf="showResults">
+      <!-- Show filtered players if there are filtered players -->
+      <ion-card *ngIf="filteredPlayers && filteredPlayers.length > 0">
+        <ion-card-header>Search results</ion-card-header>
+        <ion-card-content>
+          <ion-list>
+            <ion-item *ngFor="let player of filteredPlayers">
+              {{ player.username }}
+              <ion-button fill="clear" slot="end" (click)="sendFriendRequest(player.id)">
+                <ion-icon name="add"></ion-icon>
+              </ion-button>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Show message if there are no filtered players -->
+    <ion-card *ngIf="filteredPlayers && filteredPlayers.length === 0">
+      <ion-card-header>Search results</ion-card-header>
+      <ion-card-content>No results!</ion-card-content>
+    </ion-card>
+    
+    <!-- Show requests if there are requests -->
+    <div *ngIf="friendRequests && friendRequests.length > 0">    
+    
+      <ion-card *ngFor="let request of friendRequests">
+        <ion-card-header class="request-container">
+          <ion-icon name="people" color="success"></ion-icon>
+          <div class="username">
+            {{ request.sender.username }}
+          </div>
+          <div class="buttons">
+            <ion-button fill="clear" (click)="acceptFriendRequest(request.id)">
+              <ion-icon name="checkmark"></ion-icon>
+            </ion-button>
+            <ion-button fill="clear" (click)="rejectFriendRequest(request.id)">
+              <ion-icon name="close" color="danger"></ion-icon>
+            </ion-button>
+          </div>
+        </ion-card-header>
+      </ion-card>
+    </div>
+
+    <!-- Show messages if there are no requests -->
+    <ion-card *ngIf="selectedSegment === 'requests' && friendRequests && friendRequests.length === 0">
+      <ion-card-content>
+        No friend requests here!
+      </ion-card-content>
+    </ion-card>
+  </div>
 </ion-content>

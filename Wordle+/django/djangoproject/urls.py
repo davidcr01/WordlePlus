@@ -43,5 +43,7 @@ urlpatterns = [
     path('api/users-info/', UserInfoAPIView.as_view(), name='user-detail'),
     path('api/tournaments/', TournamentViewSet.as_view({'get': 'list'}), name='tournaments-list'),
     path('api/participations/', ParticipationViewSet.as_view({'get': 'list', 'post': 'create'}), name='participations'),
+    path('api/list-players/', PlayerListAPIView.as_view(), name='player-list'),
+
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

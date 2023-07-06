@@ -25,9 +25,7 @@ ion-card {
     margin-left: 1vw;
   }
   
-  ion-button {
-    --padding-start: 0;
-    --padding-end: 0;
+  ion-button, .buttons {
     font-size: calc(1.5vh + 1vw);
   }
 
@@ -44,4 +42,28 @@ ion-card {
     font-weight: bold;
     text-align: center;
   }
+  
+  .request-container {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-bottom: 2vh;
+    padding-top: 2vh;
+  }
+  
+  .username {
+    flex: 1;
+    margin-left: calc(2vh + 1vw);
+  }
+  
+  .buttons {
+    display: flex;
+    align-items: center;
+  }
+
+  .options{
+    font-weight: bold;
+  }
+
   

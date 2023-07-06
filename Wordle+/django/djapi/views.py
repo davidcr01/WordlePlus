@@ -1,6 +1,6 @@
 from django.contrib.auth.models import Group
 from djapi.models import *
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, status, generics
 from rest_framework.response import Response
 from djapi.serializers import *
 from djapi.permissions import IsOwnerOrAdminPermission, IsOwnerPermission
@@ -110,6 +110,21 @@ class PlayerViewSet(viewsets.ModelViewSet):
         # Delete the player
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class PlayerListAPIView(generics.ListAPIView):
+    queryset = Player.objects.all()
+    serializer_class = PlayerListSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = Player.objects.exclude(user=self.request.user)
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        usernames = serializer.data
+        return Response(usernames)
 
 class GroupViewSet(viewsets.ModelViewSet):
     """
@@ -382,8 +397,9 @@ class FriendRequestViewSet(viewsets.ReadOnlyModelViewSet):
             return Response({'error': 'Cannot send friend request to yourself'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Check if there is an existing request
-        existing_request = FriendRequest.objects.filter(sender=sender, receiver=receiver)
-        if existing_request.exists():
+        existing_request1= FriendRequest.objects.filter(sender=sender, receiver=receiver)
+        existing_request2 = FriendRequest.objects.filter(sender=receiver, receiver=sender)
+        if existing_request1.exists() or existing_request2.exists():
             return Response({'error': 'Friend request already sent'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Check if there is an existing friendship

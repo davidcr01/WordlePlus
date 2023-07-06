@@ -69,6 +69,13 @@ class PlayerSerializer(serializers.ModelSerializer):
         player = Player.objects.create(user=user, **validated_data)
         return player
 
+class PlayerListSerializer(serializers.ModelSerializer):
+    username = serializers.ReadOnlyField(source='user.username')
+
+    class Meta:
+        model = Player
+        fields = ['username', 'id']
+
 class UserInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
