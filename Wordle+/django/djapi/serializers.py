@@ -1,5 +1,5 @@
 from django.contrib.auth.models import Group
-from .models import CustomUser, Player, StaffCode, ClassicWordle, Notification, Tournament, Participation, FriendList, FriendRequest
+from .models import CustomUser, Player, StaffCode, ClassicWordle, Notification, Tournament, Participation, FriendList, FriendRequest, Game
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 
@@ -166,6 +166,13 @@ class FriendRequestSerializer(serializers.ModelSerializer):
 
     def get_sender(self, obj):
         return {'username': obj.sender.user.username, 'id_player': obj.sender.user.player.id}
+
+class GameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Game
+        fields = ['id', 'player2', 'player1_time', 'player2_time', 'player1_xp',
+                  'player2_xp', 'timestamp', 'word', 'player1_attempts', 'player2_attempts',
+                  'winner']
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:

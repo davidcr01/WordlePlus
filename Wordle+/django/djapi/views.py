@@ -418,7 +418,7 @@ class FriendRequestViewSet(viewsets.ReadOnlyModelViewSet):
 
         serializer = FriendRequestSerializer(friend_request)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
+
     @action(detail=True, methods=['post'])
     def accept(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -457,3 +457,72 @@ class FriendRequestViewSet(viewsets.ReadOnlyModelViewSet):
 
         instance.delete()
         return Response({'message': 'Friend request rejected'}, status=200)
+
+class GameViewSet(viewsets.ModelViewSet):
+    queryset = Game.objects.all()
+    serializer_class = GameSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    http_method_names = ['get', 'post', 'patch']
+
+    def create(self, request, *args, **kwargs):
+        player1 = getattr(request.user, 'player', None)
+        if not player1:
+            return Response({'error': 'Player1 not found'}, status=404)
+        player2_id = request.data.get('player2')
+
+        if not player2_id:
+            return Response({'error': 'player2 parameter is required'}, status=400)
+
+        try:
+            player2 = Player.objects.get(id=player2_id)
+        except Player.DoesNotExist:
+            return Response({'error': 'Player2 not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        allowed_fields = ['player2', 'player1_xp', 'player1_time', 'player1_attempts', 'word']
+        data = {key: request.data.get(key) for key in allowed_fields}
+
+        if 'winner' in data:
+            return Response({'error': 'The "winner" field cannot be modified.'}, status=400)
+        
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+
+        serializer.save(player1=player1, player2=player2)
+
+        # Create notification to the guest player
+        Notification.objects.create(
+            player=player2,
+            text=f"You have been challenged by {player1.user.username}. Let's play!",
+            link=''
+        )
+
+        return Response(serializer.data, status=201)
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        player = request.user.player
+
+        if instance.player2 != player:
+            return Response({'error': 'You do not have permission to update this game.'}, status=403)
+
+        allowed_fields = ['player2_xp', 'player2_time', 'player2_attempts']
+        data = {key: request.data.get(key) for key in allowed_fields}
+
+        if 'winner' in data:
+            return Response({'error': 'The "winner" field cannot be modified.'}, status=400)
+
+        player2_xp = request.data.get('player2_xp')
+        if player2_xp is not None:
+            player1_xp = instance.player1_xp
+            if player2_xp > player1_xp:
+                instance.winner = instance.player2
+            elif player2_xp < player1_xp:
+                instance.winner = instance.player1
+            else:
+                instance.winner = None
+
+        serializer = self.get_serializer(instance, data=data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response({'winner': instance.winner.user.username})
