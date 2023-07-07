@@ -1,8 +1,6 @@
-import base64, os
-import imghdr
 from django.contrib.auth.models import Group
-from .models import CustomUser, Player, ClassicWordle
-from rest_framework import viewsets, permissions, status
+from djapi.models import *
+from rest_framework import viewsets, permissions, status, generics
 from rest_framework.response import Response
 from djapi.serializers import *
 from djapi.permissions import IsOwnerOrAdminPermission, IsOwnerPermission
@@ -16,6 +14,9 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.core.files.base import ContentFile
 from django.http import JsonResponse
+from django.db.models import Q
+from rest_framework.decorators import action
+
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
@@ -110,6 +111,21 @@ class PlayerViewSet(viewsets.ModelViewSet):
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+class PlayerListAPIView(generics.ListAPIView):
+    queryset = Player.objects.all()
+    serializer_class = PlayerListSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = Player.objects.exclude(user=self.request.user)
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        usernames = serializer.data
+        return Response(usernames)
+
 class GroupViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows groups to be viewed or edited.
@@ -153,7 +169,7 @@ class CheckTokenExpirationView(APIView):
         token = request.user.auth_token
 
         if token.created < timezone.now() - timedelta(seconds=settings.TOKEN_EXPIRED_AFTER_SECONDS):
-            # El token ha expirado
+            # The token has expired
             token.delete()
             return Response({'message': 'Token has expired.'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -188,6 +204,9 @@ class ClassicWordleViewSet(viewsets.GenericViewSet):
         return Response(serializer.data, status=201)
 
 class AvatarView(APIView):
+    """
+    API endpoint that allows getting and saving the players' avatars.
+    """
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, user_id):
@@ -226,8 +245,11 @@ class AvatarView(APIView):
             return Response({'detail': 'The specified user does not exist.'}, status=404)   
 
 class NotificationsViewSet(viewsets.ModelViewSet):
-    queryset = Notifications.objects.all()
-    serializer_class = NotificationsSerializer
+    """
+    API endpoint that allows list and create notifications of the players.
+    """
+    queryset = Notification.objects.all()
+    serializer_class = NotificationSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwnerPermission]
     
     def list(self, request):
@@ -252,3 +274,186 @@ class NotificationsViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save(player=player)
         return Response(serializer.data, status=201)
+
+class TournamentViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Tournament.objects.order_by('max_players')
+    serializer_class = TournamentSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        # Obtain the word_lenght parameter
+        word_length = self.request.query_params.get('word_length')
+
+        if word_length:
+            # Filter tournaments by length
+            queryset = queryset.filter(word_length=word_length)
+
+        return queryset
+
+class ParticipationViewSet(viewsets.ModelViewSet):
+    queryset = Participation.objects.all()
+    serializer_class = ParticipationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def list(self, request):
+        tournament_id = request.query_params.get('tournament_id')
+        if not tournament_id:
+            return Response({'error': 'tournament_id parameter is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        queryset = self.get_queryset().filter(tournament_id=tournament_id)
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+    
+    def create(self, request, *args, **kwargs):
+        tournament_id = request.data.get('tournament_id')
+        player = request.user.player
+
+        # Request tournament_id field
+        if not tournament_id:
+            return Response({'error': 'tournament_id field is required.'}, status=404)
+        # Check if the user is a player
+        if not player:
+            return Response({'error': 'Player not found'}, status=404)
+
+        # Case of non existing tournament
+        try:
+            tournament = Tournament.objects.get(id=tournament_id)
+        except Tournament.DoesNotExist:
+            return Response({'error': 'Invalid tournament ID'}, status=400)
+        
+        # Case of existing participation
+        if Participation.objects.filter(tournament_id=tournament_id, player=player).exists():
+            return Response({'error': 'You are participating in this tournament.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Case of the tournament is closed
+        if tournament.is_closed:
+            return Response({'error': 'Tournament is closed for participation'}, status=400)
+
+        # Close the tournament if is full
+        if tournament.num_players >= tournament.max_players:
+            tournament.is_closed = True
+            tournament.save()
+            return Response({'error': 'Tournament is already full'}, status=400)
+
+        participation = Participation.objects.create(tournament=tournament, player=player)
+        tournament.num_players += 1
+        # Close the tournament if is full
+        if tournament.num_players >= tournament.max_players:
+            tournament.is_closed = True
+            
+        tournament.save()
+
+        # Create the related notification to the player
+        message = f"You were assigned in {tournament.name}. Good luck!"
+        link = "http://localhost:8100/tabs/tournaments"
+        notification = Notification.objects.create(player=player, text=message, link=link)
+        notification.save()
+
+        serializer = self.get_serializer(participation)
+        return Response(serializer.data, status=201)
+
+class FriendListViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = FriendListSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
+        player = getattr(request.user, 'player', None)
+        if not player:
+            return Response({'error': 'Player not found'}, status=404)
+
+        queryset = FriendList.objects.filter(Q(sender=player) | Q(receiver=player))
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+class FriendRequestViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = FriendRequest.objects.all()
+    serializer_class = FriendRequestSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
+        player = getattr(request.user, 'player', None)
+        if not player:
+            return Response({'error': 'Player not found'}, status=404)
+
+        queryset = FriendRequest.objects.filter(receiver=player).order_by('timestamp')
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        sender = getattr(request.user, 'player', None)
+        if not sender:
+            return Response({'error': 'Player not found'}, status=404)
+        receiver_id = request.data.get('receiver_id')
+        if not receiver_id:
+            return Response({'error': 'receiver_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            receiver = Player.objects.get(id=receiver_id)
+        except Player.DoesNotExist:
+            return Response({'error': 'Receiver not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        if sender == receiver:
+            return Response({'error': 'Cannot send friend request to yourself'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check if there is an existing request
+        existing_request1= FriendRequest.objects.filter(sender=sender, receiver=receiver)
+        existing_request2 = FriendRequest.objects.filter(sender=receiver, receiver=sender)
+        if existing_request1.exists() or existing_request2.exists():
+            return Response({'error': 'Friend request already sent'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check if there is an existing friendship
+        existing_friendship1 = FriendList.objects.filter(sender=sender, receiver=receiver)
+        existing_friendship2 = FriendList.objects.filter(sender=receiver, receiver=sender)
+        if existing_friendship1.exists() or existing_friendship2.exists():
+            return Response({'error': 'Friendship already exists'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Create the request and notify it
+        friend_request = FriendRequest.objects.create(sender=sender, receiver=receiver)
+        Notification.objects.create(
+            player=receiver,
+            text='You have a new friend request!',
+            link='http://localhost:8100/friendlist'
+        )
+
+        serializer = FriendRequestSerializer(friend_request)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    @action(detail=True, methods=['post'])
+    def accept(self, request, *args, **kwargs):
+        instance = self.get_object()
+        receiver = getattr(request.user, 'player', None)
+        if not receiver:
+            return Response({'error': 'Player not found'}, status=404)
+
+        if instance.receiver != receiver:
+            return Response({'error': 'Permission denied'}, status=403)
+
+        # Create the friendship
+        FriendList.objects.create(sender=instance.sender, receiver=receiver)
+
+        # Create notification for both players
+        Notification.objects.create(
+            player=instance.sender,
+            text=f"You are now friends with {receiver.user.username}.",
+            link='http://localhost:8100/friendlist'
+        )
+        Notification.objects.create(
+            player=receiver,
+            text=f"You are now friends with {instance.sender.user.username}.",
+            link='http://localhost:8100/friendlist'
+        )
+
+        instance.delete()
+        return Response({'message': 'Friend request accepted'}, status=200)
+    
+    @action(detail=True, methods=['post'])
+    def reject(self, request, *args, **kwargs):
+        instance = self.get_object()
+        receiver = request.user.player
+
+        if instance.receiver != receiver:
+            return Response({'error': 'Permission denied'}, status=403)
+
+        instance.delete()
+        return Response({'message': 'Friend request rejected'}, status=200)

@@ -1,5 +1,5 @@
 from django.contrib.auth.models import Group
-from .models import CustomUser, Player, StaffCode, ClassicWordle, Notifications
+from .models import CustomUser, Player, StaffCode, ClassicWordle, Notification, Tournament, Participation, FriendList, FriendRequest
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 
@@ -69,6 +69,13 @@ class PlayerSerializer(serializers.ModelSerializer):
         player = Player.objects.create(user=user, **validated_data)
         return player
 
+class PlayerListSerializer(serializers.ModelSerializer):
+    username = serializers.ReadOnlyField(source='user.username')
+
+    class Meta:
+        model = Player
+        fields = ['username', 'id']
+
 class UserInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
@@ -119,10 +126,46 @@ class ClassicWordleSerializer(serializers.ModelSerializer):
 
         return ClassicWordle.objects.create(**validated_data)
 
-class NotificationsSerializer(serializers.ModelSerializer):
+class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Notifications
+        model = Notification
         fields = ['text', 'link']
+
+class TournamentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tournament
+        fields = ['id', 'name', 'description', 'max_players', 'num_players', 'word_length', 'is_closed']
+
+class ParticipationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Participation
+        fields = '__all__'
+
+class FriendListSerializer(serializers.ModelSerializer):
+    friend = serializers.SerializerMethodField()
+
+    class Meta:
+        model = FriendList
+        fields = ['friend']
+
+    def get_friend(self, obj):
+        request = self.context.get('request')
+        player = request.user.player
+        if obj.sender == player:
+            friend = obj.receiver
+        else:
+            friend = obj.sender
+        return {'username': friend.user.username, 'id_player': friend.user.player.id}
+
+class FriendRequestSerializer(serializers.ModelSerializer):
+    sender = serializers.SerializerMethodField()
+
+    class Meta:
+        model = FriendRequest
+        fields = ['id', 'sender']
+
+    def get_sender(self, obj):
+        return {'username': obj.sender.user.username, 'id_player': obj.sender.user.player.id}
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:

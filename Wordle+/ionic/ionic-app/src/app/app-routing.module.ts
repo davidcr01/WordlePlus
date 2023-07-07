@@ -36,6 +36,12 @@ const routes: Routes = [
     loadChildren: () => import('./pages/edit-user/edit-user.module').then( m => m.EditUserPageModule),
     canActivate: [AuthGuard]
   },
+  {
+    path: 'friendlist',
+    loadChildren: () => import('./pages/friendlist/friendlist.module').then( m => m.FriendlistPageModule),
+    canActivate: [AuthGuard]
+  },
+
 
 
 

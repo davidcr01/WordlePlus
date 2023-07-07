@@ -17,7 +17,7 @@ from django.urls import include, path
 from django.contrib import admin
 from rest_framework import routers
 from djapi import views
-from djapi.views import CustomObtainAuthToken, CheckTokenExpirationView, AvatarView, UserInfoAPIView
+from djapi.views import *
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -27,6 +27,8 @@ router.register(r'api/players', views.PlayerViewSet)
 router.register(r'api/groups', views.GroupViewSet)
 router.register(r'api/classicwordles', views.ClassicWordleViewSet)
 router.register(r'api/notifications', views.NotificationsViewSet)
+router.register('api/friendlist', FriendListViewSet, basename='friendlist')
+router.register('api/friendrequest', FriendRequestViewSet, basename='friendrequest')
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
@@ -36,6 +38,12 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-token-auth/', CustomObtainAuthToken.as_view()),
     path('check-token-expiration/', CheckTokenExpirationView.as_view(), name='check-token-expiration'),
+    
     path('api/avatar/<int:user_id>/', AvatarView.as_view(), name='avatar'),
     path('api/users-info/', UserInfoAPIView.as_view(), name='user-detail'),
+    path('api/tournaments/', TournamentViewSet.as_view({'get': 'list'}), name='tournaments-list'),
+    path('api/participations/', ParticipationViewSet.as_view({'get': 'list', 'post': 'create'}), name='participations'),
+    path('api/list-players/', PlayerListAPIView.as_view(), name='player-list'),
+
+    
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

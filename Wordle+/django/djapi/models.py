@@ -2,8 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_save
+from django.core.exceptions import ValidationError
 from django.dispatch import receiver
-from datetime import date
 from django.utils import timezone
 
 # Create your models here.
@@ -48,12 +48,79 @@ class ClassicWordle(models.Model):
     date_played = models.DateTimeField(default=timezone.now)
     win = models.BooleanField(default=False)
 
-class Notifications(models.Model):
+# Model to store the notifications of the players.
+class Notification(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='notifications')
     text = models.CharField(max_length=200)
     link = models.URLField(blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 
+# Model to store the tournaments information.
+class Tournament(models.Model):
+    name = models.CharField(max_length=20)
+    description = models.TextField(blank=True)
+    num_players = models.PositiveIntegerField(default=0)
+    max_players = models.PositiveIntegerField()
+    word_length = models.PositiveIntegerField()
+    is_closed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+    
+# Model to store the participations of the tournaments.
+class Participation(models.Model):
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
+    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['tournament', 'player'],
+                name='unique_participation'
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.player.user.username} - {self.tournament.name}"
+
+# Model to store the friend list of the players.
+class FriendList(models.Model):
+    sender = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='friend_requests_sent')
+    receiver = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='friend_requests_received')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['sender', 'receiver'], name='unique_friendship')        ]
+
+    def clean(self):
+        if self.sender == self.receiver:
+            raise ValidationError('You can not be friend of yourself.')
+        if FriendList.objects.filter(sender=self.receiver, receiver=self.sender).exists():
+            raise ValidationError('This friend relation already exists.')
+        
+    def __str__(self):
+        return f"{self.sender.user.username} - {self.receiver.user.username}"
+    
+class FriendRequest(models.Model):
+    sender = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='requests_sent')
+    receiver = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='requests_received')
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['sender', 'receiver'], name='unique_friendrequest')        ]
+
+    def clean(self):
+        if self.sender == self.receiver:
+            raise ValidationError('You can not be send a request to yourself.')
+        if FriendRequest.objects.filter(sender=self.receiver, receiver=self.sender).exists():
+            raise ValidationError('This friend request already exists.')
+        
+    def __str__(self):
+        return f"{self.sender.user.username} - {self.receiver.user.username}"
+    
 # Method to add the 'Staff' group automatically when creating an administrator
 @receiver(post_save, sender=CustomUser)
 def assign_permissions(sender, instance, created, **kwargs):
