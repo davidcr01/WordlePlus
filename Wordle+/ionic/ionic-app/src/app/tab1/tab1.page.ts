@@ -23,6 +23,7 @@ export class Tab1Page implements OnInit{
   xP: number;
   backgroundImage: string;
   avatarImage: string;
+  isReady: boolean = false;
 
   constructor(
     private route: ActivatedRoute, 
@@ -44,7 +45,8 @@ export class Tab1Page implements OnInit{
     } else {
       this.backgroundImage = '../../assets/background_wordle_horizontal.png';
     }
-    this.getAvatarImage();
+    this.loadAvatarImage();
+    
 
     // Optional param to update the player info: useful when
     // finishing a game
@@ -61,6 +63,8 @@ export class Tab1Page implements OnInit{
   }
 
   async ionViewWillEnter() {
+    this.refreshPlayerData();
+    
     this.username = await this.storageService.getUsername();    
     this.victoriesClassic = await this.storageService.getWins();
     this.victoriesPvp = await this.storageService.getWinsPVP();
@@ -70,14 +74,35 @@ export class Tab1Page implements OnInit{
     this.rankImage = await this.getRankImage(this.rank);
 
     this.notificationService.refreshNotifications();
+    this.getAvatarImage();
+
+    this.isReady = true;
+  }
+
+  async refreshPlayerData() {
+    const playerId = await this.storageService.getPlayerID();
+    if (playerId) {
+      (await this.apiService.getPlayerData(playerId)).subscribe(
+        (response: any) => {
+          this.storageService.setWinsPVP(response.wins_pvp);
+          this.storageService.setXP(response.xp);
+          this.storageService.setWinsTournament(response.wins_tournaments);
+        },
+        (error) => {
+          console.error('Error retrieving player data:', error);
+        }
+      )
+    }
   }
 
   async getAvatarImage() {
     // Only fetchs the avatar if necessary
     const storedAvatarUrl = await this.storageService.getAvatarUrl();
+    console.log(storedAvatarUrl);
     if (storedAvatarUrl) {
       this.avatarImage = storedAvatarUrl;
     } else {
+      console.log('load avatar');
       await this.loadAvatarImage();
     }
   }
@@ -112,11 +137,13 @@ export class Tab1Page implements OnInit{
           this.storageService.setAvatarUrl(this.avatarImage);
         } else {
           this.avatarImage = '../../assets/avatar.png'; // Default avatar image
+          this.storageService.setAvatarUrl(this.avatarImage);
         }
       },
       error => {
         console.error('Error loading avatar image:', error);
         this.avatarImage = '../../assets/avatar.png';
+        this.storageService.setAvatarUrl(this.avatarImage);
       }
     );
   }

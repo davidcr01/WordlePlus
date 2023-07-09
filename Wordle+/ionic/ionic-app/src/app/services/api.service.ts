@@ -38,6 +38,20 @@ import { EncryptionService } from './encryption.service';
         return this.http.post(url, userData);
     }
 
+    async getPlayerData(playerId: string) {
+        const url = `${this.baseURL}/api/players/${playerId}`;
+        const accessToken = await this.storageService.getAccessToken();
+        if (!accessToken) {
+            return throwError('Access token not found');
+        }
+        const decryptedToken = this.encryptionService.decryptData(accessToken);
+        const headers = new HttpHeaders({
+            Authorization: `Token ${decryptedToken}`,
+            'Content-Type': 'application/json'
+        });
+        return this.http.get(url, {headers});
+    }
+
     async addClassicGame(gameData: any): Promise<Observable<any>> {
         let url = `${this.baseURL}/api/classicwordles/`;
         const accessToken = this.storageService.getAccessToken();

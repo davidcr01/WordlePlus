@@ -58,7 +58,7 @@ export class RespondGamePage implements OnInit {
     await alert.present();
     const result = await alert.onDidDismiss();
     if (result.role === 'backdrop') {
-      this.router.navigate(['/tabs/main']);
+      this.router.navigate(['/tabs/main'], { queryParams: { refresh: 'true' } });
     }
   }
 
