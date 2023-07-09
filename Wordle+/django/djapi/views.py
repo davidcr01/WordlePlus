@@ -495,7 +495,12 @@ class GameViewSet(viewsets.ModelViewSet):
             return Response({'error': 'You can not access to this game.'}, status=403)
         
         serializer = self.get_serializer(instance)
-        return Response(serializer.data)
+        data = serializer.data
+
+        data['player1'] = instance.player1.user.username
+        data['player2'] = instance.player2.user.username
+
+        return Response(data)
 
     def create(self, request, *args, **kwargs):
         player1 = getattr(request.user, 'player', None)
