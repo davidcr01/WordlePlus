@@ -1,5 +1,4 @@
-import { Component, HostListener, Input, OnInit } from '@angular/core';
-import { ToastController } from '@ionic/angular';
+import { Component, HostListener, Input, OnInit, Output, EventEmitter } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { StorageService } from 'src/app/services/storage.service';
 import { ApiService } from 'src/app/services/api.service';
@@ -19,6 +18,10 @@ interface LetterBox {
   styleUrls: ['./wordle-dashboard.component.scss'],
 })
 export class WordleDashboardComponent implements OnInit {
+  // For 1vs1 games
+  @Output() gameFinished: EventEmitter<any> = new EventEmitter();
+  @Input() isMultiplayer: boolean;
+
   public letterRows: LetterBox[][];
   public keyboardLetters: string[];
   public firstRow: string[] = ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'];
@@ -28,7 +31,7 @@ export class WordleDashboardComponent implements OnInit {
   private readonly MAX_GUESSES = 6;
   @Input() WORDS_LENGTH: number;
   private wordsOfDesiredLength: string[];
-  private rightGuessString: string;
+  @Input() rightGuessString?: string;
   private guessesRemaining: number;
   private currentGuess: string[];
   private nextLetter: number;
@@ -71,6 +74,8 @@ export class WordleDashboardComponent implements OnInit {
 
   // Reads the JSON file of words and select a random one with a specified length
   private generateWord(): void {
+    console.log(this.WORDS_LENGTH);
+    console.log(this.rightGuessString);
     this.http.get<any>('assets/words.json').subscribe(
       (wordsData) => {
         this.wordsOfDesiredLength = wordsData[this.WORDS_LENGTH];
@@ -79,7 +84,10 @@ export class WordleDashboardComponent implements OnInit {
           throw new Error(`No words found for length ${this.WORDS_LENGTH}`);
         }
 
-        this.rightGuessString = this.selectRandomWordByLength(this.WORDS_LENGTH);
+        // If it has not a value, then it has not been passed by parameter
+        if (!this.rightGuessString) {
+          this.rightGuessString = this.selectRandomWordByLength(this.WORDS_LENGTH);
+        }
       },
       (error) => {
         throw new Error(`Failed to load words data: ${error.message}`);
@@ -128,6 +136,8 @@ export class WordleDashboardComponent implements OnInit {
       guessString += val;
     }
 
+    console.log(guessString.length);
+    console.log(this.WORDS_LENGTH);
     if (guessString.length !== this.WORDS_LENGTH) {
       this.toastService.showToast('Not enough letters!');
       return;
@@ -200,33 +210,40 @@ export class WordleDashboardComponent implements OnInit {
         win: won,
         xp_gained: xP,
       };
-      
-      (await
-        // API call
-        this.apiService.addClassicGame(body)).subscribe(
-        (response) => {
-          console.log('Game added successfully', response);
-        },
-        (error) => {
-          console.log('Game could not be added', error);
-      });
-      this.storageService.incrementXP(xP);
-      this.notificationService.addNotification({'text': 'Well done!'});
-
-      if (won) {
-        setTimeout(() => {
-          this.toastService.showToast(`You won! You gained ${xP}`, 3000, 'top');
-          this.storageService.incrementWins();
-
-        }, 250 * this.WORDS_LENGTH + 3000);
+      // Case of multiplayer game
+      if (this.isMultiplayer) {
+        const gameFinishedEvent = {
+          time: timeConsumed,
+          xp: xP,
+          attempts: attempsConsumed,
+          selectedWord: this.rightGuessString,
+        };
+        this.gameFinished.emit(gameFinishedEvent);
       } else {
+        // Case of classic game
+        (await this.apiService.addClassicGame(body)).subscribe(
+          (response) => {
+            console.log('Game added successfully', response);
+          },
+          (error) => {
+            console.log('Game could not be added', error);
+        });
+        this.storageService.incrementXP(xP);
+
+        if (won) {
+          setTimeout(() => {
+            this.toastService.showToast(`You won! You gained ${xP}`, 3000, 'top');
+            this.storageService.incrementWins();
+          }, 250 * this.WORDS_LENGTH + 3000);
+        } else {
+          setTimeout(() => {
+            this.toastService.showToast(`You lost! You gained ${xP}`, 3000, 'top');
+          }, 250 * this.WORDS_LENGTH + 3000);
+        }
         setTimeout(() => {
-          this.toastService.showToast(`You lost! You gained ${xP}`, 3000, 'top');
-        }, 250 * this.WORDS_LENGTH + 3000);
+          this.router.navigate(['/tabs/main'], { queryParams: { refresh: 'true' } });
+        }, 3000)
       }
-      setTimeout(() => {
-        this.router.navigate(['/tabs/main'], { queryParams: { refresh: 'true' } });
-      }, 3000)
     }
   }
 

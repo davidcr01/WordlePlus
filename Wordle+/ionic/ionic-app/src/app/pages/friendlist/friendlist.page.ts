@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { ToastController } from '@ionic/angular';
 import { ApiService } from 'src/app/services/api.service';
 import { ToastService } from 'src/app/services/toast.service';
+import { PopoverController } from '@ionic/angular';
+import { WordsPopoverComponent } from 'src/app/components/words-popover/words-popover.component';
+
 
 @Component({
   selector: 'app-friendlist',
@@ -17,7 +19,8 @@ export class FriendlistPage implements OnInit {
   selectedSegment: string;
   showResults: boolean = false;
 
-  constructor(private apiService: ApiService, private toastService: ToastService) {}
+  constructor(private apiService: ApiService, private toastService: ToastService, 
+    private popoverController: PopoverController) {}
 
   ngOnInit() {
     this.getAllPlayers();
@@ -26,6 +29,21 @@ export class FriendlistPage implements OnInit {
   async ionViewWillEnter() {
     this.selectedSegment = 'friends';
     this.loadFriendList(); 
+  }
+
+  // Popover of word length selection
+  async handleSelectionPopover(event: any, playerId: number, username: string) {
+    const popover = await this.popoverController.create({
+      component: WordsPopoverComponent,
+      event: event,
+      dismissOnSelect: true,
+      componentProps: {
+        playerId: playerId,
+        username: username
+      }
+    });
+    
+    await popover.present();
   }
 
   // Method that gets all the players of the backend. Only the usernames
@@ -43,10 +61,8 @@ export class FriendlistPage implements OnInit {
   // Method that send a friend request when clicking the add button
   async sendFriendRequest(playerId: number) {
     this.showResults = false;
-    console.log(playerId);
     (await this.apiService.sendFriendRequest(playerId)).subscribe(
       async (response) => {
-        console.log('Friend request sent successfully', response);
         this.toastService.showToast("Request was sent successfully!", 2000, 'top', 'success');
       },
       async (error) => {

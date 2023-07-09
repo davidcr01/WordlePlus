@@ -1,0 +1,16 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Game 1vs1</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="game-info">
+    <ion-icon name="checkbox" class="played-icon"></ion-icon>
+    <div class="opponent-username">{{ opponentUsername }}</div>
+  </div>
+
+  <ng-container *ngIf="wordLength && selectedWord">
+    <app-wordle-dashboard [rightGuessString]="selectedWord" [WORDS_LENGTH]="wordLength" [isMultiplayer]="true" (gameFinished)="finishGame($event.time, $event.xp, $event.attempts, $event.selectedWord)"></app-wordle-dashboard>
+  </ng-container>
+</ion-content>

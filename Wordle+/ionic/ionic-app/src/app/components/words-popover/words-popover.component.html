@@ -1,7 +1,7 @@
 <ion-content>
     <ion-list>
     <ion-item *ngFor="let length of wordLengths">
-      <ion-button expand="full" size="default" shape="round" [routerLink]="'/classic-wordle/' + length">{{ length }} letters</ion-button>
+      <ion-button expand="full" size="default" shape="round" (click)="navigateToGame(length)">{{ length }} letters</ion-button>
     </ion-item>
     </ion-list>
 </ion-content>

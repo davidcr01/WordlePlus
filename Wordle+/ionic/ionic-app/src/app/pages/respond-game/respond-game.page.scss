@@ -1,0 +1,23 @@
+ion-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .game-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .played-icon {
+    margin-right: 10px;
+  }
+  
+  .opponent-username {
+    font-weight: bold;
+  }
+  
+  .red-alert{
+    --background: red;
+  }

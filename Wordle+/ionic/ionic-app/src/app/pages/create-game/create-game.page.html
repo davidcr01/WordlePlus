@@ -1,0 +1,15 @@
+<ion-header>
+    <ion-toolbar>
+      <ion-title>Game 1vs1</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  
+  <ion-content>
+    <div class="game-info">
+      <ion-icon name="close-circle-sharp" class="played-icon"></ion-icon>
+      <div class="opponent-username">{{ opponentUsername }}</div>
+    </div>
+  
+    <app-wordle-dashboard [WORDS_LENGTH]="wordLength" [isMultiplayer]="true" (gameFinished)="finishGame($event.time, $event.xp, $event.attempts, $event.selectedWord)"></app-wordle-dashboard>
+  </ion-content>
+  
