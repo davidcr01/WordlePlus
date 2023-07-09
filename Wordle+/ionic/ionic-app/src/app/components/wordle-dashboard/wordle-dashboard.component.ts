@@ -74,8 +74,6 @@ export class WordleDashboardComponent implements OnInit {
 
   // Reads the JSON file of words and select a random one with a specified length
   private generateWord(): void {
-    console.log(this.WORDS_LENGTH);
-    console.log(this.rightGuessString);
     this.http.get<any>('assets/words.json').subscribe(
       (wordsData) => {
         this.wordsOfDesiredLength = wordsData[this.WORDS_LENGTH];
@@ -136,8 +134,6 @@ export class WordleDashboardComponent implements OnInit {
       guessString += val;
     }
 
-    console.log(guessString.length);
-    console.log(this.WORDS_LENGTH);
     if (guessString.length !== this.WORDS_LENGTH) {
       this.toastService.showToast('Not enough letters!');
       return;

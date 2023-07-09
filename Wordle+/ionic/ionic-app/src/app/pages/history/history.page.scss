@@ -1,0 +1,31 @@
+ion-card-header {
+font-weight: bolder;
+font-size: calc(2vh + 2vw);
+padding-bottom: 5px;
+display: flex;
+align-content: space-between;
+justify-content: space-between;
+align-items: center;
+align-content: center;
+flex-direction: row;
+  }
+
+  ion-icon {
+    color: var(--ion-color-purple);
+  }
+
+  ion-list ion-item {
+    font-size: calc(1.5vh + 1vw);
+  }
+
+.play-button{
+    margin-left: 100px;
+    margin-right: 100px;
+    --background: var(--ion-color-purple);
+    font-size: calc(1.5vh + 1vw);
+    font-weight: bold;
+}
+
+ion-content{
+    --background: var(--ion-color-turquoise);
+  }

@@ -74,10 +74,9 @@ export class RespondGamePage implements OnInit {
         console.log('Game resolved successfully', response);
         console.log(response.winner, this.selfUsername);
         if (response.winner === this.selfUsername) {
-          this.showAlert('Congratulations!', 'You won! Amazing!');
-          
+          setTimeout( () => this.showAlert('Congratulations!', 'You won! Amazing!'), 2500);
         } else {
-          this.showAlert('Bad news!', 'You lost. Try next time!');
+          setTimeout( () => this.showAlert('Bad news!', 'You lost. Try next time!'), 2500);
         }
         // Handle success and navigate to appropriate page
       },

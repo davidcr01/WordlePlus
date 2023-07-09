@@ -38,6 +38,10 @@ export class Tab1Page implements OnInit{
     this.router.navigate(['/friendlist']);
   }
 
+  goToHistory() {
+    this.router.navigate(['/history']);
+  }
+
   // Change background img depending on the width
   async ngOnInit() {
     if (window.innerWidth <= 767) {
@@ -98,11 +102,9 @@ export class Tab1Page implements OnInit{
   async getAvatarImage() {
     // Only fetchs the avatar if necessary
     const storedAvatarUrl = await this.storageService.getAvatarUrl();
-    console.log(storedAvatarUrl);
     if (storedAvatarUrl) {
       this.avatarImage = storedAvatarUrl;
     } else {
-      console.log('load avatar');
       await this.loadAvatarImage();
     }
   }

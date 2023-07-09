@@ -460,9 +460,16 @@ class FriendRequestViewSet(viewsets.ReadOnlyModelViewSet):
 
 class GameViewSet(viewsets.ModelViewSet):
     queryset = Game.objects.all()
-    serializer_class = GameSerializer
+    serializer_class = GameCreateSerializer
     permission_classes = [permissions.IsAuthenticated]
     http_method_names = ['get', 'post', 'patch']
+
+    def get_serializer_class(self):
+        if self.action in ['list', 'retrieve', 'completed_games', 'pending_games']:
+            return GameDetailSerializer
+        elif self.action in ['create', 'partial_update']:
+            return GameCreateSerializer
+        return super().get_serializer_class()
 
     # Completed games are those which the winner is not null
     @action(detail=False, methods=['get'])
@@ -498,9 +505,6 @@ class GameViewSet(viewsets.ModelViewSet):
         
         serializer = self.get_serializer(instance)
         data = serializer.data
-
-        data['player1'] = instance.player1.user.username
-        data['player2'] = instance.player2.user.username
 
         return Response(data)
 

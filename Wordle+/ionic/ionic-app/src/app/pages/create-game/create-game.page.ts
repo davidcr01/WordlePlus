@@ -41,7 +41,7 @@ export class CreateGamePage implements OnInit {
       (response) => {
         console.log('Game registered successfully', response);
         this.toastService.showToast('Game registered successfully! Who will win?', 2000, 'top', 'success');
-        this.router.navigate(['/tabs/main'], { queryParams: { refresh: 'true' } });
+        setTimeout(() =>this.router.navigate(['/tabs/main'], { queryParams: { refresh: 'true' } }), 2500);
       },
       (error) => {
         console.error('Error creating game:', error);

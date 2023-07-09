@@ -167,12 +167,33 @@ class FriendRequestSerializer(serializers.ModelSerializer):
     def get_sender(self, obj):
         return {'username': obj.sender.user.username, 'id_player': obj.sender.user.player.id}
 
-class GameSerializer(serializers.ModelSerializer):
+class GameDetailSerializer(serializers.ModelSerializer):
+    player1 = serializers.SerializerMethodField()
+    player2 = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Game
+        fields = ['id', 'player1', 'player2', 'player1_time', 'player2_time', 'player1_xp',
+                  'player2_xp', 'timestamp', 'word', 'player1_attempts', 'player2_attempts',
+                  'winner']
+
+    def get_player1(self, obj):
+        return obj.player1.user.username
+
+    def get_player2(self, obj):
+        return obj.player2.user.username
+
+
+class GameCreateSerializer(serializers.ModelSerializer):
+    player2 = serializers.SerializerMethodField()
     class Meta:
         model = Game
         fields = ['id', 'player2', 'player1_time', 'player2_time', 'player1_xp',
                   'player2_xp', 'timestamp', 'word', 'player1_attempts', 'player2_attempts',
                   'winner']
+        
+    def get_player2(self, obj):
+        return obj.player2.user.username
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:

@@ -51,12 +51,11 @@ const routes: Routes = [
     loadChildren: () => import('./pages/respond-game/respond-game.module').then( m => m.RespondGamePageModule),
     canActivate: [AuthGuard]
   },
-
-
-
-
-
-
+  {
+    path: 'history',
+    loadChildren: () => import('./pages/history/history.module').then( m => m.HistoryPageModule),
+    canActivate: [AuthGuard]
+  },
 
 ];
 @NgModule({
