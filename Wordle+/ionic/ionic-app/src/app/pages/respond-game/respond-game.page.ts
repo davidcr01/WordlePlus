@@ -4,6 +4,8 @@ import { ApiService } from 'src/app/services/api.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { AlertController } from '@ionic/angular';
+import { HttpErrorResponse } from '@angular/common/http';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-respond-game',
@@ -12,15 +14,17 @@ import { AlertController } from '@ionic/angular';
 })
 export class RespondGamePage implements OnInit {
   idGame: number;
+  selfUsername: string;
   opponentUsername: string;
   selectedWord: string;
   wordLength: number;
 
   constructor(private route: ActivatedRoute, private apiService: ApiService,
-    private toastService: ToastService, private storageService: StorageService,
+    private storageService: StorageService,
     private router: Router, private alertController: AlertController) {}
 
   async ngOnInit() {
+    this.selfUsername = await this.storageService.getUsername();
     this.route.queryParams.subscribe((params) => {
       this.idGame = params['idGame'];
     });
@@ -31,10 +35,9 @@ export class RespondGamePage implements OnInit {
         this.selectedWord = response.word;
         this.opponentUsername = response.player1;
         this.wordLength = this.selectedWord.length;
-
-        if (response.player2 !== this.storageService.getUsername() || response.winner !== null) {
-          this.showAlert("Ups!", "You can't play this game!");
-        }
+      },
+      (error) => {
+        this.showAlert("Ups!", "You can't play this game!");
       }
     );
   }
@@ -69,7 +72,8 @@ export class RespondGamePage implements OnInit {
     (await this.apiService.resolveGame(this.idGame, gameData)).subscribe(
       (response) => {
         console.log('Game resolved successfully', response);
-        if (response.winner === this.storageService.getUsername()) {
+        console.log(response.winner, this.selfUsername);
+        if (response.winner === this.selfUsername) {
           this.showAlert('Congratulations!', 'You won! Amazing!');
           
         } else {

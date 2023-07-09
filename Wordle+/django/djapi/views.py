@@ -493,6 +493,8 @@ class GameViewSet(viewsets.ModelViewSet):
 
         if player not in [instance.player1, instance.player2]:
             return Response({'error': 'You can not access to this game.'}, status=403)
+        if instance.winner is not None:
+            return Response({'error': 'This game is already completed and cannot be modified.'}, status=403)
         
         serializer = self.get_serializer(instance)
         data = serializer.data

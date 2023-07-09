@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ApiService } from 'src/app/services/api.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { Router } from '@angular/router';
+import { StorageService } from 'src/app/services/storage.service';
 
 @Component({
   selector: 'app-create-game',
@@ -12,12 +13,14 @@ import { Router } from '@angular/router';
 export class CreateGamePage implements OnInit {
   opponentId: number;
   opponentUsername: string;
+  selfUsername: string;
   wordLength: number;
 
   constructor(private route: ActivatedRoute, private apiService: ApiService,
-    private toastService: ToastService, private router: Router) {}
+    private toastService: ToastService, private router: Router, private storageService: StorageService) {}
 
-  ngOnInit() {
+  async ngOnInit() {
+    this.selfUsername = await this.storageService.getUsername();
     this.route.queryParams.subscribe((params) => {
       this.opponentId = params['opponentId'];
       this.opponentUsername = params['opponentUsername'];

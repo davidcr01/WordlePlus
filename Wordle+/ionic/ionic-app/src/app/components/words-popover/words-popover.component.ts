@@ -16,7 +16,7 @@ export class WordsPopoverComponent  implements OnInit {
   
   navigateToGame(length: number) {
     if (this.playerId) {
-      this.router.navigate(['/game'], { queryParams: {length: length, opponentId: this.playerId, opponentUsername: this.username, opponetPlayed: false} });
+      this.router.navigate(['/create-game'], { queryParams: {length: length, opponentId: this.playerId, opponentUsername: this.username} });
     } else {
       this.router.navigate([`/classic-wordle/${length}`]);
     }

@@ -5,10 +5,13 @@
 </ion-header>
 
 <ion-content>
+  <ng-container *ngIf="opponentUsername">
   <div class="game-info">
-    <ion-icon name="checkbox" class="played-icon"></ion-icon>
-    <div class="opponent-username">{{ opponentUsername }}</div>
+    <div class="username">{{ selfUsername }}</div>
+    <img src="../../../assets/icon/vs.png" alt="VS icon">
+    <div class="username">{{ opponentUsername }}</div>
   </div>
+  </ng-container>
 
   <ng-container *ngIf="wordLength && selectedWord">
     <app-wordle-dashboard [rightGuessString]="selectedWord" [WORDS_LENGTH]="wordLength" [isMultiplayer]="true" (gameFinished)="finishGame($event.time, $event.xp, $event.attempts, $event.selectedWord)"></app-wordle-dashboard>
