@@ -51,7 +51,6 @@ export class HistoryPage implements OnInit {
     this.isLoading = true;
     try {
       this.completedPvpGames = await this.apiService.getCompletedPVPGames();
-      console.log(this.completedPvpGames);
     } catch (error) {
       this.toastService.showToast("Error loading completed games", 2000, 'top', 'danger');
     }
