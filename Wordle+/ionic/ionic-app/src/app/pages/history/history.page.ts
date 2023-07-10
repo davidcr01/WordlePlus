@@ -36,6 +36,8 @@ export class HistoryPage implements OnInit {
   }
 
   respondGame(idGame: string){
+    // Refresh pending games and redirect
+    this.loadPendingPvpGames();
     this.router.navigate(['/respond-game'], { queryParams: { idGame: idGame } });
   }
 

@@ -1,11 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from 'src/app/services/api.service';
-import { ToastService } from 'src/app/services/toast.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { AlertController } from '@ionic/angular';
-import { HttpErrorResponse } from '@angular/common/http';
-import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-respond-game',
@@ -31,7 +28,6 @@ export class RespondGamePage implements OnInit {
 
     (await this.apiService.getGame(this.idGame)).subscribe(
       (response) => {
-        console.log(response);
         this.selectedWord = response.word;
         this.opponentUsername = response.player1;
         this.wordLength = this.selectedWord.length;
@@ -72,17 +68,14 @@ export class RespondGamePage implements OnInit {
     (await this.apiService.resolveGame(this.idGame, gameData)).subscribe(
       (response) => {
         console.log('Game resolved successfully', response);
-        console.log(response.winner, this.selfUsername);
         if (response.winner === this.selfUsername) {
           setTimeout( () => this.showAlert('Congratulations!', 'You won! Amazing!'), 2500);
         } else {
           setTimeout( () => this.showAlert('Bad news!', 'You lost. Try next time!'), 2500);
         }
-        // Handle success and navigate to appropriate page
       },
       (error) => {
         console.log('Game could not be resolved', error);
-        // Handle error
       }
     );
   }

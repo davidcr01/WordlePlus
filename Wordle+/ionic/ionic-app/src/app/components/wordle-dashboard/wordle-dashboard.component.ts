@@ -228,12 +228,12 @@ export class WordleDashboardComponent implements OnInit {
 
         if (won) {
           setTimeout(() => {
-            this.toastService.showToast(`You won! You gained ${xP}`, 3000, 'top');
+            this.toastService.showToast(`You won! You gained ${xP}`, 3000, 'top', 'success');
             this.storageService.incrementWins();
           }, 250 * this.WORDS_LENGTH + 3000);
         } else {
           setTimeout(() => {
-            this.toastService.showToast(`You lost! You gained ${xP}`, 3000, 'top');
+            this.toastService.showToast(`You lost! You gained ${xP}`, 3000, 'top', 'warning');
           }, 250 * this.WORDS_LENGTH + 3000);
         }
         setTimeout(() => {
