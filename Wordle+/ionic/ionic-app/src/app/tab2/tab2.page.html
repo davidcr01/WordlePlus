@@ -53,7 +53,7 @@
           </ion-item>
         </ion-list>
       </ion-card-content>
-      <ion-button expand="block" class="join-button" [disabled]="tournament.is_closed">Join</ion-button>
+      <ion-button expand="block" class="join-button" [disabled]="tournament.is_closed" (click)="joinTournament(tournament.id)">Join</ion-button>
     </ion-card>
   </div>
 

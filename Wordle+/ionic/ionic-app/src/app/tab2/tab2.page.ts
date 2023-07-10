@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../services/api.service';
+import { ToastService } from '../services/toast.service';
 
 @Component({
   selector: 'app-tab2',
@@ -11,7 +12,7 @@ export class Tab2Page implements OnInit {
   tournaments: any[] = [];
   isLoading: boolean = false;
 
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService, private toastService: ToastService) {}
 
   ngOnInit() {
     this.isLoading = true;
@@ -32,5 +33,22 @@ export class Tab2Page implements OnInit {
           this.isLoading = false;
         }
       );
+  }
+
+  async joinTournament(idTournament: number) {
+    (await this.apiService.createParticipation(idTournament)).subscribe(
+      (response) => {
+        this.toastService.showToast('You joined the tournament successfully!', 2000, 'top', 'success');
+        console.log('Participation added successfully', response);
+      },
+      (error) => {
+        if (error.status === 400) {
+          this.toastService.showToast('You already participate in this tournament!', 2000, 'top', 'warning');
+        } else {
+          this.toastService.showToast('There was an error jonining to the tournament!', 2000, 'top', 'danger');
+        }
+        console.log('Participation could not be added', error);
+    }
+    );
   }
 }

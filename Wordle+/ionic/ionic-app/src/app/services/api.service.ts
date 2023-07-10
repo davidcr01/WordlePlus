@@ -197,6 +197,23 @@ import { EncryptionService } from './encryption.service';
         return this.http.get(url, { headers });
       }
 
+      async createParticipation(idTournament: number): Promise<Observable<any>> {
+        let url = `${this.baseURL}/api/participations/`;
+        const tournament = {'tournament_id': idTournament};
+        const accessToken = this.storageService.getAccessToken();
+        if (!accessToken) {
+            return throwError('Access token not found');
+        }
+        const decryptedToken = this.encryptionService.decryptData(await accessToken);
+        const headers = new HttpHeaders({
+            Authorization: `Token ${decryptedToken}`,
+            'Content-Type': 'application/json'
+        });
+
+        return this.http.post(url, tournament, { headers });
+    }
+
+
       // FRIENDS
       /////////////////////////////////////////////////////////////////
       async getFriendList(): Promise<any[]> {
