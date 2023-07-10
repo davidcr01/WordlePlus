@@ -25,11 +25,73 @@
   </div>
 
   <div *ngIf="selectedSegment === 'completed-pvp-games'">
+    <app-loading *ngIf="isLoading"></app-loading>
+    <div *ngIf="completedPvpGames && completedPvpGames.length > 0 && !isLoading">
+      <ion-card *ngFor="let game of completedPvpGames">
+        <ion-card-header>
+          {{ username }}
+          <img src="../../../assets/icon/vs.png" alt="VS icon">
+          {{ game.player1 === username ? game.player2 : game.player1 }}
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list class="game-info-list">
+            <ion-item>
+              <ion-label class="result" [class.victory-result]="game.winner === playerId" [class.defeat-result]="game.winner !== playerId">
+                {{ game.winner === playerId ? 'Victory' : 'Defeat' }}
+              </ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-label>
+                <ion-grid>
+                  <ion-row>
+                    <ion-col>
+                      <div class="game-info-column">
+                        <div><ion-icon name="stopwatch-outline" class="game-info-icon"></ion-icon> Player Time</div>
+                        <div class="game-info-value">{{ getPlayerTime(game) }}</div>
+                      </div>
+                    </ion-col>
+                    <ion-col>
+                      <div class="game-info-column">
+                        <div><ion-icon name="stopwatch-outline" class="game-info-icon"></ion-icon> Opponent Time</div>
+                        <div class="game-info-value">{{ getOpponentTime(game) }}</div>
+                      </div>
+                    </ion-col>
+                  </ion-row>
+                  <ion-row>
+                    <ion-col>
+                      <div class="game-info-column">
+                        <div><ion-icon name="trophy-outline" class="game-info-icon"></ion-icon> Player XP</div>
+                        <div class="game-info-value">{{ getPlayerXP(game) }}</div>
+                      </div>
+                    </ion-col>
+                    <ion-col>
+                      <div class="game-info-column">
+                        <div><ion-icon name="trophy-outline" class="game-info-icon"></ion-icon> Opponent XP</div>
+                        <div class="game-info-value">{{ getOpponentXP(game) }}</div>
+                      </div>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
+              </ion-label>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+    </div>
+    
+    <div *ngIf="completedPvpGames && completedPvpGames.length === 0 && !isLoading">
+      <ion-card>
+      <ion-card-content>
+        No completed PvP games here!
+      </ion-card-content>
+      </ion-card>
+    </div>
     <!-- Add your content for Completed PvP Games segment here -->
   </div>
 
   <div *ngIf="selectedSegment === 'pending-pvp-games'">
-    <div *ngIf="pendingPvpGames && pendingPvpGames.length > 0">
+    <app-loading *ngIf="isLoading"></app-loading>
+    <div *ngIf="pendingPvpGames && pendingPvpGames.length > 0 && !isLoading">
       <ion-card *ngFor="let game of pendingPvpGames">
         <ion-card-header>
           <ion-icon name="flash"></ion-icon>
@@ -55,7 +117,7 @@
         </ion-card-content>
       </ion-card>
     </div>
-    <div *ngIf="pendingPvpGames && pendingPvpGames.length === 0">
+    <div *ngIf="pendingPvpGames && pendingPvpGames.length === 0 && !isLoading">
       <ion-card>
       <ion-card-content>
         No pending PvP games here!

@@ -474,21 +474,23 @@ class GameViewSet(viewsets.ModelViewSet):
     # Completed games are those which the winner is not null
     @action(detail=False, methods=['get'])
     def completed_games(self, request):
+        limit = 15
         player = getattr(request.user, 'player', None)
         if not player:
             return Response({'error': 'Player not found'}, status=404)
         
-        queryset = Game.objects.filter(Q(player1=player) | Q(player2=player), ~Q(winner=None)).order_by('timestamp')
+        queryset = Game.objects.filter(Q(player1=player) | Q(player2=player), ~Q(winner=None)).order_by('-timestamp')[:limit]
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
     
     # Pending games are those which the winner is null and the player is the receiver (player2)
     @action(detail=False, methods=['get'])
     def pending_games(self, request):
+        limit = 15
         player = getattr(request.user, 'player', None)
         if not player:
             return Response({'error': 'Player not found'}, status=404)
-        queryset = Game.objects.filter(player2=player, winner=None).order_by('timestamp')
+        queryset = Game.objects.filter(player2=player, winner=None).order_by('timestamp')[:limit]
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 

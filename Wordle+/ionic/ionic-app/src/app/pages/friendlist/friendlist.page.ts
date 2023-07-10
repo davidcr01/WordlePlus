@@ -119,6 +119,9 @@ export class FriendlistPage implements OnInit {
     if (this.selectedSegment === 'requests') {
       this.loadFriendRequests();
     }
+    else if (this.selectedSegment === 'friends') {
+      this.loadFriendList();
+    }
   }
 
   playWithFriend(friendId: number) {
