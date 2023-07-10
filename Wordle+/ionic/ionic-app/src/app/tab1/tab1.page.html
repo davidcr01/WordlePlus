@@ -1,5 +1,5 @@
 <ion-content>
-  <div id="container">
+  <div *ngIf="isReady" id="container">
   <div class="header-container">
     <ion-card class="first-card">
       <div class="avatar-container">
@@ -30,7 +30,7 @@
       </div>
 
       <div class="special-button-container">
-        <ion-button class="special-button">
+        <ion-button class="special-button" (click)="goToHistory()">
           <ion-icon name="ribbon" class="icon"></ion-icon>
         </ion-button>
         <ion-button class="special-button" (click)="handleNotificationsPopover($event)">

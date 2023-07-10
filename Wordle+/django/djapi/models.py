@@ -120,7 +120,23 @@ class FriendRequest(models.Model):
         
     def __str__(self):
         return f"{self.sender.user.username} - {self.receiver.user.username}"
-    
+
+class Game(models.Model):
+    player1 = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='player1_wordle')
+    player2 = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='player2_wordle')
+    word = models.CharField(max_length=255)
+    player1_time = models.PositiveIntegerField(default=0)
+    player1_attempts = models.PositiveIntegerField(default=0)
+    player1_xp = models.PositiveIntegerField(default=0)
+    player2_time = models.PositiveIntegerField(default=0)
+    player2_attempts = models.PositiveIntegerField(default=0)
+    player2_xp = models.PositiveIntegerField(default=0)
+    winner = models.ForeignKey(Player, on_delete=models.SET_NULL, null=True, blank=True, related_name='winner')
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.player1.user.username} - {self.player2.user.username}"
+
 # Method to add the 'Staff' group automatically when creating an administrator
 @receiver(post_save, sender=CustomUser)
 def assign_permissions(sender, instance, created, **kwargs):

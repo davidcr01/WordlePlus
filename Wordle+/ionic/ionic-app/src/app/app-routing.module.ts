@@ -41,10 +41,21 @@ const routes: Routes = [
     loadChildren: () => import('./pages/friendlist/friendlist.module').then( m => m.FriendlistPageModule),
     canActivate: [AuthGuard]
   },
-
-
-
-
+  {
+    path: 'create-game',
+    loadChildren: () => import('./pages/create-game/create-game.module').then( m => m.CreateGamePageModule),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'respond-game',
+    loadChildren: () => import('./pages/respond-game/respond-game.module').then( m => m.RespondGamePageModule),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'history',
+    loadChildren: () => import('./pages/history/history.module').then( m => m.HistoryPageModule),
+    canActivate: [AuthGuard]
+  },
 
 ];
 @NgModule({

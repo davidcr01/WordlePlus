@@ -27,6 +27,7 @@ router.register(r'api/players', views.PlayerViewSet)
 router.register(r'api/groups', views.GroupViewSet)
 router.register(r'api/classicwordles', views.ClassicWordleViewSet)
 router.register(r'api/notifications', views.NotificationsViewSet)
+router.register(r'api/games', views.GameViewSet)
 router.register('api/friendlist', FriendListViewSet, basename='friendlist')
 router.register('api/friendrequest', FriendRequestViewSet, basename='friendrequest')
 

@@ -82,7 +82,6 @@ export class EditUserPage implements OnInit {
       const reader = new FileReader();
       reader.onloadend = () => {
         const avatarData = reader.result as string;
-        console.log(avatarData);
         this.saveAvatar(avatarData);
       };
       reader.readAsDataURL(file);

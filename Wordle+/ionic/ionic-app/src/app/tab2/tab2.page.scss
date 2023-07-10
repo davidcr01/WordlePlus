@@ -21,8 +21,9 @@ align-content: center;
 flex-direction: row;
 }
 
-.value{
+.value, p{
 text-align: right;
+font-size: 3vh;
 }
 
 .label{

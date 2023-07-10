@@ -38,6 +38,20 @@ import { EncryptionService } from './encryption.service';
         return this.http.post(url, userData);
     }
 
+    async getPlayerData(playerId: string) {
+        const url = `${this.baseURL}/api/players/${playerId}`;
+        const accessToken = await this.storageService.getAccessToken();
+        if (!accessToken) {
+            return throwError('Access token not found');
+        }
+        const decryptedToken = this.encryptionService.decryptData(accessToken);
+        const headers = new HttpHeaders({
+            Authorization: `Token ${decryptedToken}`,
+            'Content-Type': 'application/json'
+        });
+        return this.http.get(url, {headers});
+    }
+
     async addClassicGame(gameData: any): Promise<Observable<any>> {
         let url = `${this.baseURL}/api/classicwordles/`;
         const accessToken = this.storageService.getAccessToken();
@@ -195,7 +209,6 @@ import { EncryptionService } from './encryption.service';
             return throwError('Access token not found') as any;
         }
         const decryptedToken = this.encryptionService.decryptData(await accessToken);
-        console.log(decryptedToken);
         const headers = new HttpHeaders({
             Authorization: `Token ${decryptedToken}`,
             'Content-Type': 'application/json'
@@ -232,5 +245,62 @@ import { EncryptionService } from './encryption.service';
         });
     
         return this.http.get<string[]>(url, { headers });
+      }
+
+      async createGame(gameData: any): Promise<Observable<any>> {
+        let url = `${this.baseURL}/api/games/`;
+        const accessToken = this.storageService.getAccessToken();
+        if (!accessToken) {
+            return throwError('Access token not found') as any;
+        }
+        const decryptedToken = this.encryptionService.decryptData(await accessToken);
+        const headers = new HttpHeaders({
+            Authorization: `Token ${decryptedToken}`,
+            'Content-Type': 'application/json'
+        });
+        return this.http.post(url, gameData, { headers });
+      }
+
+      async getGame(idGame: number): Promise<Observable<any>> {
+        let url = `${this.baseURL}/api/games/${idGame}`;
+        const accessToken = this.storageService.getAccessToken();
+        if (!accessToken) {
+            return throwError('Access token not found') as any;
+        }
+        const decryptedToken = this.encryptionService.decryptData(await accessToken);
+        const headers = new HttpHeaders({
+            Authorization: `Token ${decryptedToken}`,
+            'Content-Type': 'application/json'
+        });
+        return this.http.get(url, { headers });
+      }
+
+      async resolveGame(idGame: number, gameData: any): Promise<Observable<any>> {
+        let url = `${this.baseURL}/api/games/${idGame}/`;
+        const accessToken = this.storageService.getAccessToken();
+        if (!accessToken) {
+            return throwError('Access token not found') as any;
+        }
+        const decryptedToken = this.encryptionService.decryptData(await accessToken);
+        const headers = new HttpHeaders({
+            Authorization: `Token ${decryptedToken}`,
+            'Content-Type': 'application/json'
+        });
+        return this.http.patch(url, gameData, { headers });
+      }
+
+      async getPendingPVPGames(): Promise<any[]> {
+        let url = `${this.baseURL}/api/games/pending_games/`;
+        const accessToken = this.storageService.getAccessToken();
+        if (!accessToken) {
+            return throwError('Access token not found') as any;
+        }
+        const decryptedToken = this.encryptionService.decryptData(await accessToken);
+        const headers = new HttpHeaders({
+            Authorization: `Token ${decryptedToken}`,
+            'Content-Type': 'application/json'
+        });
+    
+        return this.http.get<any[]>(url, { headers }).toPromise();
       }
   }

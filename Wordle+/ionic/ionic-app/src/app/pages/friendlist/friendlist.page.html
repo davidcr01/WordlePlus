@@ -27,7 +27,7 @@
         <ion-item>
           <ion-icon name="people" slot="start"></ion-icon>
           <ion-label>Play Wordle</ion-label>
-          <ion-button fill="clear" (click)="playWithFriend(friend.id)">
+          <ion-button fill="clear" (click)="handleSelectionPopover($event, friend.id_player, friend.username)">
             <ion-icon name="play" slot="icon-only"></ion-icon>
           </ion-button>
         </ion-item>
@@ -68,7 +68,7 @@
             <ion-item *ngFor="let player of filteredPlayers">
               {{ player.username }}
               <ion-button fill="clear" slot="end" (click)="sendFriendRequest(player.id)">
-                <ion-icon name="add"></ion-icon>
+                <ion-icon name="person-add"></ion-icon>
               </ion-button>
             </ion-item>
           </ion-list>
