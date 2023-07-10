@@ -10,8 +10,28 @@ ion-card-header {
   flex-direction: row;
   }
 
+  ion-card-header img {
+    height: calc(4vh + 1vw);
+    margin-right: 0.8vw;
+    margin-left: 0.8vw;
+    }
+
   ion-icon {
     color: var(--ion-color-purple);
+  }
+
+  .result{
+    font-weight: bold;
+    text-align: center;
+    font-size: calc(2.5vh + 2vw);
+  }
+  .victory-result{
+    text-shadow: 2px 2px 0px  #957dad,
+               4px 4px 0px greenyellow;
+  }
+  .defeat-result{
+    text-shadow: 2px 2px 0px  #957dad,
+               4px 4px 0px #ee4b2b;
   }
 
   ion-list ion-item {
@@ -29,3 +49,37 @@ ion-card-header {
 ion-content{
     --background: var(--ion-color-turquoise);
   }
+
+  .game-info-list {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .game-info-item {
+    display: flex;
+    align-items: center;
+  }
+  
+  .game-info-item ion-icon {
+    margin-right: 10px;
+  }
+  
+  .game-info-list {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .game-info-item {
+    display: flex;
+    align-items: center;
+  }
+  
+  .game-info-item ion-icon {
+    margin-right: 10px;
+  }
+  
+  .game-info-value {
+    flex-grow: 1;
+  }
+  
+  
