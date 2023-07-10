@@ -4,8 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 
 import { IonicModule } from '@ionic/angular';
-import { WordleDashboardComponent } from 'src/app/components/wordle-dashboard/wordle-dashboard.component';
-
+import { WordleDashboardModule } from 'src/app/wordle-dashboard/wordle-dashboard.module';
 import { ClassicWordlePageRoutingModule } from './classic-wordle-routing.module';
 import { ApiService } from 'src/app/services/api.service';
 import { ClassicWordlePage } from './classic-wordle.page';
@@ -16,9 +15,10 @@ import { ClassicWordlePage } from './classic-wordle.page';
     FormsModule,
     IonicModule,
     HttpClientModule,
-    ClassicWordlePageRoutingModule
+    ClassicWordlePageRoutingModule,
+    WordleDashboardModule
   ],
-  declarations: [ClassicWordlePage, WordleDashboardComponent],
+  declarations: [ClassicWordlePage],
   providers: [ApiService]
 
 })

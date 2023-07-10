@@ -74,7 +74,7 @@ export class LoginPage implements OnInit {
           // Rank is calculated in the frontend
         }
         this.isLoading = false;
-        this.router.navigate(['/tabs/main'], { queryParams: { avatar: 'true' } });
+        this.router.navigate(['/tabs/main']);
       },
       (error) => {
         console.error('Log in error', error);

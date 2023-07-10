@@ -418,7 +418,7 @@ class FriendRequestViewSet(viewsets.ReadOnlyModelViewSet):
 
         serializer = FriendRequestSerializer(friend_request)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
+
     @action(detail=True, methods=['post'])
     def accept(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -457,3 +457,138 @@ class FriendRequestViewSet(viewsets.ReadOnlyModelViewSet):
 
         instance.delete()
         return Response({'message': 'Friend request rejected'}, status=200)
+
+class GameViewSet(viewsets.ModelViewSet):
+    queryset = Game.objects.all()
+    serializer_class = GameCreateSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    http_method_names = ['get', 'post', 'patch']
+
+    def get_serializer_class(self):
+        if self.action in ['list', 'retrieve', 'completed_games', 'pending_games']:
+            return GameDetailSerializer
+        elif self.action in ['create', 'partial_update']:
+            return GameCreateSerializer
+        return super().get_serializer_class()
+
+    # Completed games are those which the winner is not null
+    @action(detail=False, methods=['get'])
+    def completed_games(self, request):
+        player = getattr(request.user, 'player', None)
+        if not player:
+            return Response({'error': 'Player not found'}, status=404)
+        
+        queryset = Game.objects.filter(Q(player1=player) | Q(player2=player), ~Q(winner=None)).order_by('timestamp')
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+    
+    # Pending games are those which the winner is null and the player is the receiver (player2)
+    @action(detail=False, methods=['get'])
+    def pending_games(self, request):
+        player = getattr(request.user, 'player', None)
+        if not player:
+            return Response({'error': 'Player not found'}, status=404)
+        queryset = Game.objects.filter(player2=player, winner=None).order_by('timestamp')
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        player = getattr(request.user, 'player', None)
+        if not player:
+            return Response({'error': 'Player not found'}, status=404)
+
+        if player not in [instance.player1, instance.player2]:
+            return Response({'error': 'You can not access to this game.'}, status=403)
+        if instance.winner is not None:
+            return Response({'error': 'This game is already completed and cannot be modified.'}, status=403)
+        
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+
+        return Response(data)
+
+    def create(self, request, *args, **kwargs):
+        player1 = getattr(request.user, 'player', None)
+        if not player1:
+            return Response({'error': 'Player1 not found'}, status=404)
+        player2_id = request.data.get('player2')
+
+        if not player2_id:
+            return Response({'error': 'player2 parameter is required'}, status=400)
+
+        try:
+            player2 = Player.objects.get(id=player2_id)
+        except Player.DoesNotExist:
+            return Response({'error': 'Player2 not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        allowed_fields = ['player2', 'player1_xp', 'player1_time', 'player1_attempts', 'word']
+        data = {key: request.data.get(key) for key in allowed_fields}
+
+        if 'winner' in data:
+            return Response({'error': 'The "winner" field cannot be modified.'}, status=400)
+        
+        
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+
+        # Increment player XP
+        player1.xp += serializer.validated_data['player1_xp']
+        player1.save()
+
+        serializer.save(player1=player1, player2=player2)
+
+        # Create notification to the guest player
+        Notification.objects.create(
+            player=player2,
+            text=f"You have been challenged by {player1.user.username}. Let's play!",
+            link=''
+        )
+
+        return Response(serializer.data, status=201)
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        player = request.user.player
+
+        if instance.player2 != player:
+            return Response({'error': 'You do not have permission to update this game.'}, status=403)
+        if instance.winner is not None:
+            return Response({'error': 'This game is already completed and cannot be modified.'}, status=400)
+    
+        allowed_fields = ['player2_xp', 'player2_time', 'player2_attempts']
+        data = {key: request.data.get(key) for key in allowed_fields}
+
+        if 'winner' in data:
+            return Response({'error': 'The "winner" field cannot be modified.'}, status=400)
+
+        player2_xp = request.data.get('player2_xp')
+        player1_xp = instance.player1_xp
+        player2_time = request.data.get('player2_time')
+        player1_time = instance.player1_time
+
+        if player2_xp is not None:
+            player1_xp = instance.player1_xp
+            if player2_xp > player1_xp:
+                instance.winner = instance.player2
+                instance.winner.wins_pvp += 1
+                instance.winner.save()
+            elif player2_xp < player1_xp:
+                instance.winner = instance.player1
+                instance.winner.wins_pvp += 1
+                instance.winner.save()
+            else:
+                if player2_time <= player1_time:
+                    instance.winner = instance.player2
+                    instance.winner.wins_pvp += 1
+                    instance.winner.save()
+                else:
+                    instance.winner = instance.player1
+                    instance.winner.wins_pvp += 1
+                    instance.winner.save()
+
+        serializer = self.get_serializer(instance, data=data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response({'winner': instance.winner.user.username})

@@ -1,0 +1,66 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      History
+    </ion-title>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-segment mode="ios" [(ngModel)]="selectedSegment" (ionChange)="segmentChanged($event)">
+      <ion-segment-button value="classic-wordles">
+        <ion-label>Classics</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="completed-pvp-games">
+        <ion-label>Completed PvP</ion-label>
+      </ion-segment-button>
+    <ion-segment-button value="pending-pvp-games">
+      <ion-label>Pending PvP</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div *ngIf="selectedSegment === 'classic-wordles'">
+    <!-- Add your content for Classic Wordles segment here -->
+  </div>
+
+  <div *ngIf="selectedSegment === 'completed-pvp-games'">
+    <!-- Add your content for Completed PvP Games segment here -->
+  </div>
+
+  <div *ngIf="selectedSegment === 'pending-pvp-games'">
+    <div *ngIf="pendingPvpGames && pendingPvpGames.length > 0">
+      <ion-card *ngFor="let game of pendingPvpGames">
+        <ion-card-header>
+          <ion-icon name="flash"></ion-icon>
+          {{ game.player1 }}
+          <ion-icon name="flash"></ion-icon>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list>
+            <ion-item>
+              <ion-icon name="hourglass-outline" slot="start"></ion-icon>
+              <ion-label>Time</ion-label>
+              {{ game.player1_time }}"
+            </ion-item>
+            <ion-item>
+              <ion-icon name="text-outline" slot="start"></ion-icon>
+              <ion-label>Word length</ion-label>
+              {{ game.word.length }} letters
+            </ion-item>
+          </ion-list>
+          <ion-button class="play-button" expand="block" size="default" shape="default" (click)="respondGame(game.id)">
+            Play
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+    </div>
+    <div *ngIf="pendingPvpGames && pendingPvpGames.length === 0">
+      <ion-card>
+      <ion-card-content>
+        No pending PvP games here!
+      </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+</ion-content>
