@@ -8,9 +8,9 @@ import { ToastService } from '../services/toast.service';
   styleUrls: ['tab2.page.scss']
 })
 export class Tab2Page implements OnInit {
-  wordLength: number;
   tournaments: any[] = [];
   isLoading: boolean = false;
+  selectedSegment: string = '';
 
   constructor(private apiService: ApiService, private toastService: ToastService) {}
 
@@ -19,13 +19,40 @@ export class Tab2Page implements OnInit {
     this.loadTournaments();
   }
 
+  segmentChanged(event: any) {
+    this.selectedSegment = event.detail.value;
+  
+    if (this.selectedSegment === 'joined') {
+      this.loadMyTournaments();
+    }
+    else {
+      this.loadTournaments();
+    }
+  }
+
   async loadTournaments() {
     this.isLoading = true;
-    (await this.apiService.getTournaments(this.wordLength))
+    (await this.apiService.getTournaments(Number(this.selectedSegment)))
       .subscribe(
         (data: any) => {
           console.log(data);
           this.tournaments = data.results;
+          this.isLoading = false;
+        },
+        (error) => {
+          console.error('Error loading tournaments:', error);
+          this.isLoading = false;
+        }
+      );
+  }
+
+  async loadMyTournaments() {
+    this.isLoading = true;
+    (await this.apiService.getMyTournaments())
+      .subscribe(
+        (data: any) => {
+          console.log(data);
+          this.tournaments = data;
           this.isLoading = false;
         },
         (error) => {

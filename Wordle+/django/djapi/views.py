@@ -19,7 +19,6 @@ from django.db.models import Q
 from rest_framework.decorators import action
 
 
-
 class CustomUserViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
@@ -292,6 +291,16 @@ class TournamentViewSet(viewsets.ReadOnlyModelViewSet):
 
         return queryset
 
+    @action(detail=False, methods=['get'])
+    def player_tournaments(self, request):
+        player = getattr(request.user, 'player', None)
+        if not player:
+            return Response({'error': 'Player not found'}, status=404)
+
+        tournaments = Tournament.objects.filter(participation__player=player).order_by('-is_closed')
+        serializer = TournamentSerializer(tournaments, many=True)
+        return Response(serializer.data)
+
 class ParticipationViewSet(viewsets.ModelViewSet):
     queryset = Participation.objects.all()
     serializer_class = ParticipationSerializer
@@ -345,14 +354,12 @@ class ParticipationViewSet(viewsets.ModelViewSet):
 
             rounds = int(math.log2(tournament.max_players))
             for round_number in range(1, rounds+1):
-                print('Created round')
                 round = Round.objects.create(tournament=tournament, number=round_number)
                 if round_number == 1:
                     # Assign games to the first round
                     participants = Participation.objects.filter(tournament=tournament)
                     participants_count = participants.count()
                     for i in range(0, participants_count, 2):
-                        print('Created game and roundgame')
                         player1 = participants[i].player
                         player2 = participants[i + 1].player
                         new_game = Game.objects.create(player1=player1, player2=player2, is_tournament_game=True)
