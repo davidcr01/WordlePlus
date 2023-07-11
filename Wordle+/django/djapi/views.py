@@ -1,3 +1,4 @@
+import math
 from django.contrib.auth.models import Group
 from djapi.models import *
 from rest_framework import viewsets, permissions, status, generics
@@ -341,7 +342,22 @@ class ParticipationViewSet(viewsets.ModelViewSet):
         # Close the tournament if is full
         if tournament.num_players >= tournament.max_players:
             tournament.is_closed = True
-            
+
+            rounds = int(math.log2(tournament.max_players + 1))
+            for round_number in range(1, rounds):
+                round = Round.objects.create(tournament=tournament, number=round_number)
+                if round_number == 1:
+                    # Assign games to the first round
+                    participants = Participation.objects.filter(tournament=tournament)
+                    for i in range(0, len(participants), 2):
+                        player1 = participants[i].player
+                        player2 = participants[i + 1].player
+                        new_game = Game.objects.create(player1=player1, player2=player2, round=round, is_tournament_game=True)
+                        RoundGame.objects.create(round=round, game=new_game)
+                else:
+                    # Create empty games for subsequent rounds
+                    Round.objects.get(tournament=tournament, number=round_number)
+                
         tournament.save()
 
         # Create the related notification to the player
@@ -549,9 +565,12 @@ class GameViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data, status=201)
 
+    # Patch method to update the tournament game. Executed only by the second player
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
-        player = request.user.player
+        player = getattr(request.user, 'player', None)
+        if not player:
+            return Response({'error': 'Player not found'}, status=404)
 
         if instance.player2 != player:
             return Response({'error': 'You do not have permission to update this game.'}, status=403)
@@ -594,3 +613,76 @@ class GameViewSet(viewsets.ModelViewSet):
         serializer.save()
 
         return Response({'winner': instance.winner.user.username})
+    
+    # Patch method to update the tournament game. Executed by both players
+    def partial_update_tournament(self, request, *args, **kwargs):
+        instance = self.get_object()
+        player = getattr(request.user, 'player', None)
+        if not player:
+            return Response({'error': 'Player not found'}, status=404)
+
+        if player == instance.player1:
+            if instance.player1_xp != 0 or instance.player1_time != 0:
+                return Response({'error': 'You have already updated your information for this game.'}, status=400)
+            opponent = instance.player2
+            opponent_xp = instance.player2_xp
+            opponent_time = instance.player2_time
+        elif player == instance.player2:
+            if instance.player2_xp != 0 or instance.player2_time != 0:
+                return Response({'error': 'You have already updated your information for this game.'}, status=400)
+            opponent = instance.player1
+            opponent_xp = instance.player1_xp
+            opponent_time = instance.player1_time
+        else:
+            return Response({'error': 'You do not have permission to update this game.'}, status=403)
+
+        # Data requested change depending on the player who is executing the method
+        if instance.player1 == player:
+            allowed_fields = ['player1_xp', 'player1_time', 'player1_attempts', 'word']
+        elif instance.player2 == player:
+            allowed_fields = ['player2_xp', 'player2_time', 'player2_attempts', 'word']
+        else:
+            return Response({'error': 'You do not have permission to update this game.'}, status=403)
+
+        data = {key: request.data.get(key) for key in allowed_fields}
+        if 'winner' in data:
+            return Response({'error': 'The "winner" field cannot be modified.'}, status=400)
+
+        if instance.word != '':
+            data.pop('word')
+
+        serializer = self.get_serializer(instance, data=data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        player_xp = serializer.validated_data.get('player1_xp' if player == instance.player1 else 'player2_xp', 0)
+        player_time = serializer.validated_data.get('player1_time' if player == instance.player1 else 'player2_time', 0)
+
+        # Winner is calculated when all data is available
+        if (player_xp != 0 and player_time != 0 and opponent_xp != 0 and opponent_time != 0):
+            if player_xp > opponent_xp:
+                instance.winner = player
+                instance.winner.wins_pvp += 1
+                instance.winner.save()
+                instance.save()
+            elif player_xp < opponent_xp:
+                instance.winner = opponent
+                opponent.wins_pvp += 1
+                instance.winner.save()
+                instance.save()
+            else:
+                if player_time <= opponent_time:
+                    instance.winner = player
+                    instance.winner.wins_pvp += 1
+                    instance.winner.save()
+                    instance.save()
+                else:
+                    instance.winner = opponent
+                    opponent.wins_pvp += 1
+                    instance.winner.save()
+                    instance.save()
+
+        if instance.winner is not None:
+            return Response({'winner': instance.winner.user.username})
+        else:
+            return Response({'message': 'Game updated successfully.'})
