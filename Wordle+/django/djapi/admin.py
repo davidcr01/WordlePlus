@@ -6,7 +6,7 @@ from django.db import models
 from django import forms
 from django.core.validators import MaxValueValidator
 
-from .models import CustomUser, Player, StaffCode, ClassicWordle, Notification, Tournament, Participation, FriendList, FriendRequest, Game
+from .models import *
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
@@ -177,6 +177,14 @@ class FriendRequestAdmin(admin.ModelAdmin):
 class GameAdmin(admin.ModelAdmin):
     list_display = ('id', 'player1', 'player2', 'winner', 'word',)
 
+class RoundAdmin(admin.ModelAdmin):
+    list_display = ('id', 'tournament', 'number',)
+
+class RoundGameAdmin(admin.ModelAdmin):
+    list_display = ('id', 'round', 'game',)
+
+admin.site.register(RoundGame, RoundGameAdmin)
+admin.site.register(Round, RoundAdmin)
 admin.site.register(Game, GameAdmin)
 admin.site.register(FriendRequest, FriendRequestAdmin)
 admin.site.register(FriendList, FriendListAdmin)

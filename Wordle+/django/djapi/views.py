@@ -343,20 +343,20 @@ class ParticipationViewSet(viewsets.ModelViewSet):
         if tournament.num_players >= tournament.max_players:
             tournament.is_closed = True
 
-            rounds = int(math.log2(tournament.max_players + 1))
-            for round_number in range(1, rounds):
+            rounds = int(math.log2(tournament.max_players))
+            for round_number in range(1, rounds+1):
+                print('Created round')
                 round = Round.objects.create(tournament=tournament, number=round_number)
                 if round_number == 1:
                     # Assign games to the first round
                     participants = Participation.objects.filter(tournament=tournament)
-                    for i in range(0, len(participants), 2):
+                    participants_count = participants.count()
+                    for i in range(0, participants_count, 2):
+                        print('Created game and roundgame')
                         player1 = participants[i].player
                         player2 = participants[i + 1].player
-                        new_game = Game.objects.create(player1=player1, player2=player2, round=round, is_tournament_game=True)
+                        new_game = Game.objects.create(player1=player1, player2=player2, is_tournament_game=True)
                         RoundGame.objects.create(round=round, game=new_game)
-                else:
-                    # Create empty games for subsequent rounds
-                    Round.objects.get(tournament=tournament, number=round_number)
                 
         tournament.save()
 
