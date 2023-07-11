@@ -5,6 +5,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.db import models
 from django import forms
 from django.core.validators import MaxValueValidator
+import math
 
 from .models import *
 
@@ -125,12 +126,24 @@ class ParticipationAdmin(admin.ModelAdmin):
         tournament = obj.tournament
         if (tournament.num_players >= tournament.max_players):
             raise forms.ValidationError("The max number of participations for this tournament has been reached.")
-        
+            
         tournament.num_players += 1
+        super().save_model(request, obj, form, change)
         if (tournament.num_players >= tournament.max_players):
             tournament.is_closed = True
+            rounds = int(math.log2(tournament.max_players))
+            for round_number in range(1, rounds+1):
+                round = Round.objects.create(tournament=tournament, number=round_number)
+                if round_number == 1:
+                    participants = Participation.objects.filter(tournament=tournament)
+                    participants_count = participants.count()
+                    for i in range(0, participants_count, 2):
+                        player1 = participants[i].player
+                        player2 = participants[i + 1].player
+                        new_game = Game.objects.create(player1=player1, player2=player2, is_tournament_game=True)
+                        RoundGame.objects.create(round=round, game=new_game)
+
         tournament.save()
-        super().save_model(request, obj, form, change)
 
         player = obj.player
         message = f"You were assigned in {tournament.name}. Good luck!"
