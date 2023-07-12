@@ -63,6 +63,7 @@ class Tournament(models.Model):
     max_players = models.PositiveIntegerField()
     word_length = models.PositiveIntegerField()
     is_closed = models.BooleanField(default=False)
+    current_round = models.PositiveIntegerField(default=1)
 
     def __str__(self):
         return self.name
@@ -124,7 +125,7 @@ class FriendRequest(models.Model):
 class Game(models.Model):
     player1 = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='player1_wordle')
     player2 = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='player2_wordle')
-    word = models.CharField(max_length=255)
+    word = models.CharField(max_length=255, blank=True)
     player1_time = models.PositiveIntegerField(default=0)
     player1_attempts = models.PositiveIntegerField(default=0)
     player1_xp = models.PositiveIntegerField(default=0)
@@ -133,9 +134,24 @@ class Game(models.Model):
     player2_xp = models.PositiveIntegerField(default=0)
     winner = models.ForeignKey(Player, on_delete=models.SET_NULL, null=True, blank=True, related_name='winner')
     timestamp = models.DateTimeField(auto_now_add=True)
+    is_tournament_game = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.player1.user.username} - {self.player2.user.username}"
+
+class Round(models.Model):
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
+    number = models.PositiveIntegerField()
+
+    def __str__(self):
+        return f"Tournament: {self.tournament.name}, Round: {self.number}"
+
+class RoundGame(models.Model):
+    round = models.ForeignKey(Round, on_delete=models.CASCADE)
+    game = models.ForeignKey(Game, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Round: {self.round.number}, Game: {self.game}"
 
 # Method to add the 'Staff' group automatically when creating an administrator
 @receiver(post_save, sender=CustomUser)

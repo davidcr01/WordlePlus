@@ -1,6 +1,12 @@
 <ion-header>
   <ion-toolbar>
-    <ion-segment [scrollable]="true" [(ngModel)]="wordLength" (ionChange)="loadTournaments()">
+    <ion-title>Tournaments</ion-title>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-segment [scrollable]="true" [(ngModel)]="selectedSegment" (ionChange)="segmentChanged($event)">
+      <ion-segment-button value="joined">
+        <ion-label>Joined</ion-label>
+      </ion-segment-button>
       <ion-segment-button value="">
         <ion-label>All</ion-label>
       </ion-segment-button>
@@ -53,7 +59,9 @@
           </ion-item>
         </ion-list>
       </ion-card-content>
-      <ion-button expand="block" class="join-button" [disabled]="tournament.is_closed">Join</ion-button>
+      
+      <ion-button *ngIf="selectedSegment !== 'joined'" expand="block" class="join-button" [disabled]="tournament.is_closed" (click)="joinTournament(tournament.id)">Join</ion-button>
+      <ion-button *ngIf="selectedSegment === 'joined'" expand="block" class="join-button" [disabled]="!tournament.is_closed" (click)="enterTournament(tournament.id)">Enter</ion-button>
     </ion-card>
   </div>
 

@@ -1,5 +1,5 @@
 from django.contrib.auth.models import Group
-from .models import CustomUser, Player, StaffCode, ClassicWordle, Notification, Tournament, Participation, FriendList, FriendRequest, Game
+from .models import CustomUser, Player, StaffCode, ClassicWordle, Notification, Tournament, Participation, FriendList, FriendRequest, Game, Round
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 
@@ -134,7 +134,7 @@ class NotificationSerializer(serializers.ModelSerializer):
 class TournamentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tournament
-        fields = ['id', 'name', 'description', 'max_players', 'num_players', 'word_length', 'is_closed']
+        fields = ['id', 'name', 'description', 'max_players', 'num_players', 'word_length', 'is_closed', 'current_round']
 
 class ParticipationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -194,6 +194,11 @@ class GameCreateSerializer(serializers.ModelSerializer):
         
     def get_player2(self, obj):
         return obj.player2.user.username
+
+class RoundSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Round
+        fields = '__all__'
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:

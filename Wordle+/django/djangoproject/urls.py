@@ -28,6 +28,7 @@ router.register(r'api/groups', views.GroupViewSet)
 router.register(r'api/classicwordles', views.ClassicWordleViewSet)
 router.register(r'api/notifications', views.NotificationsViewSet)
 router.register(r'api/games', views.GameViewSet)
+router.register(r'api/tournaments', views.TournamentViewSet)
 router.register('api/friendlist', FriendListViewSet, basename='friendlist')
 router.register('api/friendrequest', FriendRequestViewSet, basename='friendrequest')
 
@@ -42,9 +43,10 @@ urlpatterns = [
     
     path('api/avatar/<int:user_id>/', AvatarView.as_view(), name='avatar'),
     path('api/users-info/', UserInfoAPIView.as_view(), name='user-detail'),
-    path('api/tournaments/', TournamentViewSet.as_view({'get': 'list'}), name='tournaments-list'),
     path('api/participations/', ParticipationViewSet.as_view({'get': 'list', 'post': 'create'}), name='participations'),
     path('api/list-players/', PlayerListAPIView.as_view(), name='player-list'),
+    path('api/games/<int:pk>/tournament/', views.GameViewSet.as_view({'patch': 'tournament'}), name='game-partial-update-tournament'),
+
 
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
