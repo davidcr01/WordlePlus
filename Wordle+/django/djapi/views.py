@@ -71,7 +71,7 @@ class PlayerViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows players to be viewed or edited.
     """
-    queryset = Player.objects.all().order_by('wins')
+    queryset = Player.objects.all()
     serializer_class = PlayerSerializer
     
     def get_serializer_class(self):
@@ -110,6 +110,19 @@ class PlayerViewSet(viewsets.ModelViewSet):
         # Delete the player
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    @action(detail=False, methods=['get'])
+    def ranking(self, request):
+        filter_param = request.GET.get('filter')
+        limit = 15
+        queryset = Player.objects.all()
+
+        if filter_param:
+            queryset = queryset.order_by('-'+filter_param)[:limit]
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
 
 class PlayerListAPIView(generics.ListAPIView):
     queryset = Player.objects.all()
