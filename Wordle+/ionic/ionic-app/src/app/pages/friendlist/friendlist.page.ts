@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from 'src/app/services/api.service';
 import { ToastService } from 'src/app/services/toast.service';
-import { PopoverController } from '@ionic/angular';
+import { AlertController, PopoverController } from '@ionic/angular';
 import { WordsPopoverComponent } from 'src/app/components/words-popover/words-popover.component';
 
 
@@ -20,7 +20,7 @@ export class FriendlistPage implements OnInit {
   showResults: boolean = false;
 
   constructor(private apiService: ApiService, private toastService: ToastService, 
-    private popoverController: PopoverController) {}
+    private popoverController: PopoverController, private alertController: AlertController) {}
 
   ngOnInit() {
     this.getAllPlayers();
@@ -124,10 +124,6 @@ export class FriendlistPage implements OnInit {
     }
   }
 
-  playWithFriend(friendId: number) {
-    
-  }
-
   viewFriendInfo(friendId: number) {
     
   }
@@ -148,32 +144,56 @@ export class FriendlistPage implements OnInit {
     );
   }
   
-  rejectFriendRequest(requestId: number) {
+  async rejectFriendRequest(requestId: number) {
+    (await this.apiService.rejectFriendRequest(requestId)).subscribe(
+      async (response) => {
+        console.log('Friend request rejected successfully', response);
+        this.loadFriendRequests();
+      },
+      async (error) => {
+        console.error('Error accepting friend request:', error);
+      }
+    );
   }
 
   
-  async removeFriend(friendId: number) {
-  /*
-    try {
-      await this.apiService.removeFriend(friendId);
-      await this.loadFriendList();
-      const toast = await this.toastController.create({
-        message: 'Friend removed successfully',
-        duration: 2000,
-        color: 'success'
-      });
-      toast.present();
-    } catch (error) {
-      console.error('Error removing friend:', error);
-      const toast = await this.toastController.create({
-        message: 'Error removing friend',
-        duration: 2000,
-        color: 'danger'
-      });
-      toast.present();
-    }
-  */
-  }
-  
+  async confirmDeleteFriend(friendId: number) {
+    console.log(friendId);
+    const alert = await this.alertController.create({
+      header: 'Confirm',
+      message: 'Are you sure you want to delete this friend?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary',
+        },
+        {
+          text: 'Delete',
+          handler: () => {
+            this.deleteFriend(friendId);
+          },
+        },
+      ],
+    });
 
+    await alert.present();
+  }
+
+  async deleteFriend(friendId: number) {
+    console.log(friendId);
+    (await this.apiService.deleteFriend(friendId)).subscribe(
+      async (response) => {
+        console.log('Friend request accepted successfully', response);
+        this.loadFriendList();
+        this.toastService.showToast('Player was deleted succesfully.', 2000, 'top', 'success');
+      },
+      async (error) => {
+        console.error('Error accepting friend request:', error);
+        let message = "Error sending request";
+        this.toastService.showToast('Player could not be deleted.', 2000, 'top', 'danger');
+      }
+    );    
+  }
 }
+
