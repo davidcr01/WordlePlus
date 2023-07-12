@@ -35,7 +35,7 @@ ion-card-header {
   }
 
   ion-list ion-item {
-    font-size: calc(1.5vh + 1vw);
+    font-size: calc(2vh + 1vw);
   }
 
 .play-button{
@@ -81,5 +81,18 @@ ion-content{
   .game-info-value {
     flex-grow: 1;
   }
+  .game-info-flexbox {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .game-info-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
   
   

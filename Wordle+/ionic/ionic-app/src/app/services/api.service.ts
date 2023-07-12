@@ -147,6 +147,20 @@ import { EncryptionService } from './encryption.service';
         return this.http.post(url, gameData, { headers });
     }
 
+    async getCompletedWordles(): Promise<any> {
+        const url = `${this.baseURL}/api/classicwordles/`;
+        const accessToken = await this.storageService.getAccessToken();
+        if (!accessToken) {
+            return throwError('Access token not found');
+        }
+        const decryptedToken = this.encryptionService.decryptData(accessToken);
+        const headers = new HttpHeaders({
+            Authorization: `Token ${decryptedToken}`,
+            'Content-Type': 'application/json'
+        });
+        return this.http.get<any[]>(url, { headers }).toPromise();
+    }
+
     // NOTIFICATIONS
     /////////////////////////////////////////////////////////////////
     async getNotifications(limit: number = 5) {
