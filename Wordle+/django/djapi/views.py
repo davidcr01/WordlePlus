@@ -326,6 +326,8 @@ class TournamentViewSet(viewsets.ReadOnlyModelViewSet):
 
         rounds = Round.objects.filter(tournament=tournament)
         serializer = RoundSerializer(rounds, many=True)
+        if not serializer.data:
+            return Response({'error': 'No rounds found for this tournament.'}, status=404)
         return Response(serializer.data)
 
     @action(detail=True, methods=['get'], url_path='round_games/(?P<round_number>\d+)')
@@ -674,7 +676,7 @@ class GameViewSet(viewsets.ModelViewSet):
         return Response({'winner': instance.winner.user.username})
     
     # Patch method to update the tournament game. Executed by both players
-    def partial_update_tournament(self, request, *args, **kwargs):
+    def tournament(self, request, *args, **kwargs):
         instance = self.get_object()
         player = getattr(request.user, 'player', None)
         if not player:

@@ -270,7 +270,7 @@ import { EncryptionService } from './encryption.service';
         }
 
         async resolveTournamentGame(idGame: number, gameData: any): Promise<Observable<any>> {
-            let url = `${this.baseURL}/api/games/${idGame}/partial_update_tournament/`;
+            let url = `${this.baseURL}/api/games/${idGame}/tournament/`;
             const accessToken = this.storageService.getAccessToken();
             if (!accessToken) {
                 return throwError('Access token not found') as any;

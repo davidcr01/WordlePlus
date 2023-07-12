@@ -61,6 +61,7 @@ export class TournamentroundsPage implements OnInit {
         this.loadRoundGames(this.selectedSegment);
       },
       (error) => {
+        this.router.navigate(['/tabs/tournaments']);
         console.error('Error loading tournament rounds:', error);
         this.isLoading = false;
       }

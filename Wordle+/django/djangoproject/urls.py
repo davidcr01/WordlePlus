@@ -45,7 +45,7 @@ urlpatterns = [
     path('api/users-info/', UserInfoAPIView.as_view(), name='user-detail'),
     path('api/participations/', ParticipationViewSet.as_view({'get': 'list', 'post': 'create'}), name='participations'),
     path('api/list-players/', PlayerListAPIView.as_view(), name='player-list'),
-    path('api/games/<int:pk>/partial_update_tournament/', views.GameViewSet.as_view({'patch': 'partial_update_tournament'}), name='game-partial-update-tournament'),
+    path('api/games/<int:pk>/tournament/', views.GameViewSet.as_view({'patch': 'tournament'}), name='game-partial-update-tournament'),
 
 
     
