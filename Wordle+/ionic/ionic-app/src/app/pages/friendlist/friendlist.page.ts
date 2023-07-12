@@ -3,7 +3,7 @@ import { ApiService } from 'src/app/services/api.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { AlertController, PopoverController } from '@ionic/angular';
 import { WordsPopoverComponent } from 'src/app/components/words-popover/words-popover.component';
-
+import { PlayerInfoPopoverComponent } from 'src/app/components/player-info-popover/player-info-popover.component';
 
 @Component({
   selector: 'app-friendlist',
@@ -124,8 +124,17 @@ export class FriendlistPage implements OnInit {
     }
   }
 
-  viewFriendInfo(friendId: number) {
-    
+  async viewFriendInfo(event: any, friendId: number) {
+    const popover = await this.popoverController.create({
+      component: PlayerInfoPopoverComponent,
+      componentProps: {
+        playerId: friendId,
+      },
+      dismissOnSelect: true,
+      event: event
+    });
+
+    await popover.present();
   }
 
   async acceptFriendRequest(requestId: number) {
@@ -151,14 +160,13 @@ export class FriendlistPage implements OnInit {
         this.loadFriendRequests();
       },
       async (error) => {
-        console.error('Error accepting friend request:', error);
+        console.error('Error rejecting friend request:', error);
       }
     );
   }
 
   
   async confirmDeleteFriend(friendId: number) {
-    console.log(friendId);
     const alert = await this.alertController.create({
       header: 'Confirm',
       message: 'Are you sure you want to delete this friend?',
@@ -181,17 +189,16 @@ export class FriendlistPage implements OnInit {
   }
 
   async deleteFriend(friendId: number) {
-    console.log(friendId);
     (await this.apiService.deleteFriend(friendId)).subscribe(
       async (response) => {
-        console.log('Friend request accepted successfully', response);
+        console.log('Friend deleted successfully', response);
         this.loadFriendList();
-        this.toastService.showToast('Player was deleted succesfully.', 2000, 'top', 'success');
+        this.toastService.showToast('Friend was deleted succesfully.', 2000, 'top', 'success');
       },
       async (error) => {
         console.error('Error accepting friend request:', error);
         let message = "Error sending request";
-        this.toastService.showToast('Player could not be deleted.', 2000, 'top', 'danger');
+        this.toastService.showToast('Friend could not be deleted.', 2000, 'top', 'danger');
       }
     );    
   }
