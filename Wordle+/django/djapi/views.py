@@ -290,6 +290,19 @@ class TournamentViewSet(viewsets.ReadOnlyModelViewSet):
             queryset = queryset.filter(word_length=word_length)
 
         return queryset
+    
+    @action(detail=True, methods=['get'])
+    def tournament_info(self, request, pk=None):
+        tournament = Tournament.objects.get(pk=pk)
+        player = getattr(request.user, 'player', None)
+
+        participations = Participation.objects.filter(tournament=tournament, player=player)
+        if not participations.exists():
+            return Response({'error': 'You are not a participant of this tournament.'}, status=403)
+
+        serializer = TournamentSerializer(tournament)
+        return Response(serializer.data)
+
 
     @action(detail=False, methods=['get'])
     def player_tournaments(self, request):
@@ -300,6 +313,45 @@ class TournamentViewSet(viewsets.ReadOnlyModelViewSet):
         tournaments = Tournament.objects.filter(participation__player=player).order_by('-is_closed')
         serializer = TournamentSerializer(tournaments, many=True)
         return Response(serializer.data)
+    
+    @action(detail=True, methods=['get'])
+    def tournament_rounds(self, request, pk=None):
+        tournament = self.get_object()
+        player = getattr(request.user, 'player', None)
+
+        participations = Participation.objects.filter(tournament=tournament, player=player)
+
+        if not participations.exists():
+            return Response({'error': 'You are not a participant of this tournament.'}, status=403)
+
+        rounds = Round.objects.filter(tournament=tournament)
+        serializer = RoundSerializer(rounds, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['get'], url_path='round_games/(?P<round_number>\d+)')
+    def round_games(self, request, pk=None, round_number=None):
+        player = getattr(request.user, 'player', None)
+
+        try:
+            tournament = Tournament.objects.get(pk=pk)
+            round = Round.objects.get(tournament=tournament, number=round_number)
+        except Tournament.DoesNotExist:
+            return Response({'error': 'Tournament not found.'}, status=404)
+        except Round.DoesNotExist:
+            return Response({'error': 'Round not found for this tournament.'}, status=404)
+
+        participations = Participation.objects.filter(tournament=tournament, player=player)
+
+        if not participations.exists():
+            return Response({'error': 'You are not a participant of this tournament.'}, status=403)
+
+        round_games = RoundGame.objects.filter(round=round)
+        game_ids = round_games.values_list('game__id', flat=True)
+        games = Game.objects.filter(id__in=game_ids)
+
+        serializer = GameDetailSerializer(games, many=True)
+        return Response(serializer.data)
+
 
 class ParticipationViewSet(viewsets.ModelViewSet):
     queryset = Participation.objects.all()

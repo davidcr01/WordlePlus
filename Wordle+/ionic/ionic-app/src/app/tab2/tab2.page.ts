@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../services/api.service';
 import { ToastService } from '../services/toast.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-tab2',
@@ -12,7 +13,8 @@ export class Tab2Page implements OnInit {
   isLoading: boolean = false;
   selectedSegment: string = '';
 
-  constructor(private apiService: ApiService, private toastService: ToastService) {}
+  constructor(private apiService: ApiService, private toastService: ToastService,
+    private router: Router) {}
 
   ngOnInit() {
     this.isLoading = true;
@@ -35,7 +37,6 @@ export class Tab2Page implements OnInit {
     (await this.apiService.getTournaments(Number(this.selectedSegment)))
       .subscribe(
         (data: any) => {
-          console.log(data);
           this.tournaments = data.results;
           this.isLoading = false;
         },
@@ -51,7 +52,6 @@ export class Tab2Page implements OnInit {
     (await this.apiService.getMyTournaments())
       .subscribe(
         (data: any) => {
-          console.log(data);
           this.tournaments = data;
           this.isLoading = false;
         },
@@ -60,6 +60,10 @@ export class Tab2Page implements OnInit {
           this.isLoading = false;
         }
       );
+  }
+
+  async enterTournament(tournamentId: number) {
+    this.router.navigate(['/tournamentrounds'], { queryParams: { id: tournamentId } });
   }
 
   async joinTournament(idTournament: number) {

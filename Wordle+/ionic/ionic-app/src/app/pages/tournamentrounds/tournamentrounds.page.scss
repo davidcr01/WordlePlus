@@ -1,0 +1,52 @@
+ion-card-header {
+    font-weight: bolder;
+    font-size: calc(2.5vh + 2vw);
+    padding-bottom: 5px;
+    display: flex;
+    align-content: space-between;
+    justify-content: space-between;
+    align-items: center;
+    align-content: center;
+    flex-direction: row;
+}
+
+ion-segment-button {
+    font-size: calc(2vh + 1vw);
+  }
+
+ion-card-header img {
+    height: calc(4vh + 1vw);
+    margin-right: 0.8vw;
+    margin-left: 0.8vw;
+    }
+
+.round{
+    color: black;
+    --background: var(--ion-color-turquoise);
+}
+.round-title{
+    color: black;
+    display: flex;
+    align-content: space-between;
+    justify-content: space-between;
+    align-items: center;
+    align-content: center;
+    flex-direction: row;
+}
+.winner-username {
+    color: green;
+  }
+ion-icon {
+    font-size: 4vh;
+}
+.play-button{
+    --background: var(--ion-color-purple);
+    margin-left: 4vh;
+    margin-right: 4vh;
+    padding: 0.5vh;
+    font-size: 2.5vh;
+}
+
+ion-content{
+    --background: var(--ion-color-purple);
+}

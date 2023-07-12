@@ -1,0 +1,47 @@
+<ion-header *ngIf="tournamentInfo">
+  <ion-toolbar>
+    <ion-title>{{ tournamentInfo.name }}</ion-title>
+  </ion-toolbar>
+  <ion-toolbar *ngIf="rounds && rounds.length > 0">
+    <ion-segment [(ngModel)]="selectedSegment" (ionChange)="segmentChanged($event)">
+      <ion-segment-button *ngFor="let round of rounds" [value]="round.number">
+        Round {{ round.number }}
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <app-loading *ngIf="isLoading"></app-loading>
+  
+  <div class="flex-center">
+  <ion-card class="round" *ngIf="!isLoading">
+    <ion-card-header class="round-title">
+      <ion-icon name="trophy" class="left-icon"></ion-icon>
+      Round {{ selectedSegment }}
+      <ion-icon name="trophy" class="right-icon"></ion-icon>
+    </ion-card-header>
+    <ion-card-content>
+      <div *ngIf="roundGames && roundGames.length > 0">
+        <ion-card *ngFor="let game of roundGames">
+          <ion-card-header>
+            <span [ngClass]="{'winner-username': game.winner === game.player1}">{{ game.player1 }}</span>
+            <img src="../../../assets/icon/vs.png" alt="VS icon">
+            <span [ngClass]="{'winner-username': game.winner === game.player2}">{{ game.player2 }}</span>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-button class="play-button" expand="block" *ngIf="!game.winner && isPlayerInGame(game)" (click)="playGame(game.id)">Play</ion-button>
+          </ion-card-content>
+        </ion-card>
+      </div>
+      <div *ngIf="roundGames && roundGames.length === 0">
+        <ion-card>
+          <ion-card-content>
+            This round is not available yet!
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </ion-card-content>
+  </ion-card>
+</div>
+</ion-content>

@@ -197,6 +197,20 @@ import { EncryptionService } from './encryption.service';
         return this.http.get(url, { headers });
       }
 
+      async getTournamentInfo(idTournament: number): Promise<Observable<any>> {
+        let url = `${this.baseURL}/api/tournaments/${idTournament}/tournament_info/`;
+        const accessToken = this.storageService.getAccessToken();
+        if (!accessToken) {
+            return throwError('Access token not found');
+        }
+        const decryptedToken = this.encryptionService.decryptData(await accessToken);
+        const headers = new HttpHeaders({
+            Authorization: `Token ${decryptedToken}`,
+            'Content-Type': 'application/json'
+        });
+        return this.http.get(url, { headers });
+      }
+
       async getMyTournaments(): Promise<Observable<any>> {
         let url = `${this.baseURL}/api/tournaments/player_tournaments/`;
         const accessToken = this.storageService.getAccessToken();
@@ -225,7 +239,35 @@ import { EncryptionService } from './encryption.service';
         });
 
         return this.http.post(url, tournament, { headers });
-    }
+        }
+
+        async getRounds(idTournament: number): Promise<Observable<any>> {
+            let url = `${this.baseURL}/api/tournaments/${idTournament}/tournament_rounds/`;
+            const accessToken = this.storageService.getAccessToken();
+            if (!accessToken) {
+                return throwError('Access token not found');
+            }
+            const decryptedToken = this.encryptionService.decryptData(await accessToken);
+            const headers = new HttpHeaders({
+                Authorization: `Token ${decryptedToken}`,
+                'Content-Type': 'application/json'
+            });
+            return this.http.get(url, { headers });
+        }
+
+        async getGamesRound(idTournament: number, roundNumber: number): Promise<Observable<any>> {
+            let url = `${this.baseURL}/api/tournaments/${idTournament}/round_games/${roundNumber}`;
+            const accessToken = this.storageService.getAccessToken();
+            if (!accessToken) {
+                return throwError('Access token not found');
+            }
+            const decryptedToken = this.encryptionService.decryptData(await accessToken);
+            const headers = new HttpHeaders({
+                Authorization: `Token ${decryptedToken}`,
+                'Content-Type': 'application/json'
+            });
+            return this.http.get(url, { headers });
+        }
 
 
       // FRIENDS
