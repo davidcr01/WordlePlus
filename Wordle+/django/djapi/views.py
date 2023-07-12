@@ -179,7 +179,7 @@ class ClassicWordleViewSet(viewsets.GenericViewSet):
     """
     API endpoint that allows list, retrieve, and create operations for classic wordle games of players.
     """
-    permission_classes = [IsOwnerOrAdminPermission]
+    permission_classes = [permissions.IsAuthenticated]
     queryset = ClassicWordle.objects.all()
     serializer_class = ClassicWordleSerializer
 
@@ -187,8 +187,9 @@ class ClassicWordleViewSet(viewsets.GenericViewSet):
         player = getattr(request.user, 'player', None)
         if not player:
             return Response({'error': 'Player not found'}, status=404)
-       
-        queryset = ClassicWordle.objects.filter(player=player).order_by('-date_played')
+
+        limit = 15
+        queryset = ClassicWordle.objects.filter(player=player).order_by('-date_played')[:limit]
         serializer = ClassicWordleSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -567,7 +568,7 @@ class GameViewSet(viewsets.ModelViewSet):
         player = getattr(request.user, 'player', None)
         if not player:
             return Response({'error': 'Player not found'}, status=404)
-        queryset = Game.objects.filter(player2=player, winner=None).order_by('timestamp')[:limit]
+        queryset = Game.objects.filter(player2=player, winner=None, is_tournament_game=False).order_by('timestamp')[:limit]
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 

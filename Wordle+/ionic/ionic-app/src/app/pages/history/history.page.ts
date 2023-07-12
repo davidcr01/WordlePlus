@@ -11,6 +11,7 @@ import { ToastService } from 'src/app/services/toast.service';
 })
 export class HistoryPage implements OnInit {
   selectedSegment: string = 'classic-wordles';
+  completedWordles: any[] = [];
   pendingPvpGames: any[] = [];
   completedPvpGames: any[] = [];
   playerId: string;
@@ -23,6 +24,7 @@ export class HistoryPage implements OnInit {
   async ngOnInit() {
     this.playerId = await this.storageService.getPlayerID();
     this.username = await this.storageService.getUsername();
+    this.loadCompletedWordles();
   }
 
   // Method that loads the pending games when the "Pending" window is clicked
@@ -35,6 +37,19 @@ export class HistoryPage implements OnInit {
     if (this.selectedSegment === 'completed-pvp-games') {
       this.loadCompletedPvpGames();
     }
+    if (this.selectedSegment === 'classic-wordles') {
+      this.loadCompletedWordles();
+    }
+  }
+
+  async loadCompletedWordles() {
+    this.isLoading = true;
+    try {
+      this.completedWordles = await this.apiService.getCompletedWordles();
+    } catch (error) {
+      this.toastService.showToast("Error loading completed Worldes", 2000, 'top', 'danger');
+    }
+    this.isLoading = false;
   }
 
   async loadPendingPvpGames() {
