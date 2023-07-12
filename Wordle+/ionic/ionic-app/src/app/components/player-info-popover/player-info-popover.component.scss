@@ -1,0 +1,23 @@
+.popover-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1vh;
+  }
+  
+  .popover-container img {
+    width: 3vh;
+    height: 3vh;
+    margin-right: 2vw;
+  }
+  
+  .popover-label {
+    font-weight: bold;
+    font-size: 4.5vw;
+  }
+  
+  .popover-value {
+    margin-left: auto;
+    margin-right: 3vw;
+    font-size: 5.5vw;
+  }
+  
