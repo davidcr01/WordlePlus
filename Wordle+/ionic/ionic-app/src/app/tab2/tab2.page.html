@@ -1,6 +1,12 @@
 <ion-header>
   <ion-toolbar>
-    <ion-segment [scrollable]="true" [(ngModel)]="wordLength" (ionChange)="loadTournaments()">
+    <ion-title>Tournaments</ion-title>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-segment [scrollable]="true" [(ngModel)]="selectedSegment" (ionChange)="segmentChanged($event)">
+      <ion-segment-button value="joined">
+        <ion-label>Joined</ion-label>
+      </ion-segment-button>
       <ion-segment-button value="">
         <ion-label>All</ion-label>
       </ion-segment-button>
@@ -24,36 +30,42 @@
 </ion-header>
 
 <ion-content>
-  <ion-card *ngFor="let tournament of tournaments">
-    <ion-card-header class="tournament-header">
-      <ion-icon name="trophy" class="left-icon"></ion-icon>
-      <ion-card-title>{{ tournament.name }}</ion-card-title>
-      <ion-icon name="trophy" class="right-icon"></ion-icon>
-    </ion-card-header>
-    <ion-card-content>
-      <ion-list>
-        <ion-item *ngIf="tournament.description">
-          <ion-label class="label">Description:</ion-label>
-          <ion-label class="value">{{ tournament.description }}</ion-label>
-        </ion-item>
-        <ion-item>
-          <ion-label class="label">Players:</ion-label>
-          <p class="value">{{ tournament.num_players }}/{{ tournament.max_players }}</p>
-        </ion-item>
-        <ion-item>
-          <ion-label class="label">Word Length:</ion-label>
-          <ion-label class="value">{{ tournament.word_length }}</ion-label>
-        </ion-item>
-        <ion-item>
-          <ion-label class="label">Status:</ion-label>
-          <ion-icon [name]="tournament.is_closed ? 'lock-closed' : 'lock-open'"></ion-icon>
-        </ion-item>
-      </ion-list>
-    </ion-card-content>
-    <ion-button expand="block" class="join-button" [disabled]="tournament.is_closed">Join</ion-button>
-  </ion-card>
 
-  <ion-card class="ion-padding" *ngIf="tournaments.length === 0">
+  <app-loading *ngIf="isLoading"></app-loading>
+  <div *ngIf="tournaments && tournaments.length > 0 && !isLoading">
+    <ion-card *ngFor="let tournament of tournaments">
+      <ion-card-header class="tournament-header">
+        <ion-icon name="trophy" class="left-icon"></ion-icon>
+        <ion-card-title>{{ tournament.name }}</ion-card-title>
+        <ion-icon name="trophy" class="right-icon"></ion-icon>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list>
+          <ion-item *ngIf="tournament.description">
+            <ion-label class="label">Description:</ion-label>
+            <ion-label class="value">{{ tournament.description }}</ion-label>
+          </ion-item>
+          <ion-item>
+            <ion-label class="label">Players:</ion-label>
+            <p class="value">{{ tournament.num_players }}/{{ tournament.max_players }}</p>
+          </ion-item>
+          <ion-item>
+            <ion-label class="label">Word Length:</ion-label>
+            <ion-label class="value">{{ tournament.word_length }}</ion-label>
+          </ion-item>
+          <ion-item>
+            <ion-label class="label">Status:</ion-label>
+            <ion-icon [name]="tournament.is_closed ? 'lock-closed' : 'lock-open'"></ion-icon>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+      
+      <ion-button *ngIf="selectedSegment !== 'joined'" expand="block" class="join-button" [disabled]="tournament.is_closed" (click)="joinTournament(tournament.id)">Join</ion-button>
+      <ion-button *ngIf="selectedSegment === 'joined'" expand="block" class="join-button" [disabled]="!tournament.is_closed" (click)="enterTournament(tournament.id)">Enter</ion-button>
+    </ion-card>
+  </div>
+
+  <ion-card class="ion-padding" *ngIf="tournaments.length === 0 && !isLoading">
     <ion-card-content>
       No tournaments here!
     </ion-card-content>

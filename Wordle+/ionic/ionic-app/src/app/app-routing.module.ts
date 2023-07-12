@@ -56,6 +56,18 @@ const routes: Routes = [
     loadChildren: () => import('./pages/history/history.module').then( m => m.HistoryPageModule),
     canActivate: [AuthGuard]
   },
+  {
+    path: 'tournamentrounds',
+    loadChildren: () => import('./pages/tournamentrounds/tournamentrounds.module').then( m => m.TournamentroundsPageModule),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'game-tournament',
+    loadChildren: () => import('./pages/game-tournament/game-tournament.module').then( m => m.GameTournamentPageModule),
+    canActivate: [AuthGuard]
+  },
+
+
 
 ];
 @NgModule({

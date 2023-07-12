@@ -1,3 +1,4 @@
+import math
 from django.contrib.auth.models import Group
 from djapi.models import *
 from rest_framework import viewsets, permissions, status, generics
@@ -16,7 +17,6 @@ from django.core.files.base import ContentFile
 from django.http import JsonResponse
 from django.db.models import Q
 from rest_framework.decorators import action
-
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
@@ -290,6 +290,70 @@ class TournamentViewSet(viewsets.ReadOnlyModelViewSet):
             queryset = queryset.filter(word_length=word_length)
 
         return queryset
+    
+    @action(detail=True, methods=['get'])
+    def tournament_info(self, request, pk=None):
+        tournament = Tournament.objects.get(pk=pk)
+        player = getattr(request.user, 'player', None)
+
+        participations = Participation.objects.filter(tournament=tournament, player=player)
+        if not participations.exists():
+            return Response({'error': 'You are not a participant of this tournament.'}, status=403)
+
+        serializer = TournamentSerializer(tournament)
+        return Response(serializer.data)
+
+
+    @action(detail=False, methods=['get'])
+    def player_tournaments(self, request):
+        player = getattr(request.user, 'player', None)
+        if not player:
+            return Response({'error': 'Player not found'}, status=404)
+
+        tournaments = Tournament.objects.filter(participation__player=player).order_by('-is_closed')
+        serializer = TournamentSerializer(tournaments, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=True, methods=['get'])
+    def tournament_rounds(self, request, pk=None):
+        tournament = self.get_object()
+        player = getattr(request.user, 'player', None)
+
+        participations = Participation.objects.filter(tournament=tournament, player=player)
+
+        if not participations.exists():
+            return Response({'error': 'You are not a participant of this tournament.'}, status=403)
+
+        rounds = Round.objects.filter(tournament=tournament)
+        serializer = RoundSerializer(rounds, many=True)
+        if not serializer.data:
+            return Response({'error': 'No rounds found for this tournament.'}, status=404)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['get'], url_path='round_games/(?P<round_number>\d+)')
+    def round_games(self, request, pk=None, round_number=None):
+        player = getattr(request.user, 'player', None)
+
+        try:
+            tournament = Tournament.objects.get(pk=pk)
+            round = Round.objects.get(tournament=tournament, number=round_number)
+        except Tournament.DoesNotExist:
+            return Response({'error': 'Tournament not found.'}, status=404)
+        except Round.DoesNotExist:
+            return Response({'error': 'Round not found for this tournament.'}, status=404)
+
+        participations = Participation.objects.filter(tournament=tournament, player=player)
+
+        if not participations.exists():
+            return Response({'error': 'You are not a participant of this tournament.'}, status=403)
+
+        round_games = RoundGame.objects.filter(round=round)
+        game_ids = round_games.values_list('game__id', flat=True)
+        games = Game.objects.filter(id__in=game_ids)
+
+        serializer = GameDetailSerializer(games, many=True)
+        return Response(serializer.data)
+
 
 class ParticipationViewSet(viewsets.ModelViewSet):
     queryset = Participation.objects.all()
@@ -341,7 +405,20 @@ class ParticipationViewSet(viewsets.ModelViewSet):
         # Close the tournament if is full
         if tournament.num_players >= tournament.max_players:
             tournament.is_closed = True
-            
+
+            rounds = int(math.log2(tournament.max_players))
+            for round_number in range(1, rounds+1):
+                round = Round.objects.create(tournament=tournament, number=round_number)
+                if round_number == 1:
+                    # Assign games to the first round
+                    participants = Participation.objects.filter(tournament=tournament)
+                    participants_count = participants.count()
+                    for i in range(0, participants_count, 2):
+                        player1 = participants[i].player
+                        player2 = participants[i + 1].player
+                        new_game = Game.objects.create(player1=player1, player2=player2, is_tournament_game=True)
+                        RoundGame.objects.create(round=round, game=new_game)
+                
         tournament.save()
 
         # Create the related notification to the player
@@ -474,21 +551,23 @@ class GameViewSet(viewsets.ModelViewSet):
     # Completed games are those which the winner is not null
     @action(detail=False, methods=['get'])
     def completed_games(self, request):
+        limit = 15
         player = getattr(request.user, 'player', None)
         if not player:
             return Response({'error': 'Player not found'}, status=404)
         
-        queryset = Game.objects.filter(Q(player1=player) | Q(player2=player), ~Q(winner=None)).order_by('timestamp')
+        queryset = Game.objects.filter(Q(player1=player) | Q(player2=player), ~Q(winner=None)).order_by('-timestamp')[:limit]
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
     
     # Pending games are those which the winner is null and the player is the receiver (player2)
     @action(detail=False, methods=['get'])
     def pending_games(self, request):
+        limit = 15
         player = getattr(request.user, 'player', None)
         if not player:
             return Response({'error': 'Player not found'}, status=404)
-        queryset = Game.objects.filter(player2=player, winner=None).order_by('timestamp')
+        queryset = Game.objects.filter(player2=player, winner=None).order_by('timestamp')[:limit]
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -547,9 +626,12 @@ class GameViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data, status=201)
 
+    # Patch method to update the tournament game. Executed only by the second player
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
-        player = request.user.player
+        player = getattr(request.user, 'player', None)
+        if not player:
+            return Response({'error': 'Player not found'}, status=404)
 
         if instance.player2 != player:
             return Response({'error': 'You do not have permission to update this game.'}, status=403)
@@ -592,3 +674,76 @@ class GameViewSet(viewsets.ModelViewSet):
         serializer.save()
 
         return Response({'winner': instance.winner.user.username})
+    
+    # Patch method to update the tournament game. Executed by both players
+    def tournament(self, request, *args, **kwargs):
+        instance = self.get_object()
+        player = getattr(request.user, 'player', None)
+        if not player:
+            return Response({'error': 'Player not found'}, status=404)
+
+        if player == instance.player1:
+            if instance.player1_xp != 0 or instance.player1_time != 0:
+                return Response({'error': 'You have already updated your information for this game.'}, status=400)
+            opponent = instance.player2
+            opponent_xp = instance.player2_xp
+            opponent_time = instance.player2_time
+        elif player == instance.player2:
+            if instance.player2_xp != 0 or instance.player2_time != 0:
+                return Response({'error': 'You have already updated your information for this game.'}, status=400)
+            opponent = instance.player1
+            opponent_xp = instance.player1_xp
+            opponent_time = instance.player1_time
+        else:
+            return Response({'error': 'You do not have permission to update this game.'}, status=403)
+
+        # Data requested change depending on the player who is executing the method
+        if instance.player1 == player:
+            allowed_fields = ['player1_xp', 'player1_time', 'player1_attempts', 'word']
+        elif instance.player2 == player:
+            allowed_fields = ['player2_xp', 'player2_time', 'player2_attempts', 'word']
+        else:
+            return Response({'error': 'You do not have permission to update this game.'}, status=403)
+
+        data = {key: request.data.get(key) for key in allowed_fields}
+        if 'winner' in data:
+            return Response({'error': 'The "winner" field cannot be modified.'}, status=400)
+
+        if instance.word != '':
+            data.pop('word')
+
+        serializer = self.get_serializer(instance, data=data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        player_xp = serializer.validated_data.get('player1_xp' if player == instance.player1 else 'player2_xp', 0)
+        player_time = serializer.validated_data.get('player1_time' if player == instance.player1 else 'player2_time', 0)
+
+        # Winner is calculated when all data is available
+        if (player_xp != 0 and player_time != 0 and opponent_xp != 0 and opponent_time != 0):
+            if player_xp > opponent_xp:
+                instance.winner = player
+                instance.winner.wins_pvp += 1
+                instance.winner.save()
+                instance.save()
+            elif player_xp < opponent_xp:
+                instance.winner = opponent
+                opponent.wins_pvp += 1
+                instance.winner.save()
+                instance.save()
+            else:
+                if player_time <= opponent_time:
+                    instance.winner = player
+                    instance.winner.wins_pvp += 1
+                    instance.winner.save()
+                    instance.save()
+                else:
+                    instance.winner = opponent
+                    opponent.wins_pvp += 1
+                    instance.winner.save()
+                    instance.save()
+
+        if instance.winner is not None:
+            return Response({'winner': instance.winner.user.username})
+        else:
+            return Response({'message': 'Game updated successfully.'})

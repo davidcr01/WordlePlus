@@ -32,6 +32,15 @@
     height: 100%;
 }
 
+.loading-container{
+    margin-top: 4vh;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+  }
+
 .button-container {
     margin-top: 16px;
     display: flex;

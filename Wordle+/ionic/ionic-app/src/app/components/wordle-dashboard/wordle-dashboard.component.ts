@@ -250,7 +250,7 @@ export class WordleDashboardComponent implements OnInit {
   }
   
   private calculateExperience(timeDiffInSeconds: number, numGuesses: number, wordLength: number, hasWon: boolean): number {
-    const baseExperience = 100; 
+    const baseExperience = 300; 
     const timeMultiplier = 10; 
     const guessesMultiplier = 5;
     const lengthMultiplier = 10; 
@@ -266,7 +266,7 @@ export class WordleDashboardComponent implements OnInit {
       totalExperience *= lossExperienceMultiplier;
     }
   
-    return totalExperience > 0 ? totalExperience : 0;
+    return totalExperience > 0 ? totalExperience : 1;
   }  
 
   public handleKeyboardButtonClick(letter: string): void {

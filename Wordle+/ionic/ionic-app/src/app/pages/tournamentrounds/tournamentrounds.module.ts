@@ -4,18 +4,18 @@ import { FormsModule } from '@angular/forms';
 import { LoadingModule } from 'src/app/loading/loading.module';
 import { IonicModule } from '@ionic/angular';
 
-import { HistoryPageRoutingModule } from './history-routing.module';
+import { TournamentroundsPageRoutingModule } from './tournamentrounds-routing.module';
 
-import { HistoryPage } from './history.page';
+import { TournamentroundsPage } from './tournamentrounds.page';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    HistoryPageRoutingModule,
+    TournamentroundsPageRoutingModule,
     LoadingModule
   ],
-  declarations: [HistoryPage]
+  declarations: [TournamentroundsPage]
 })
-export class HistoryPageModule {}
+export class TournamentroundsPageModule {}
