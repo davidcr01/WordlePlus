@@ -457,6 +457,26 @@ class FriendListViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
     
+    def destroy(self, request, *args, **kwargs):
+        player = getattr(request.user, 'player', None)
+        friend_id = kwargs.get('pk')
+
+        if not player:
+            return Response({'error': 'Player not found'}, status=404)
+
+        try:
+            friend = Player.objects.get(id=friend_id)
+        except Player.DoesNotExist:
+            return Response({'error': 'Friend not found'}, status=404)
+
+        if not FriendList.objects.filter(Q(sender=player, receiver=friend) | Q(sender=friend, receiver=player)).exists():
+            return Response({'error': 'Player is not friends with this user'}, status=403)
+
+        # Delete the friend relationship
+        FriendList.objects.filter(Q(sender=player, receiver=friend) | Q(sender=friend, receiver=player)).delete()
+
+        return Response({'message': 'Friend relationship deleted successfully'}, status=204)
+    
 class FriendRequestViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = FriendRequest.objects.all()
     serializer_class = FriendRequestSerializer
