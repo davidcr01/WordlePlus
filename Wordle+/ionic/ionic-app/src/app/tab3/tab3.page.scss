@@ -1,0 +1,55 @@
+ion-item {
+    --padding-start: 10px;
+  }
+  
+  ion-label.value-label {
+    font-weight: bold;
+    text-align: center;
+    
+  }
+
+  ion-segment-button{
+    font-size: 4vw;
+  }
+
+  .username-label{
+    font-style: italic;
+  }
+  
+  ion-item ion-label:first-child {
+    flex: 1.5;
+    font-size: 2.5vh;
+  }
+  
+  ion-item ion-label:not(:first-child) {
+    width: calc(100% / 4);
+    text-align: center;
+    font-size: 2.5vh;
+    padding-top: 1.5vh;
+    padding-bottom: 1.5vh;
+  }
+  
+  ion-card {
+    margin-top: 20px;
+  }
+  
+  ion-card-content {
+    text-align: center;
+  }
+  
+  .icon-img {
+    width: 5vh;
+    height: 5vh;
+    margin-right: 8px;
+  }
+  
+  .icon-img:first-child {
+    margin-left: 0;
+  }
+  
+  .icon-img:last-child {
+    margin-right: 0;
+  }
+.value {
+    --background: var(--ion-color-purple-dark);
+}
