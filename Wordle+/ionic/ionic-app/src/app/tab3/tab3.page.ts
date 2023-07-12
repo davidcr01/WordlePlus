@@ -30,19 +30,4 @@ export class Tab3Page implements OnInit {
       this.isLoading = false;
     }
   }
-
-  getPlayerStat(player: any): number {
-    switch (this.selectedFilter) {
-      case 'wins':
-        return player.wins;
-      case 'wins_pvp':
-        return player.wins_pvp;
-      case 'wins_tournament':
-        return player.wins_tournament;
-      case 'xp':
-        return player.xp;
-      default:
-        return 0;
-    }
-  }
 }
