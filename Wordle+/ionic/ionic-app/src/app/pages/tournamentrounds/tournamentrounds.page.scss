@@ -30,8 +30,12 @@ ion-card-header img {
     align-content: space-between;
     justify-content: space-between;
     align-items: center;
+    font-weight: bolder;
+    font-style: italic;
     align-content: center;
     flex-direction: row;
+    text-shadow: 2px 2px 0px  #957dad,
+               3px 3px 0px #ee4b2b,
 }
 .winner-username {
     color: green;
@@ -50,3 +54,19 @@ ion-icon {
 ion-content{
     --background: var(--ion-color-purple);
 }
+
+.winner-message {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #ffd700;
+    color: black;
+    font-size: calc(3vh + 1vw);
+  }
+  
+  .winner-username {
+    font-weight: bold;
+  }
+  

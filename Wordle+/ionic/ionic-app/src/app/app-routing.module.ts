@@ -61,6 +61,12 @@ const routes: Routes = [
     loadChildren: () => import('./pages/tournamentrounds/tournamentrounds.module').then( m => m.TournamentroundsPageModule),
     canActivate: [AuthGuard]
   },
+  {
+    path: 'game-tournament',
+    loadChildren: () => import('./pages/game-tournament/game-tournament.module').then( m => m.GameTournamentPageModule),
+    canActivate: [AuthGuard]
+  },
+
 
 
 ];

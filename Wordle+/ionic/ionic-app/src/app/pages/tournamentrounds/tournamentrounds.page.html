@@ -1,9 +1,9 @@
 <ion-header *ngIf="tournamentInfo">
-  <ion-toolbar>
+  <ion-toolbar scro>
     <ion-title>{{ tournamentInfo.name }}</ion-title>
   </ion-toolbar>
   <ion-toolbar *ngIf="rounds && rounds.length > 0">
-    <ion-segment [(ngModel)]="selectedSegment" (ionChange)="segmentChanged($event)">
+    <ion-segment [scrollable]="true" [(ngModel)]="selectedSegment" (ionChange)="segmentChanged($event)">
       <ion-segment-button *ngFor="let round of rounds" [value]="round.number">
         Round {{ round.number }}
       </ion-segment-button>
@@ -14,7 +14,7 @@
 <ion-content>
   <app-loading *ngIf="isLoading"></app-loading>
   
-  <div class="flex-center">
+  <div class="flex-center" *ngIf="!isLoading">
   <ion-card class="round" *ngIf="!isLoading">
     <ion-card-header class="round-title">
       <ion-icon name="trophy" class="left-icon"></ion-icon>
@@ -22,19 +22,26 @@
       <ion-icon name="trophy" class="right-icon"></ion-icon>
     </ion-card-header>
     <ion-card-content>
+      <span *ngIf="selectedSegment === currentRound" class="flex-center">Current round</span>
       <div *ngIf="roundGames && roundGames.length > 0">
         <ion-card *ngFor="let game of roundGames">
           <ion-card-header>
-            <span [ngClass]="{'winner-username': game.winner === game.player1}">{{ game.player1 }}</span>
+            {{ game.player1 }}
             <img src="../../../assets/icon/vs.png" alt="VS icon">
-            <span [ngClass]="{'winner-username': game.winner === game.player2}">{{ game.player2 }}</span>
+            {{ game.player2 }}
           </ion-card-header>
           <ion-card-content>
             <ion-button class="play-button" expand="block" *ngIf="!game.winner && isPlayerInGame(game)" (click)="playGame(game.id)">Play</ion-button>
           </ion-card-content>
         </ion-card>
+        <ion-card *ngIf="lastRound === selectedSegment && winnerTournamentUsername" class="winner-message">
+          <ion-icon name="trophy"></ion-icon>
+          <span class="winner-username">{{ winnerTournamentUsername }}</span>
+          <ion-icon name="trophy"></ion-icon>
+        </ion-card>
+        
       </div>
-      <div *ngIf="roundGames && roundGames.length === 0">
+      <div *ngIf="roundGames && roundGames.length === 0 && !isLoading">
         <ion-card>
           <ion-card-content>
             This round is not available yet!

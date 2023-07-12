@@ -269,6 +269,20 @@ import { EncryptionService } from './encryption.service';
             return this.http.get(url, { headers });
         }
 
+        async resolveTournamentGame(idGame: number, gameData: any): Promise<Observable<any>> {
+            let url = `${this.baseURL}/api/games/${idGame}/partial_update_tournament/`;
+            const accessToken = this.storageService.getAccessToken();
+            if (!accessToken) {
+                return throwError('Access token not found') as any;
+            }
+            const decryptedToken = this.encryptionService.decryptData(await accessToken);
+            const headers = new HttpHeaders({
+                Authorization: `Token ${decryptedToken}`,
+                'Content-Type': 'application/json'
+            });
+            return this.http.patch(url, gameData, { headers });
+          }
+
 
       // FRIENDS
       /////////////////////////////////////////////////////////////////
