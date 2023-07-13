@@ -1,0 +1,25 @@
+<ion-content>
+  <ion-list *ngIf="playerInfo">
+      <div class="popover-container">
+        <img src="../../assets/icon/wins-classic.png" alt="Victories Classic">
+        <ion-label class="popover-label">Wins</ion-label>
+        <ion-label class="popover-value">{{ playerInfo.wins }}</ion-label>
+      </div>
+      <div class="popover-container">
+        <img src="../../assets/icon/wins-pvp.png" alt="Victories PvP">
+        <ion-label class="popover-label">Wins PvP</ion-label>
+        <ion-label class="popover-value">{{ playerInfo.wins_pvp }}</ion-label>
+      </div>
+      <div class="popover-container">
+        <img src="../../assets/icon/wins-tournaments.png" alt="Victories Tournaments">
+        <ion-label class="popover-label">Tournaments</ion-label>
+        <ion-label class="popover-value">{{ playerInfo.wins_tournament }}</ion-label>
+      </div>
+      <div class="popover-container">
+        <img src="../../assets/icon/experience.png" alt="Experience">
+        <ion-label class="popover-label">XP</ion-label>
+        <ion-label class="popover-value">{{ playerInfo.xp }}</ion-label>
+      </div>
+    </ion-list>
+    
+</ion-content>

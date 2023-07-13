@@ -133,6 +133,24 @@ import { EncryptionService } from './encryption.service';
         return this.http.get<string[]>(url, { headers });
       }
 
+      async getPlayersRanking(filter: string): Promise<any[]> {
+        let url = `${this.baseURL}/api/players/ranking/`;
+        if (filter) {
+            url += `?filter=${filter}`;
+          }
+        const accessToken = this.storageService.getAccessToken();
+        if (!accessToken) {
+            return throwError('Access token not found') as any;
+        }
+        const decryptedToken = this.encryptionService.decryptData(await accessToken);
+        const headers = new HttpHeaders({
+            Authorization: `Token ${decryptedToken}`,
+            'Content-Type': 'application/json'
+        });
+    
+        return this.http.get<any[]>(url, { headers }).toPromise();
+      }
+
     // CLASSIC WORDLES
     /////////////////////////////////////////////////////////////////
     async addClassicGame(gameData: any): Promise<Observable<any>> {
@@ -145,6 +163,20 @@ import { EncryptionService } from './encryption.service';
         const headers = new HttpHeaders({'Authorization': `Token ${decryptedToken}`});
 
         return this.http.post(url, gameData, { headers });
+    }
+
+    async getCompletedWordles(): Promise<any> {
+        const url = `${this.baseURL}/api/classicwordles/`;
+        const accessToken = await this.storageService.getAccessToken();
+        if (!accessToken) {
+            return throwError('Access token not found');
+        }
+        const decryptedToken = this.encryptionService.decryptData(accessToken);
+        const headers = new HttpHeaders({
+            Authorization: `Token ${decryptedToken}`,
+            'Content-Type': 'application/json'
+        });
+        return this.http.get<any[]>(url, { headers }).toPromise();
     }
 
     // NOTIFICATIONS
@@ -331,6 +363,21 @@ import { EncryptionService } from './encryption.service';
         return this.http.post(url, null, { headers });
       }
 
+      async rejectFriendRequest(requestId: number): Promise<Observable<any>> {
+        let url = `${this.baseURL}/api/friendrequest/${requestId}/reject/`;
+        const accessToken = this.storageService.getAccessToken();
+        if (!accessToken) {
+            return throwError('Access token not found') as any;
+        }
+        const decryptedToken = this.encryptionService.decryptData(await accessToken);
+        const headers = new HttpHeaders({
+            Authorization: `Token ${decryptedToken}`,
+            'Content-Type': 'application/json'
+        });
+    
+        return this.http.post(url, null, { headers });
+      }
+
       async sendFriendRequest(receiverId: number): Promise<Observable<any>> {
         let url = `${this.baseURL}/api/friendrequest/`;
         const accessToken = this.storageService.getAccessToken();
@@ -344,6 +391,20 @@ import { EncryptionService } from './encryption.service';
         });
         const body = {"receiver_id": receiverId};
         return this.http.post(url, body, { headers });
+      }
+
+      async deleteFriend(playerId: number): Promise<Observable<any>> {
+        let url = `${this.baseURL}/api/friendlist/${playerId}/`;
+        const accessToken = this.storageService.getAccessToken();
+        if (!accessToken) {
+            return throwError('Access token not found') as any;
+        }
+        const decryptedToken = this.encryptionService.decryptData(await accessToken);
+        const headers = new HttpHeaders({
+            Authorization: `Token ${decryptedToken}`,
+            'Content-Type': 'application/json'
+        });
+        return this.http.delete(url, { headers });
       }
 
       // GAMES

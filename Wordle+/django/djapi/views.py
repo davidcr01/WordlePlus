@@ -71,7 +71,7 @@ class PlayerViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows players to be viewed or edited.
     """
-    queryset = Player.objects.all().order_by('wins')
+    queryset = Player.objects.all()
     serializer_class = PlayerSerializer
     
     def get_serializer_class(self):
@@ -110,6 +110,19 @@ class PlayerViewSet(viewsets.ModelViewSet):
         # Delete the player
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    @action(detail=False, methods=['get'])
+    def ranking(self, request):
+        filter_param = request.GET.get('filter')
+        limit = 15
+        queryset = Player.objects.all()
+
+        if filter_param:
+            queryset = queryset.order_by('-'+filter_param)[:limit]
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
 
 class PlayerListAPIView(generics.ListAPIView):
     queryset = Player.objects.all()
@@ -179,7 +192,7 @@ class ClassicWordleViewSet(viewsets.GenericViewSet):
     """
     API endpoint that allows list, retrieve, and create operations for classic wordle games of players.
     """
-    permission_classes = [IsOwnerOrAdminPermission]
+    permission_classes = [permissions.IsAuthenticated]
     queryset = ClassicWordle.objects.all()
     serializer_class = ClassicWordleSerializer
 
@@ -187,8 +200,9 @@ class ClassicWordleViewSet(viewsets.GenericViewSet):
         player = getattr(request.user, 'player', None)
         if not player:
             return Response({'error': 'Player not found'}, status=404)
-       
-        queryset = ClassicWordle.objects.filter(player=player).order_by('-date_played')
+
+        limit = 15
+        queryset = ClassicWordle.objects.filter(player=player).order_by('-date_played')[:limit]
         serializer = ClassicWordleSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -443,6 +457,26 @@ class FriendListViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
     
+    def destroy(self, request, *args, **kwargs):
+        player = getattr(request.user, 'player', None)
+        friend_id = kwargs.get('pk')
+
+        if not player:
+            return Response({'error': 'Player not found'}, status=404)
+
+        try:
+            friend = Player.objects.get(id=friend_id)
+        except Player.DoesNotExist:
+            return Response({'error': 'Friend not found'}, status=404)
+
+        if not FriendList.objects.filter(Q(sender=player, receiver=friend) | Q(sender=friend, receiver=player)).exists():
+            return Response({'error': 'Player is not friends with this user'}, status=403)
+
+        # Delete the friend relationship
+        FriendList.objects.filter(Q(sender=player, receiver=friend) | Q(sender=friend, receiver=player)).delete()
+
+        return Response({'message': 'Friend relationship deleted successfully'}, status=204)
+    
 class FriendRequestViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = FriendRequest.objects.all()
     serializer_class = FriendRequestSerializer
@@ -567,7 +601,7 @@ class GameViewSet(viewsets.ModelViewSet):
         player = getattr(request.user, 'player', None)
         if not player:
             return Response({'error': 'Player not found'}, status=404)
-        queryset = Game.objects.filter(player2=player, winner=None).order_by('timestamp')[:limit]
+        queryset = Game.objects.filter(player2=player, winner=None, is_tournament_game=False).order_by('timestamp')[:limit]
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 

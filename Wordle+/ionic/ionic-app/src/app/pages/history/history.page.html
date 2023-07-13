@@ -21,7 +21,48 @@
 
 <ion-content>
   <div *ngIf="selectedSegment === 'classic-wordles'">
-    <!-- Add your content for Classic Wordles segment here -->
+    <app-loading *ngIf="isLoading"></app-loading>
+    <div *ngIf="completedWordles && completedWordles.length > 0 && !isLoading">
+      <ion-card *ngFor="let game of completedWordles">
+        <ion-card-header>
+          {{ game.word }}
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list class="game-info-list">
+            <ion-item>
+              <ion-label class="result" [class.victory-result]="game.win" [class.defeat-result]="!game.win">
+                {{ game.win ? 'Guessed' : 'Not guessed' }}
+              </ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-label>
+                <ion-icon name="stopwatch-outline" class="game-info-icon"></ion-icon>
+                Time: {{ game.time_consumed }} "
+              </ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-label>
+                <ion-icon name="construct-outline" class="game-info-icon"></ion-icon>
+                Attempts: {{ game.attempts }}
+              </ion-label>
+            </ion-item>
+            <ion-item>
+              <ion-label>
+                <ion-icon name="ribbon-outline" class="game-info-icon"></ion-icon>
+                Experience: {{ game.xp_gained }}
+              </ion-label>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+    </div>
+    <div *ngIf="completedWordles && completedWordles.length === 0 && !isLoading">
+      <ion-card>
+      <ion-card-content>
+        No completed Wordles here!
+      </ion-card-content>
+      </ion-card>
+    </div>
   </div>
 
   <div *ngIf="selectedSegment === 'completed-pvp-games'">
@@ -42,38 +83,29 @@
             </ion-item>
             <ion-item>
               <ion-label>
-                <ion-grid>
-                  <ion-row>
-                    <ion-col>
-                      <div class="game-info-column">
-                        <div><ion-icon name="stopwatch-outline" class="game-info-icon"></ion-icon> Player Time</div>
-                        <div class="game-info-value">{{ getPlayerTime(game) }}</div>
-                      </div>
-                    </ion-col>
-                    <ion-col>
-                      <div class="game-info-column">
-                        <div><ion-icon name="stopwatch-outline" class="game-info-icon"></ion-icon> Opponent Time</div>
-                        <div class="game-info-value">{{ getOpponentTime(game) }}</div>
-                      </div>
-                    </ion-col>
-                  </ion-row>
-                  <ion-row>
-                    <ion-col>
-                      <div class="game-info-column">
-                        <div><ion-icon name="trophy-outline" class="game-info-icon"></ion-icon> Player XP</div>
-                        <div class="game-info-value">{{ getPlayerXP(game) }}</div>
-                      </div>
-                    </ion-col>
-                    <ion-col>
-                      <div class="game-info-column">
-                        <div><ion-icon name="trophy-outline" class="game-info-icon"></ion-icon> Opponent XP</div>
-                        <div class="game-info-value">{{ getOpponentXP(game) }}</div>
-                      </div>
-                    </ion-col>
-                  </ion-row>
-                </ion-grid>
+                <div class="game-info-flexbox">
+                  <div class="game-info-column">
+                    <div><ion-icon name="stopwatch-outline" class="game-info-icon"></ion-icon> Player Time</div>
+                    <div class="game-info-value">{{ getPlayerTime(game) }}"</div>
+                  </div>
+                  <div class="game-info-column">
+                    <div><ion-icon name="stopwatch-outline" class="game-info-icon"></ion-icon> Opponent Time</div>
+                    <div class="game-info-value">{{ getOpponentTime(game) }}"</div>
+                  </div>
+                </div>
+                <div class="game-info-flexbox">
+                  <div class="game-info-column">
+                    <div><ion-icon name="trophy-outline" class="game-info-icon"></ion-icon> Player XP</div>
+                    <div class="game-info-value">{{ getPlayerXP(game) }} XP</div>
+                  </div>
+                  <div class="game-info-column">
+                    <div><ion-icon name="trophy-outline" class="game-info-icon"></ion-icon> Opponent XP</div>
+                    <div class="game-info-value">{{ getOpponentXP(game) }} XP</div>
+                  </div>
+                </div>
               </ion-label>
             </ion-item>
+            
           </ion-list>
         </ion-card-content>
       </ion-card>
