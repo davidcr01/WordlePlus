@@ -29,6 +29,7 @@ export class GameTournamentPage implements OnInit {
       this.tournamentId = params['tournamentId'];
       this.gameId = params['idGame'];
       this.selfUsername = await this.storageService.getUsername();
+      this.loadTournamentInfo();
     });
   }
 
@@ -66,6 +67,7 @@ export class GameTournamentPage implements OnInit {
         }
       },
       (error) => {
+        console.log(error);
         this.showAlert("Ups!", "You can't play this game!");
       }
     );
@@ -98,7 +100,7 @@ export class GameTournamentPage implements OnInit {
         }
         else {
           if (response.winner === this.selfUsername) {
-            setTimeout( () => this.showAlert('Congratulations!', 'You won! You will be in the next round!'), 2500);
+            setTimeout( () => this.showAlert('Congratulations!', 'You won! Amazing!'), 2500);
           } else {
             setTimeout( () => this.showAlert('Bad news!', 'You lost. Try next time!'), 2500);
           }

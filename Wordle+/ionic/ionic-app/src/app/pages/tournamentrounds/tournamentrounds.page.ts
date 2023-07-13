@@ -73,6 +73,8 @@ export class TournamentroundsPage implements OnInit {
     (await this.apiService.getGamesRound(this.tournamentId, roundNumber)).subscribe(
       async (data: any) => {
         this.roundGames = data;
+        console.log(roundNumber);
+        console.log(data);
 
         if (roundNumber === this.lastRound && this.roundGames[0].winner) {
           (await this.apiService.getPlayerData(this.roundGames[0].winner)).subscribe(

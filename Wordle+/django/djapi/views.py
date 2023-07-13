@@ -20,9 +20,6 @@ from rest_framework.decorators import action
 
 
 class CustomUserViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
     queryset = CustomUser.objects.all().order_by('-date_joined')
     serializer_class = CustomUserSerializer
 
@@ -68,9 +65,6 @@ class UserInfoAPIView(APIView):
         return Response(serializer.errors, status=400)
 
 class PlayerViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows players to be viewed or edited.
-    """
     queryset = Player.objects.all()
     serializer_class = PlayerSerializer
     
@@ -111,6 +105,7 @@ class PlayerViewSet(viewsets.ModelViewSet):
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
     
+    # Method to get the ranking players
     @action(detail=False, methods=['get'])
     def ranking(self, request):
         filter_param = request.GET.get('filter')
@@ -140,9 +135,6 @@ class PlayerListAPIView(generics.ListAPIView):
         return Response(usernames)
 
 class GroupViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows groups to be viewed or edited.
-    """
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -163,7 +155,6 @@ class CustomObtainAuthToken(ObtainAuthToken):
             token.delete()
             token = Token.objects.create(user=user)
 
-        # Serialize the token along with any other data you want to include in the response
         response_data = {
             'token': token.key,
             'user_id': user.id,
@@ -196,6 +187,7 @@ class ClassicWordleViewSet(viewsets.GenericViewSet):
     queryset = ClassicWordle.objects.all()
     serializer_class = ClassicWordleSerializer
 
+    # Gets limited number of classic worldes from most recent to oldest
     def list(self, request):
         player = getattr(request.user, 'player', None)
         if not player:
@@ -223,6 +215,7 @@ class AvatarView(APIView):
     """
     permission_classes = [permissions.IsAuthenticated]
 
+    # Gets the avatar image. Only returned if the requesting player is the owner.
     def get(self, request, user_id):
         try:
             user = get_object_or_404(CustomUser, id=user_id)
@@ -237,6 +230,7 @@ class AvatarView(APIView):
         except CustomUser.DoesNotExist:
             return Response({'detail': 'The specified user does not exist.'}, status=404)
 
+    # Save the player avatar. If there is an existing one, is removed.
     def post(self, request, user_id):
         try:
             user = get_object_or_404(CustomUser, id=user_id)
@@ -266,6 +260,7 @@ class NotificationsViewSet(viewsets.ModelViewSet):
     serializer_class = NotificationSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwnerPermission]
     
+    # Gets limited number of notifications from the most recent to the oldest.
     def list(self, request):
         limit = int(request.query_params.get('limit', 10))
         player = getattr(request.user, 'player', None)
@@ -293,6 +288,7 @@ class TournamentViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tournament.objects.order_by('max_players')
     serializer_class = TournamentSerializer
 
+    # Get a list of all the tournaments filtered by its word length.
     def get_queryset(self):
         queryset = super().get_queryset()
 
@@ -305,6 +301,7 @@ class TournamentViewSet(viewsets.ReadOnlyModelViewSet):
 
         return queryset
     
+    # Gets the information of a specific tournament
     @action(detail=True, methods=['get'])
     def tournament_info(self, request, pk=None):
         tournament = Tournament.objects.get(pk=pk)
@@ -317,7 +314,7 @@ class TournamentViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = TournamentSerializer(tournament)
         return Response(serializer.data)
 
-
+    # Gets the tournament that the player is joined in.
     @action(detail=False, methods=['get'])
     def player_tournaments(self, request):
         player = getattr(request.user, 'player', None)
@@ -328,6 +325,7 @@ class TournamentViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = TournamentSerializer(tournaments, many=True)
         return Response(serializer.data)
     
+    # Gets the rounds of a specific tournament.
     @action(detail=True, methods=['get'])
     def tournament_rounds(self, request, pk=None):
         tournament = self.get_object()
@@ -344,6 +342,7 @@ class TournamentViewSet(viewsets.ReadOnlyModelViewSet):
             return Response({'error': 'No rounds found for this tournament.'}, status=404)
         return Response(serializer.data)
 
+    # Gets the games of a specific round of a specific tournament.
     @action(detail=True, methods=['get'], url_path='round_games/(?P<round_number>\d+)')
     def round_games(self, request, pk=None, round_number=None):
         player = getattr(request.user, 'player', None)
@@ -457,6 +456,7 @@ class FriendListViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
     
+    # Deletes a friend.
     def destroy(self, request, *args, **kwargs):
         player = getattr(request.user, 'player', None)
         friend_id = kwargs.get('pk')
@@ -491,6 +491,8 @@ class FriendRequestViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
+    # Creates a new friend request. It checks if the players exist and if there
+    # is an existing friend request between them.
     def create(self, request, *args, **kwargs):
         sender = getattr(request.user, 'player', None)
         if not sender:
@@ -530,6 +532,7 @@ class FriendRequestViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = FriendRequestSerializer(friend_request)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    # Accepts a friend request. The friend relationship is created.
     @action(detail=True, methods=['post'])
     def accept(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -558,6 +561,7 @@ class FriendRequestViewSet(viewsets.ReadOnlyModelViewSet):
         instance.delete()
         return Response({'message': 'Friend request accepted'}, status=200)
     
+    # Rejects a friend request. It is deleted.
     @action(detail=True, methods=['post'])
     def reject(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -683,6 +687,7 @@ class GameViewSet(viewsets.ModelViewSet):
         player2_time = request.data.get('player2_time')
         player1_time = instance.player1_time
 
+        # Determine the winner if all data is available.
         if player2_xp is not None:
             player1_xp = instance.player1_xp
             if player2_xp > player1_xp:
@@ -706,6 +711,9 @@ class GameViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance, data=data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
+
+        player.xp += serializer.validated_data['player2_xp']
+        player.save()
 
         return Response({'winner': instance.winner.user.username})
     

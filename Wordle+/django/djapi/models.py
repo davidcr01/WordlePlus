@@ -103,7 +103,8 @@ class FriendList(models.Model):
         
     def __str__(self):
         return f"{self.sender.user.username} - {self.receiver.user.username}"
-    
+
+# Model to store the friend requests between players.
 class FriendRequest(models.Model):
     sender = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='requests_sent')
     receiver = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='requests_received')
@@ -122,6 +123,7 @@ class FriendRequest(models.Model):
     def __str__(self):
         return f"{self.sender.user.username} - {self.receiver.user.username}"
 
+# Model to store the multiplayer and tournament games between players.
 class Game(models.Model):
     player1 = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='player1_wordle')
     player2 = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='player2_wordle')
@@ -139,6 +141,7 @@ class Game(models.Model):
     def __str__(self):
         return f"{self.player1.user.username} - {self.player2.user.username}"
 
+# Model to store the rounds of a tournament.
 class Round(models.Model):
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
     number = models.PositiveIntegerField()
@@ -146,6 +149,7 @@ class Round(models.Model):
     def __str__(self):
         return f"Tournament: {self.tournament.name}, Round: {self.number}"
 
+# Model to relate the games to a round.
 class RoundGame(models.Model):
     round = models.ForeignKey(Round, on_delete=models.CASCADE)
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
@@ -163,12 +167,20 @@ def assign_permissions(sender, instance, created, **kwargs):
             # Obtain the necessary permissions to manage CustomUser and Player
             customuser_content_type = ContentType.objects.get(app_label='djapi', model='customuser')
             player_content_type = ContentType.objects.get(app_label='djapi', model='player')
+            tournament_content_type = ContentType.objects.get(app_label='djapi', model='tournament')
+            round_content_type = ContentType.objects.get(app_label='djapi', model='round')
+            roundgame_content_type = ContentType.objects.get(app_label='djapi', model='roundgame')
+            participation_content_type = ContentType.objects.get(app_label='djapi', model='participation')
 
             customuser_permissions = Permission.objects.filter(content_type=customuser_content_type)
             player_permissions = Permission.objects.filter(content_type=player_content_type)
+            tournament_permissions = Permission.objects.filter(content_type=tournament_content_type)
+            round_permissions = Permission.objects.filter(content_type=round_content_type)
+            roundgame_permissions = Permission.objects.filter(content_type=roundgame_content_type)
+            participation_permissions = Permission.objects.filter(content_type=participation_content_type)
 
             # Assign the permissions to the "Staff" group
-            staff_group.permissions.set(customuser_permissions | player_permissions)
+            staff_group.permissions.set(customuser_permissions | player_permissions | tournament_permissions | roundgame_permissions | round_permissions | participation_permissions)
 
         # Assign the user to the "Staff" group
         staff_group.user_set.add(instance)

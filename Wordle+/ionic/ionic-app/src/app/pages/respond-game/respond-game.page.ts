@@ -70,8 +70,10 @@ export class RespondGamePage implements OnInit {
         console.log('Game resolved successfully', response);
         if (response.winner === this.selfUsername) {
           setTimeout( () => this.showAlert('Congratulations!', 'You won! Amazing!'), 2500);
+          this.router.navigate(['/tabs/main'], { queryParams: { refresh: 'true' } });
         } else {
           setTimeout( () => this.showAlert('Bad news!', 'You lost. Try next time!'), 2500);
+          this.router.navigate(['/tabs/main'], { queryParams: { refresh: 'true' } });
         }
       },
       (error) => {

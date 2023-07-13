@@ -92,7 +92,7 @@ class NotificationAdmin(admin.ModelAdmin):
     list_display = ('id', 'player', 'text', 'link', 'timestamp')
 
 class TournamentsForm(forms.ModelForm):
-    word_length = forms.ChoiceField(choices=[
+    word_length = forms.ChoiceField(choices=[ # Dropdown tab
         (4, '4'),
         (5, '5'),
         (6, '6'),
@@ -100,8 +100,8 @@ class TournamentsForm(forms.ModelForm):
         (8, '8'),
     ])
 
-    max_players = forms.ChoiceField(choices=[
-        (2, '2'),
+    max_players = forms.ChoiceField(choices=[ # Dropdown tab
+        (2, '2'), 
         (4, '4'),
         (8, '8'),
         (16, '16'),
@@ -129,6 +129,8 @@ class ParticipationAdmin(admin.ModelAdmin):
             
         tournament.num_players += 1
         super().save_model(request, obj, form, change)
+
+        # If the tournament is full, create the rounds and the games of the first round
         if (tournament.num_players >= tournament.max_players):
             tournament.is_closed = True
             rounds = int(math.log2(tournament.max_players))
@@ -196,6 +198,7 @@ class RoundAdmin(admin.ModelAdmin):
 class RoundGameAdmin(admin.ModelAdmin):
     list_display = ('id', 'round', 'game',)
 
+# Register all the models
 admin.site.register(RoundGame, RoundGameAdmin)
 admin.site.register(Round, RoundAdmin)
 admin.site.register(Game, GameAdmin)

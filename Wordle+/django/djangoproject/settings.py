@@ -145,7 +145,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'djapi.CustomUser'
-TOKEN_EXPIRED_AFTER_SECONDS = 3600
+TOKEN_EXPIRED_AFTER_SECONDS = 3600  # Time of the token expiration in seconds 
 
 MEDIA_URL = '/avatars/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'avatars')
@@ -154,6 +154,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'avatars')
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8100', # Ionic in local (dev)
-    'http://localhost:8080', # Ionic in Docker
+    'http://localhost', # Ionic in Docker
 ]
 CORS_ALLOW_REDIRECTS = False

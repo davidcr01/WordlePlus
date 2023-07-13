@@ -41,10 +41,6 @@
       </ion-card-header>
       <ion-card-content>
         <ion-list>
-          <ion-item *ngIf="tournament.description">
-            <ion-label class="label">Description:</ion-label>
-            <ion-label class="value">{{ tournament.description }}</ion-label>
-          </ion-item>
           <ion-item>
             <ion-label class="label">Players:</ion-label>
             <p class="value">{{ tournament.num_players }}/{{ tournament.max_players }}</p>

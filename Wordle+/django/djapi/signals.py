@@ -3,6 +3,7 @@ from django.db.models.signals import post_save
 from .models import Game, RoundGame, Round
 import math
 
+# Singal executed every time a tournament game is completed
 @receiver(post_save, sender=Game)
 def game_completed(sender, instance, created, **kwargs):
     if instance.is_tournament_game and instance.winner:
