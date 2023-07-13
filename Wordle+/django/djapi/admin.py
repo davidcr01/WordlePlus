@@ -149,7 +149,7 @@ class ParticipationAdmin(admin.ModelAdmin):
 
         player = obj.player
         message = f"You were assigned in {tournament.name}. Good luck!"
-        link = "http://localhost:8100/tabs/tournaments"
+        link = "http://localhost/tabs/tournaments"
         notification = Notification.objects.create(player=player, text=message, link=link)
         notification.save()
 

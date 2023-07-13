@@ -436,7 +436,7 @@ class ParticipationViewSet(viewsets.ModelViewSet):
 
         # Create the related notification to the player
         message = f"You were assigned in {tournament.name}. Good luck!"
-        link = "http://localhost:8100/tabs/tournaments"
+        link = "http://localhost/tabs/tournaments"
         notification = Notification.objects.create(player=player, text=message, link=link)
         notification.save()
 
@@ -526,7 +526,7 @@ class FriendRequestViewSet(viewsets.ReadOnlyModelViewSet):
         Notification.objects.create(
             player=receiver,
             text='You have a new friend request!',
-            link='http://localhost:8100/friendlist'
+            link='http://localhost/friendlist'
         )
 
         serializer = FriendRequestSerializer(friend_request)
@@ -550,12 +550,12 @@ class FriendRequestViewSet(viewsets.ReadOnlyModelViewSet):
         Notification.objects.create(
             player=instance.sender,
             text=f"You are now friends with {receiver.user.username}.",
-            link='http://localhost:8100/friendlist'
+            link='http://localhost/friendlist'
         )
         Notification.objects.create(
             player=receiver,
             text=f"You are now friends with {instance.sender.user.username}.",
-            link='http://localhost:8100/friendlist'
+            link='http://localhost/friendlist'
         )
 
         instance.delete()
