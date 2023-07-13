@@ -88,6 +88,7 @@ export class Tab1Page implements OnInit{
     if (playerId) {
       (await this.apiService.getPlayerData(playerId)).subscribe(
         (response: any) => {
+          this.storageService.setWins(response.wins);
           this.storageService.setWinsPVP(response.wins_pvp);
           this.storageService.setXP(response.xp);
           this.storageService.setWinsTournament(response.wins_tournaments);

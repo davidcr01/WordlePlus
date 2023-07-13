@@ -148,6 +148,7 @@ class FriendListSerializer(serializers.ModelSerializer):
         model = FriendList
         fields = ['friend']
 
+    # Return the sender or receiver depending on the friend field.
     def get_friend(self, obj):
         request = self.context.get('request')
         player = request.user.player
@@ -182,7 +183,6 @@ class GameDetailSerializer(serializers.ModelSerializer):
 
     def get_player2(self, obj):
         return obj.player2.user.username
-
 
 class GameCreateSerializer(serializers.ModelSerializer):
     player2 = serializers.SerializerMethodField()

@@ -6,6 +6,8 @@ from rest_framework.authtoken.models import Token
 from django.http import JsonResponse
 from django.conf import settings
 
+# Middleware to check if the token has expired. The middleware
+# is executed everytime an API endpoint is used.
 class TokenExpirationMiddleware(object):
     def __init__(self, get_response):
         self.get_response = get_response

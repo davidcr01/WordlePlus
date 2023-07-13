@@ -4,5 +4,8 @@
     <ion-item *ngFor="let notification of notifications">
       <a [href]="notification.link">{{ notification.text }}</a>
     </ion-item>
+    <ion-item *ngIf="notifications && notifications.length === 0">
+      No notifications here!
+    </ion-item>
   </ion-list>
 </ion-content>
